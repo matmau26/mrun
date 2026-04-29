@@ -1593,3 +1593,202 @@ p { margin: 0 0 1em; }
   .footer-grid { gap: 32px; margin-bottom: 36px; }
   .article-meta { gap: 10px; font-size: 0.72rem; }
 }
+
+/* =========================================================
+   MOBILE MODERN — Hero, Timeline, Benefits
+   Refonte mobile : moins carré, plus aéré, plus de radius
+   ========================================================= */
+@media (max-width: 768px) {
+
+  /* HERO ----------------------------------------------------- */
+  .hero-content { padding: 130px 0 90px; }
+  .hero h1 {
+    font-size: clamp(3.6rem, 14vw, 5rem);
+    letter-spacing: -0.05em;
+    line-height: 0.92;
+    margin-bottom: 18px;
+  }
+  .hero .eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    opacity: 0.9;
+    margin-bottom: 14px;
+  }
+  /* Tagline plus douce, hiérarchie épurée */
+  .hero .hero-lede {
+    font-weight: 600 !important;
+    font-size: 1.12rem !important;
+    margin-bottom: 16px !important;
+    color: rgba(255,255,255,0.92);
+  }
+  /* Le marker devient une pill discrète plutôt qu'un bandeau plein */
+  .hero .marker.marker--orange {
+    background: transparent;
+    color: var(--m-orange);
+    border: 1.5px solid rgba(255, 87, 34, 0.7);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 0.78rem !important;
+    letter-spacing: 0.02em;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  /* Slogan plus aéré, on préserve la respiration */
+  .hero .display-quote {
+    font-size: clamp(1.6rem, 6.5vw, 2.4rem) !important;
+    line-height: 1.15 !important;
+    margin: 22px 0 30px !important;
+    max-width: none !important;
+  }
+  /* CTA pleine largeur avec radius doux et hauteur confortable */
+  .hero-cta { gap: 12px; }
+  .hero-cta .btn {
+    padding: 16px 24px;
+    font-size: 1rem;
+    border-radius: 14px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* TIMELINE ------------------------------------------------- */
+  /* La frise verticale mobile : carte arrondie, ombre douce,
+     point-marqueur jaune mis en évidence, ligne pointillée fine */
+  .timeline { padding: 8px 0 16px; }
+  .timeline__row {
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: 0;
+  }
+  .timeline__item,
+  .timeline__item--top,
+  .timeline__item--bottom {
+    text-align: left;
+    align-items: stretch;
+    padding: 0 0 22px 32px;
+    border-left: 0;
+    background-image: linear-gradient(
+      to bottom,
+      var(--m-jaune) 0,
+      var(--m-jaune) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+    background-size: 2px 12px;
+    background-repeat: repeat-y;
+    background-position: 8px 22px;
+    justify-content: flex-start;
+  }
+  .timeline__item:last-child { background-image: none; }
+  .timeline__item::before {
+    top: 18px;
+    left: 0;
+    transform: none;
+    width: 18px;
+    height: 18px;
+    background: var(--m-jaune);
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 1.5px var(--color-deep), 0 4px 10px rgba(10,10,10,0.18);
+  }
+  .timeline__card {
+    max-width: none;
+    margin: 0 !important;
+    border-radius: 18px;
+    border: 0;
+    padding: 16px 18px;
+    box-shadow: 0 8px 22px rgba(10,10,10,0.08), 0 2px 6px rgba(10,10,10,0.04);
+    background: rgba(255,255,255,0.95);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  .timeline__date {
+    display: inline-block;
+    background: rgba(255, 87, 34, 0.10);
+    color: var(--m-orange);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    margin-bottom: 6px;
+  }
+  .timeline__title {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .timeline__loc {
+    color: var(--color-muted);
+    margin-top: 3px;
+  }
+  .timeline__note {
+    margin-top: 14px;
+    font-size: 0.88rem;
+  }
+
+  /* BENEFITS ------------------------------------------------- */
+  .benefits-band { padding: 64px 0; }
+  .benefits-band h2 { font-size: clamp(1.8rem, 6vw, 2.4rem); }
+  .benefits-tagline {
+    font-size: 1.02rem !important;
+    background: rgba(0,0,0,0.32);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 28px !important;
+    line-height: 1.4;
+  }
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .benefits-grid li {
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: rgba(0, 60, 90, 0.42);
+    border: 1px solid rgba(255,255,255,0.22);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    font-size: 1rem;
+    box-shadow: 0 6px 18px rgba(10,10,10,0.10);
+    gap: 14px;
+  }
+  .benefits-grid li::before {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 2px 6px rgba(10,10,10,0.18);
+    position: relative;
+  }
+  /* Coche en SVG inline via masking ::after sur le bullet (pseudo wrapper) */
+  .benefits-grid li {
+    position: relative;
+  }
+  .benefits-grid li::after {
+    content: "✓";
+    position: absolute;
+    left: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    color: var(--m-bleu);
+    font-weight: 900;
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  /* CONSTAT cards : un peu plus arrondies sur mobile */
+  .constat-card {
+    border-radius: 18px;
+    padding: 22px 20px;
+  }
+  /* PILIER cards : radius mobile plus généreux */
+  .pillar-card { border-radius: 22px; }
+  .pillar-card__top { padding: 22px 22px 20px; }
+  .pillar-card__body { padding: 22px; gap: 16px; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: clamp(3.4rem, 16vw, 5rem); }
+  .hero .display-quote { font-size: 1.7rem !important; }
+  .timeline__card { padding: 14px 16px; }
+}
