@@ -1,35 +1,46 @@
 /* =========================================================
-   Mrun — Association Trail & Running
-   Design : Nature, Sport, Trail Running
+   Mrun — L'Exigence du Trail & Running
+   Design system : Préparation · Accompagnement · Mise en lumière
    ========================================================= */
 
 :root {
-  --color-bg: #f7f5f0;
-  --color-bg-alt: #efece4;
+  /* Brand colors */
+  --m-rouge: #E63946;       /* Préparation */
+  --m-rouge-soft: #fde5e7;
+  --m-vert: #2BC76A;        /* Accompagnement */
+  --m-vert-soft: #e1f7eb;
+  --m-magenta: #E91E9B;     /* Mise en lumière */
+  --m-magenta-soft: #fde2f2;
+  --m-orange: #FF5722;      /* Accent global / titres de section */
+  --m-orange-soft: #ffe5dc;
+  --m-jaune: #FFE600;       /* Calendrier / temps forts */
+  --m-jaune-soft: #fffbcc;
+  --m-bleu: #00A3D7;        /* Une association pour tous */
+  --m-bleu-soft: #d8f2fb;
+
+  /* Neutrals */
+  --color-bg: #ffffff;
+  --color-bg-alt: #f5f5f3;
   --color-surface: #ffffff;
-  --color-ink: #1a2622;
-  --color-ink-soft: #4a5853;
-  --color-muted: #7a857f;
-  --color-line: #d9d4c5;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #3a3a3a;
+  --color-muted: #6e6e6e;
+  --color-line: #e6e6e3;
+  --color-deep: #0a0a0a;
 
-  --color-forest: #1f3a2e;
-  --color-forest-deep: #14241c;
-  --color-moss: #4a6b3a;
-  --color-stone: #8a8674;
-  --color-sand: #c9bfa3;
-  --color-sun: #d97f3a;
-  --color-sun-soft: #e89a5e;
-  --color-sky: #6a9bb0;
-
-  --color-gold: #b88a3a;
+  /* Legacy aliases (kept to avoid regressions on existing components) */
+  --color-forest: var(--m-orange);
+  --color-forest-deep: var(--color-deep);
+  --color-sun: var(--m-orange);
+  --color-sun-soft: #ff7a4d;
 
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 24px;
 
-  --shadow-sm: 0 2px 8px rgba(20, 36, 28, 0.06);
-  --shadow-md: 0 8px 30px rgba(20, 36, 28, 0.10);
-  --shadow-lg: 0 20px 60px rgba(20, 36, 28, 0.15);
+  --shadow-sm: 0 2px 8px rgba(10, 10, 10, 0.06);
+  --shadow-md: 0 8px 30px rgba(10, 10, 10, 0.10);
+  --shadow-lg: 0 20px 60px rgba(10, 10, 10, 0.15);
 
   --font-display: "Fraunces", "Playfair Display", "Georgia", serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
