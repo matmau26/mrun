@@ -1383,6 +1383,43 @@ p { margin: 0 0 1em; }
 }
 
 /* =========================================================
+   SECTION TEMPS FORTS — Photo en fond avec voile clair
+   ========================================================= */
+.section--temps-forts {
+  position: relative;
+  background:
+    linear-gradient(115deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(255, 253, 240, 0.82) 55%,
+      rgba(255, 248, 220, 0.74) 100%),
+    var(--temps-forts-bg, url("/public/VignesVentoux25.JPG")) center/cover no-repeat;
+}
+.section--temps-forts .timeline__card {
+  box-shadow: 0 6px 20px rgba(10,10,10,0.10);
+  border-color: rgba(10,10,10,0.10);
+}
+.section--temps-forts .timeline__note {
+  color: #4a4a4a;
+  font-weight: 500;
+}
+.section--temps-forts .timeline__arrow {
+  box-shadow: 0 2px 8px rgba(10,10,10,0.12);
+}
+.section--temps-forts .timeline__arrow::after {
+  filter: drop-shadow(2px 0 4px rgba(10,10,10,0.12));
+}
+@media (max-width: 768px) {
+  .section--temps-forts {
+    background:
+      linear-gradient(180deg,
+        rgba(255, 255, 255, 0.93) 0%,
+        rgba(255, 253, 240, 0.88) 60%,
+        rgba(255, 250, 230, 0.82) 100%),
+      var(--temps-forts-bg, url("/public/VignesVentoux25.JPG")) center/cover no-repeat;
+  }
+}
+
+/* =========================================================
    BENEFITS GRID — "Une association pour tous"
    ========================================================= */
 .benefits-band {
