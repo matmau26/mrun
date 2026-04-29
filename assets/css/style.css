@@ -990,6 +990,421 @@ p { margin: 0 0 1em; }
 }
 
 /* =========================================================
+   MARKER — Surligneur coloré façon slides Mrun
+   ========================================================= */
+.marker {
+  display: inline-block;
+  padding: 4px 14px 6px;
+  background: var(--m-orange);
+  color: #fff;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.marker--rouge   { background: var(--m-rouge); }
+.marker--vert    { background: var(--m-vert); color: #0a0a0a; }
+.marker--magenta { background: var(--m-magenta); }
+.marker--orange  { background: var(--m-orange); }
+.marker--bleu    { background: var(--m-bleu); }
+.marker--jaune   { background: var(--m-jaune); color: #0a0a0a; }
+.marker--ghost   {
+  background: transparent;
+  color: var(--color-deep);
+  border-bottom: 4px solid var(--m-orange);
+  border-radius: 0;
+  padding: 0 0 2px;
+}
+
+/* Inline word highlight (utility used inside titles) */
+.hl {
+  background: var(--m-jaune);
+  padding: 0 8px;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.hl--rouge   { background: var(--m-rouge); color: #fff; }
+.hl--vert    { background: var(--m-vert); color: #0a0a0a; }
+.hl--magenta { background: var(--m-magenta); color: #fff; }
+.hl--orange  { background: var(--m-orange); color: #fff; }
+.hl--bleu    { background: var(--m-bleu); color: #fff; }
+
+/* =========================================================
+   STATEMENT — Bloc déclaratif géant (slogans façon slide)
+   ========================================================= */
+.statement {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2rem, 5.5vw, 4.4rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--color-deep);
+  max-width: 22ch;
+  margin: 0 auto;
+  text-align: center;
+}
+.statement--left { text-align: left; margin: 0; }
+.statement--light { color: #fff; }
+.statement strong {
+  font-style: normal;
+  font-family: var(--font-body);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+/* =========================================================
+   CONSTAT — 4 cartes diagnostic
+   ========================================================= */
+.constat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.constat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-top: 4px solid var(--m-orange);
+  border-radius: var(--radius-md);
+  padding: 28px 24px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.constat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+.constat-card .num {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 900;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  color: var(--m-orange);
+  margin-bottom: 14px;
+}
+.constat-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+.constat-card p {
+  color: var(--color-ink-soft);
+  font-size: 0.95rem;
+  margin: 0;
+}
+@media (max-width: 1000px) {
+  .constat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .constat-grid { grid-template-columns: 1fr; gap: 14px; }
+}
+
+/* =========================================================
+   PILIER CARD — 3 piliers Mrun (rouge / vert / magenta)
+   ========================================================= */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+.pillar-card {
+  --pillar: var(--m-orange);
+  --pillar-soft: var(--m-orange-soft);
+  --pillar-ink: #fff;
+  position: relative;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  display: flex;
+  flex-direction: column;
+}
+.pillar-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+.pillar-card--rouge   { --pillar: var(--m-rouge);   --pillar-soft: var(--m-rouge-soft);   --pillar-ink: #fff; }
+.pillar-card--vert    { --pillar: var(--m-vert);    --pillar-soft: var(--m-vert-soft);    --pillar-ink: #0a0a0a; }
+.pillar-card--magenta { --pillar: var(--m-magenta); --pillar-soft: var(--m-magenta-soft); --pillar-ink: #fff; }
+
+.pillar-card__top {
+  background: var(--pillar);
+  color: var(--pillar-ink);
+  padding: 28px 28px 24px;
+}
+.pillar-card__num {
+  font-family: var(--font-body);
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+.pillar-card__title {
+  font-family: var(--font-body);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  font-size: clamp(1.6rem, 2.4vw, 2rem);
+  line-height: 1.05;
+  margin: 0 0 6px;
+  color: var(--pillar-ink);
+}
+.pillar-card__sub {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.92;
+}
+.pillar-card__body {
+  padding: 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.pillar-card__promise {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  color: var(--color-deep);
+  border-left: 3px solid var(--pillar);
+  padding-left: 14px;
+  margin: 0;
+}
+.pillar-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.pillar-card__list li {
+  position: relative;
+  padding: 8px 0 8px 28px;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  border-bottom: 1px dashed var(--color-line);
+}
+.pillar-card__list li:last-child { border-bottom: 0; }
+.pillar-card__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pillar-soft);
+  border: 2px solid var(--pillar);
+}
+.pillar-card__note {
+  background: var(--pillar-soft);
+  color: var(--color-deep);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+.pillar-card__note strong { color: var(--pillar); font-weight: 800; }
+.pillar-card--vert .pillar-card__note strong { color: #1d8a48; } /* improve readability */
+
+@media (max-width: 1000px) {
+  .pillars-grid { grid-template-columns: 1fr; gap: 22px; }
+}
+
+/* =========================================================
+   TIMELINE — Temps forts 2026
+   ========================================================= */
+.timeline {
+  position: relative;
+  padding: 20px 0 40px;
+}
+.timeline__arrow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 18px;
+  transform: translateY(-50%);
+  background: var(--m-jaune);
+  border-radius: 2px;
+}
+.timeline__arrow::after {
+  content: "";
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: 22px 0 22px 24px;
+  border-color: transparent transparent transparent var(--m-jaune);
+}
+.timeline__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  min-height: 280px;
+}
+.timeline__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.timeline__item::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-deep);
+  border: 3px solid var(--m-jaune);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+.timeline__item--top    { justify-content: flex-start; }
+.timeline__item--bottom { justify-content: flex-end; }
+.timeline__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  box-shadow: var(--shadow-sm);
+  max-width: 180px;
+  position: relative;
+}
+.timeline__item--top .timeline__card    { margin-bottom: 36px; }
+.timeline__item--bottom .timeline__card { margin-top: 36px; }
+.timeline__date {
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: -0.01em;
+  color: var(--m-orange);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+.timeline__title {
+  font-weight: 700;
+  color: var(--color-deep);
+  display: block;
+}
+.timeline__loc {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  display: block;
+  margin-top: 2px;
+}
+.timeline__note {
+  margin-top: 28px;
+  font-style: italic;
+  color: var(--color-muted);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .timeline__arrow { display: none; }
+  .timeline__row {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 0;
+  }
+  .timeline__item,
+  .timeline__item--top,
+  .timeline__item--bottom {
+    text-align: left;
+    align-items: stretch;
+    padding-left: 28px;
+    padding-bottom: 18px;
+    border-left: 3px solid var(--m-jaune);
+    justify-content: flex-start;
+  }
+  .timeline__item::before {
+    top: 14px;
+    left: -8px;
+    transform: none;
+  }
+  .timeline__card {
+    max-width: none;
+    margin: 0 !important;
+  }
+}
+
+/* =========================================================
+   BENEFITS GRID — "Une association pour tous"
+   ========================================================= */
+.benefits-band {
+  background: var(--m-bleu);
+  color: #fff;
+  padding: 90px 0;
+  position: relative;
+}
+.benefits-band h2,
+.benefits-band p { color: #fff; }
+.benefits-band .eyebrow,
+.benefits-band .eyebrow::before {
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.85);
+}
+.benefits-band .eyebrow::before { background: rgba(255,255,255,0.85); }
+.benefits-band .eyebrow { color: #fff; }
+
+.benefits-tagline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+  background: rgba(0,0,0,0.18);
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 2px;
+  margin-bottom: 32px;
+}
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 32px;
+  max-width: 900px;
+}
+.benefits-grid li {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 1rem;
+}
+.benefits-grid li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  flex-shrink: 0;
+}
+.benefits-grid {
+  padding: 0;
+}
+@media (max-width: 700px) {
+  .benefits-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
    Responsive tweaks (mobile polish)
    ========================================================= */
 @media (max-width: 768px) {
