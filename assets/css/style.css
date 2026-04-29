@@ -286,15 +286,37 @@ p { margin: 0 0 1em; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.35) 40%, rgba(10,10,10,0.85) 100%),
-    url("https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=2000&q=80") center/cover no-repeat;
+    linear-gradient(105deg,
+      rgba(10,10,10,0.82) 0%,
+      rgba(10,10,10,0.55) 40%,
+      rgba(10,10,10,0.30) 75%,
+      rgba(10,10,10,0.20) 100%),
+    linear-gradient(180deg,
+      rgba(10,10,10,0.35) 0%,
+      rgba(10,10,10,0.10) 35%,
+      rgba(10,10,10,0.55) 100%),
+    var(--hero-bg, url("/public/wall1.jpg")) center/cover no-repeat;
   z-index: -1;
   transform: scale(1.05);
-  animation: heroPan 20s ease-in-out infinite alternate;
+  animation: heroPan 24s ease-in-out infinite alternate;
 }
 @keyframes heroPan {
   from { transform: scale(1.05) translateY(0); }
-  to   { transform: scale(1.1) translateY(-10px); }
+  to   { transform: scale(1.12) translateY(-12px); }
+}
+
+/* Mobile : la colonne de texte occupe toute la largeur,
+   un dégradé vertical assure la lisibilité quel que soit le crop. */
+@media (max-width: 768px) {
+  .hero::before {
+    background:
+      linear-gradient(180deg,
+        rgba(10,10,10,0.65) 0%,
+        rgba(10,10,10,0.40) 30%,
+        rgba(10,10,10,0.55) 70%,
+        rgba(10,10,10,0.85) 100%),
+      var(--hero-bg, url("/public/wall1.jpg")) center/cover no-repeat;
+  }
 }
 
 .hero-content {
