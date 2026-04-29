@@ -74,17 +74,42 @@ a {
 a:hover { color: var(--color-sun); }
 
 h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  color: var(--color-forest-deep);
+  font-family: var(--font-body);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: var(--color-deep);
   margin: 0 0 0.6em;
 }
 
-h1 { font-size: clamp(2.4rem, 5vw, 4.2rem); }
-h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); }
-h3 { font-size: clamp(1.3rem, 2vw, 1.6rem); }
+h1 {
+  font-size: clamp(2.8rem, 6.5vw, 5rem);
+  letter-spacing: -0.045em;
+}
+h2 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  letter-spacing: -0.04em;
+}
+h3 {
+  font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* Italic editorial accents : slogan, president quote, taglines */
+.italic-display,
+em.display,
+.display-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
 
 p { margin: 0 0 1em; }
 
