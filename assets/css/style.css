@@ -137,11 +137,26 @@ p { margin: 0 0 1em; }
   transition: background 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
 }
 .site-header.is-scrolled {
-  background: rgba(247, 245, 240, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-sm);
   padding: 12px 0;
+}
+
+/* Quand l'en-tête est scrollé sur un hero sombre, on bascule
+   le texte du blanc vers le noir pour rester lisible sur le voile clair. */
+.site-header.is-scrolled.is-on-dark .brand,
+.site-header.is-scrolled.is-on-dark .brand__title,
+.site-header.is-scrolled.is-on-dark .brand__tagline,
+.site-header.is-scrolled.is-on-dark .nav-link {
+  color: var(--color-deep);
+}
+.site-header.is-scrolled.is-on-dark .brand__sub {
+  color: var(--color-ink-soft);
+}
+.site-header.is-scrolled.is-on-dark .nav-toggle span {
+  background: var(--color-deep);
 }
 
 .nav {
@@ -159,6 +174,12 @@ p { margin: 0 0 1em; }
   line-height: 1;
   text-decoration: none;
   color: var(--color-deep);
+  transition: color 0.35s ease;
+}
+.brand__title,
+.brand__tagline,
+.brand__sub {
+  transition: color 0.35s ease;
 }
 .brand__title {
   font-family: var(--font-body);
@@ -214,6 +235,7 @@ p { margin: 0 0 1em; }
   color: var(--color-ink);
   position: relative;
   padding: 4px 0;
+  transition: color 0.35s ease;
 }
 .nav-link::after {
   content: "";
