@@ -1383,6 +1383,38 @@ p { margin: 0 0 1em; }
 }
 
 /* =========================================================
+   SECTION CONSTAT — Photo en fond avec voile clair (orange)
+   ========================================================= */
+.section--constat {
+  position: relative;
+  background:
+    linear-gradient(115deg,
+      rgba(255, 255, 255, 0.93) 0%,
+      rgba(255, 248, 240, 0.84) 55%,
+      rgba(255, 230, 215, 0.72) 100%),
+    var(--constat-bg, url("/public/Maxi.JPG")) center/cover no-repeat;
+}
+.section--constat .constat-card {
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 6px 20px rgba(10, 10, 10, 0.08);
+}
+.section--constat .constat-card p {
+  color: #2a2a2a;
+}
+@media (max-width: 768px) {
+  .section--constat {
+    background:
+      linear-gradient(180deg,
+        rgba(255, 255, 255, 0.94) 0%,
+        rgba(255, 248, 240, 0.88) 60%,
+        rgba(255, 232, 218, 0.82) 100%),
+      var(--constat-bg, url("/public/Maxi.JPG")) center/cover no-repeat;
+  }
+}
+
+/* =========================================================
    SECTION TEMPS FORTS — Photo en fond avec voile clair
    ========================================================= */
 .section--temps-forts {
