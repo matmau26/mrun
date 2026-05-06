@@ -1377,7 +1377,7 @@ p { margin: 0 0 1em; }
 .timeline__row {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(9, 1fr);
   gap: 12px;
   align-items: stretch;
   min-height: 280px;
