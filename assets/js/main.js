@@ -35,8 +35,9 @@ document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 // Active nav link on scroll (homepage only — needs section[id] anchors present)
 const trackedLinks = Array.from(document.querySelectorAll('.nav-link')).filter((link) => {
   const href = link.getAttribute('href') || '';
-  // On garde : Accueil (index.html ou /) + liens d'ancre vers une section (#xxx)
-  return href === 'index.html' || href === '/' || href === '#' || /#./.test(href);
+  // On garde : Accueil (index.html ou /), liens d'ancre vers une section (#xxx),
+  // ainsi que tout lien avec un attribut data-active-on qui mappe à un id de section.
+  return href === 'index.html' || href === '/' || href === '#' || /#./.test(href) || !!link.dataset.activeOn;
 });
 const sectionsWithId = Array.from(document.querySelectorAll('section[id]'));
 const homeLink = trackedLinks.find((l) => {
@@ -45,12 +46,12 @@ const homeLink = trackedLinks.find((l) => {
 });
 
 // On ne suit que les sections qui ont un lien correspondant dans la nav
-const linkAnchorIds = new Set(
-  trackedLinks
-    .map((l) => (l.getAttribute('href') || '').match(/#([^#]+)$/))
-    .filter(Boolean)
-    .map((m) => m[1])
-);
+const linkAnchorIds = new Set();
+trackedLinks.forEach((l) => {
+  const m = (l.getAttribute('href') || '').match(/#([^#]+)$/);
+  if (m) linkAnchorIds.add(m[1]);
+  if (l.dataset.activeOn) linkAnchorIds.add(l.dataset.activeOn);
+});
 const trackedSections = sectionsWithId.filter((s) => linkAnchorIds.has(s.id));
 
 if (trackedSections.length > 0 && trackedLinks.length > 0) {
@@ -74,7 +75,10 @@ if (trackedSections.length > 0 && trackedLinks.length > 0) {
     }
     if (current) {
       const id = current.id;
-      const match = trackedLinks.find((l) => (l.getAttribute('href') || '').endsWith('#' + id));
+      const match = trackedLinks.find((l) => {
+        const href = l.getAttribute('href') || '';
+        return href.endsWith('#' + id) || l.dataset.activeOn === id;
+      });
       if (match) { setActive(match); return; }
     }
     if (homeLink) setActive(homeLink);
