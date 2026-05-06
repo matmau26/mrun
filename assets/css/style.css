@@ -877,6 +877,37 @@ p { margin: 0 0 1em; }
   max-height: 80vh;
 }
 
+/* Video row : un format paysage + un format portrait côte à côte */
+.video-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 16px;
+  margin: 32px 0;
+  align-items: start;
+}
+.video-row .media-video { margin: 0; }
+.media-video--vertical {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: #000;
+  position: relative;
+  aspect-ratio: 9 / 16;
+}
+.media-video--vertical video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+@media (max-width: 768px) {
+  .video-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .media-video--vertical { max-width: 80%; margin-inline: auto; }
+}
+
 /* YouTube Shorts (9:16) — galerie 3 colonnes desktop / 1 colonne mobile */
 .shorts-grid {
   display: grid;
