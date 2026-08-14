@@ -9,7 +9,10 @@ Site internet de l'association **Mrun** (trail running & course nature).
 ├── index.html                                # Page d'accueil
 ├── communiques.html                          # Liste des communiqués
 ├── communiques/
-│   └── 2026-04-grand-raid-ventoux.html       # Communiqué Grand Raid du Ventoux
+│   ├── 2026-02-defi-x-sport-drome.html       # Communiqué Défi X Sport Drôme
+│   ├── 2026-04-grand-raid-ventoux.html       # Communiqué Grand Raid du Ventoux
+│   └── 2026-06-marathon-mont-blanc.html      # Communiqué Marathon du Mont-Blanc
+├── public/                                   # Photos (dossier par course : 2026GRV, 2026MMB…)
 └── assets/
     ├── css/style.css                         # Feuille de style
     └── js/main.js                            # Interactions (nav, scroll, animations)

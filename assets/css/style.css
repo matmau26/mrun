@@ -805,6 +805,128 @@ p { margin: 0 0 1em; }
   margin: 50px 0;
 }
 
+/* Bandeau de données course (lieu / distance / dénivelé / départ) */
+.race-facts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin: 36px 0;
+  padding: 0;
+  background: var(--color-line);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.race-facts > div {
+  background: var(--color-surface);
+  padding: 18px 20px;
+}
+.race-facts dt {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.race-facts dd {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  line-height: 1.2;
+  color: var(--color-deep);
+}
+.race-facts dd span {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+@media (max-width: 640px) {
+  .race-facts { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Tableau des points de passage */
+.splits-wrap {
+  margin: 28px 0;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.splits {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+.splits th,
+.splits td {
+  padding: 11px 14px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--color-line);
+}
+.splits thead th {
+  background: var(--color-bg-alt);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.splits tbody th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-ink);
+  white-space: normal;
+}
+.splits thead th:first-child { text-align: left; }
+.splits tbody tr:last-child th,
+.splits tbody tr:last-child td { border-bottom: 0; }
+.splits tbody tr.is-finish th,
+.splits tbody tr.is-finish td {
+  background: var(--m-orange-soft);
+  font-weight: 700;
+  color: var(--color-deep);
+}
+.splits .gain { color: #1d8a48; font-weight: 700; }
+.splits .loss { color: var(--m-rouge); font-weight: 600; }
+
+.table-note {
+  font-size: 0.88rem !important;
+  color: var(--color-muted) !important;
+  font-style: italic;
+  margin-top: -12px;
+}
+.only-mobile { display: none; }
+@media (max-width: 700px) {
+  .only-mobile { display: inline; }
+}
+
+/* Segments clés */
+.key-segments {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 0;
+}
+.key-segments li {
+  background: var(--color-bg-alt);
+  border-left: 3px solid var(--m-orange);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+}
+
+.legal-note {
+  margin-top: 32px;
+  font-size: 0.85rem !important;
+  line-height: 1.6 !important;
+  color: var(--color-muted) !important;
+  font-style: italic;
+}
+
 /* =========================================================
    Article media (photos & vidéos)
    ========================================================= */
@@ -821,6 +943,13 @@ p { margin: 0 0 1em; }
   width: 100%;
   height: auto;
   object-fit: cover;
+}
+.media-figure iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 640 / 360;
+  border: 0;
+  background: #000;
 }
 .media-figure figcaption {
   font-family: var(--font-display);
@@ -995,6 +1124,7 @@ p { margin: 0 0 1em; }
   color: rgba(255,255,255,0.92);
   margin: 0;
 }
+.president-quote p + p { margin-top: 0.9em; }
 
 .hashtags {
   margin-top: 40px;
