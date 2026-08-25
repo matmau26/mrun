@@ -10,9 +10,14 @@ Site internet de l'association **Mrun** (trail running & course nature).
 ├── communiques.html                          # Liste des communiqués
 ├── communiques/
 │   └── 2026-04-grand-raid-ventoux.html       # Communiqué Grand Raid du Ventoux
+├── matmau.html                               # Page privée (non listée) — plan SaintéSprint
 └── assets/
-    ├── css/style.css                         # Feuille de style
-    └── js/main.js                            # Interactions (nav, scroll, animations)
+    ├── css/style.css                         # Feuille de style du site
+    ├── css/plan.css                          # Feuille de style de la page plan
+    ├── js/main.js                            # Interactions (nav, scroll, animations)
+    ├── js/plan.js                            # Rendu du plan d'entraînement
+    ├── js/plan-saintesprint-data.js          # Données du plan (généré depuis le JSON)
+    └── data/plan-saintesprint-mm.json        # Source des données du plan
 ```
 
 ## Lancer en local
@@ -30,3 +35,29 @@ python3 -m http.server 8000
 2. Renommer le fichier (`AAAA-MM-slug.html`)
 3. Mettre à jour le contenu et l'image de couverture
 4. Ajouter une carte dans `communiques.html` et `index.html`
+
+## Page privée — plan d'entraînement
+
+`matmau.html` est un plan d'entraînement personnel (SaintéSprint 2026). La page
+**n'est liée depuis aucune autre page** du site : elle n'est accessible que par
+son URL directe — <https://mrun.vercel.app/matmau.html>.
+
+Elle est aussi marquée `noindex, nofollow` (balise `<meta name="robots">` + en-tête
+`X-Robots-Tag` déclaré dans `vercel.json`) pour ne pas remonter dans les moteurs
+de recherche. Ce n'est pas une protection par mot de passe : qui a le lien a la page.
+
+Les séances cochées sont stockées dans le `localStorage` du navigateur — rien
+n'est envoyé sur un serveur, et la progression est propre à chaque appareil.
+
+### Mettre à jour le plan
+
+1. Remplacer `assets/data/plan-saintesprint-mm.json`
+2. Régénérer le fichier JS consommé par la page :
+
+```bash
+{ printf 'window.PLAN_SAINTESPRINT = '; cat assets/data/plan-saintesprint-mm.json; printf ';\n'; } \
+  > assets/js/plan-saintesprint-data.js
+```
+
+La page se réadapte seule : nombre de semaines, totaux, graphique, compte à rebours
+et détection de la semaine en cours sont tous calculés depuis les données.
