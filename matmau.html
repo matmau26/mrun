@@ -21,13 +21,29 @@
 <body>
 
   <!-- ==========================================================
-       Barre supérieure
+       Barre supérieure + navigation par sections
        ========================================================== -->
   <header class="topbar">
     <div class="wrap topbar__inner">
-      <span class="mark">Mrun <small>Plan privé</small></span>
+      <a class="mark" href="#top">Mrun <small>Plan privé</small></a>
+
+      <nav class="nav" id="nav" aria-label="Sections de la page">
+        <button class="nav__toggle" type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          Sections
+        </button>
+        <ul class="nav__list" id="nav-list">
+          <li><a href="#plan">Le plan</a></li>
+          <li><a href="#charge">Charge</a></li>
+          <li><a href="#comparatif">Comparatif</a></li>
+          <li><a href="#zones">Zones</a></li>
+          <li><a href="#regles">Règles</a></li>
+          <li><a href="#jour-j">Jour J</a></li>
+        </ul>
+      </nav>
+
       <div class="topbar__meta">
-        <span class="chip-count chip-count--hours" id="topbar-countdown"></span>
+        <span class="chip-count" id="topbar-countdown"></span>
         <button class="btn btn--ghost btn--sm" type="button" data-goto-now>
           <span class="btn__long">Semaine en cours</span><span class="btn__short">Ma semaine</span>
         </button>
@@ -35,7 +51,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="top">
     <!-- ==========================================================
          Hero
          ========================================================== -->
@@ -43,7 +59,7 @@
       <div class="wrap">
         <div class="hero__grid">
           <div>
-            <span class="eyebrow">Plan d'entraînement · Mathieu</span>
+            <span class="eyebrow">Plan d'entraînement · Mathieu · <span id="plan-version">v5</span></span>
             <h1>Sainté<span>Sprint</span>.</h1>
             <p class="hero__sub">
               14 semaines pour arriver au départ de la <strong>SaintéLyon format 24 km</strong>,
@@ -60,7 +76,7 @@
 
             <div class="hero__cta">
               <button class="btn btn--primary" type="button" data-goto-now>Ma semaine en cours</button>
-              <a class="btn btn--ghost" href="#zones">Zones &amp; allures</a>
+              <a class="btn btn--ghost" href="#comparatif">Comparatif 2024</a>
             </div>
           </div>
 
@@ -131,22 +147,48 @@
             <button class="btn btn--ghost btn--sm" type="button" id="reset-progress">Réinitialiser</button>
           </div>
         </div>
-        <p style="margin-top:14px;font-size:0.8rem;color:var(--text-3)">
+        <p class="fineprint">
           Les séances validées sont enregistrées dans ce navigateur uniquement (rien n'est envoyé nulle part).
         </p>
       </div>
     </section>
 
     <!-- ==========================================================
+         Le plan — semaine par semaine
+         ========================================================== -->
+    <section class="section section--tight" id="plan">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Le plan</span>
+          <h2>14 semaines, <em class="display">séance par séance</em>.</h2>
+          <p>Clique sur une semaine pour ouvrir le détail. Coche les séances au fil de l'eau : la progression se met à jour toute seule.</p>
+        </div>
+
+        <div class="toolbar" role="group" aria-label="Filtrer les semaines">
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">Toutes</button>
+          <button class="filter" type="button" data-filter="charge" aria-pressed="false">Charge</button>
+          <button class="filter" type="button" data-filter="allege" aria-pressed="false">Allègement</button>
+          <button class="filter" type="button" data-filter="course" aria-pressed="false">Course</button>
+          <button class="filter" type="button" id="filter-upcoming" aria-pressed="false">À venir uniquement</button>
+          <span class="toolbar__spacer"></span>
+          <button class="filter" type="button" id="expand-all" data-state="closed">Tout déplier</button>
+        </div>
+
+        <div class="weeks" id="weeks"></div>
+        <p id="weeks-empty" hidden class="fineprint" style="padding:26px 0">Aucune semaine ne correspond à ce filtre.</p>
+      </div>
+    </section>
+
+    <!-- ==========================================================
          Charge hebdomadaire
          ========================================================== -->
-    <section class="section section--tight" id="charge">
+    <section class="section" id="charge">
       <div class="wrap">
         <div class="panel">
           <div class="chart-head">
             <div>
               <h3>La charge, semaine par semaine</h3>
-              <p id="chart-caption">Durée hebdomadaire — chaque barre est une semaine, de S-13 au jour de course.</p>
+              <p id="chart-caption">Durée hebdomadaire — chaque barre est une semaine, de S1 (S-13) au jour de course.</p>
             </div>
             <div class="seg" id="chart-measures" role="tablist" aria-label="Mesure affichée">
               <button type="button" role="tab" data-measure="duree" aria-selected="true">Durée</button>
@@ -164,7 +206,7 @@
 
           <div class="legend">
             <span><i style="background:var(--c-charge)"></i> Charge (spécifique &amp; pic)</span>
-            <span><i style="background:var(--c-allege)"></i> Allègement (décharge &amp; affûtage)</span>
+            <span><i style="background:var(--c-allege)"></i> Allègement (décharge, semaine allégée &amp; affûtage)</span>
             <span><i style="background:var(--c-course)"></i> Semaine de course</span>
           </div>
 
@@ -173,6 +215,64 @@
           </button>
           <div class="data-table" id="chart-table" hidden></div>
         </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Comparatif v5 vs prépa 2024
+         ========================================================== -->
+    <section class="section section--tight" id="comparatif">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Le comparatif</span>
+          <h2>Ce plan face à ta prépa 2024.</h2>
+          <p>
+            Les 14 semaines alignées sur les mêmes repères avant course. <strong>Course finale exclue</strong> des deux
+            séries et <strong>course à pied uniquement</strong> (le vélo est compté à part) : c'est la seule façon de
+            comparer ce qui est comparable.
+          </p>
+        </div>
+
+        <div class="kpis" id="comp-kpis"></div>
+
+        <div class="panel" style="margin-top:16px">
+          <div class="chart-head">
+            <div>
+              <h3>Semaine par semaine</h3>
+              <p id="comp-hint">—</p>
+            </div>
+            <div class="seg" id="comp-measures" role="tablist" aria-label="Mesure comparée">
+              <button type="button" role="tab" data-measure="h" aria-selected="true">Durée</button>
+              <button type="button" role="tab" data-measure="km" aria-selected="false">Km</button>
+              <button type="button" role="tab" data-measure="dp" aria-selected="false">D+</button>
+              <button type="button" role="tab" data-measure="cumul" aria-selected="false">Cumul</button>
+            </div>
+          </div>
+
+          <div class="chart">
+            <div class="chart__scroll"><div id="comp-chart"></div></div>
+            <div class="chart-tooltip" id="comp-tooltip" role="status" aria-live="polite"></div>
+          </div>
+
+          <p class="chart-hint">Fais glisser le graphique pour voir les 14 semaines →</p>
+
+          <div class="legend">
+            <span><i style="background:#e0561f"></i> Plan actuel (v5)</span>
+            <span><i style="background:#3592cc"></i> Prépa 2024 réellement effectuée</span>
+          </div>
+
+          <button class="table-toggle" type="button" id="comp-table-toggle" aria-expanded="false" aria-controls="comp-table">
+            Afficher le tableau de données
+          </button>
+          <div class="data-table" id="comp-table" hidden></div>
+        </div>
+
+        <div class="callout" id="comp-note"></div>
+
+        <p class="fineprint">
+          Source 2024 : export GDPR Garmin (13 semaines avant le 30/11/2024), course de Soucieu-en-Jarrest
+          (24,2 km · 414 m D+ · 3 h 02) exclue des cumuls. Le plan initial v4 n'est plus affiché : il est remplacé par le v5.
+        </p>
       </div>
     </section>
 
@@ -211,7 +311,7 @@
             </dl>
             <dl class="fact">
               <dt>Cadence cible</dt>
-              <dd>178 ppm<small>Protocole métronome sur S-13 et S-12</small></dd>
+              <dd>178 ppm<small>Protocole métronome sur S1 et S2</small></dd>
             </dl>
           </div>
         </div>
@@ -219,7 +319,7 @@
     </section>
 
     <!-- ==========================================================
-         Règles transverses
+         Règles + contraintes de septembre
          ========================================================== -->
     <section class="section section--tight" id="regles">
       <div class="wrap">
@@ -229,32 +329,13 @@
           <p>Elles priment sur n'importe quelle séance. En cas de doute, c'est la règle qui gagne.</p>
         </div>
         <div class="rules-grid" id="rules-grid"></div>
-      </div>
-    </section>
 
-    <!-- ==========================================================
-         Le plan
-         ========================================================== -->
-    <section class="section" id="plan">
-      <div class="wrap">
-        <div class="section-head">
-          <span class="eyebrow">Le plan</span>
-          <h2>14 semaines, <em class="display">séance par séance</em>.</h2>
-          <p>Clique sur une semaine pour ouvrir le détail. Coche les séances au fil de l'eau : la progression se met à jour toute seule.</p>
+        <div class="section-head" style="margin-top:44px">
+          <span class="eyebrow">Septembre</span>
+          <h2 style="font-size:clamp(1.4rem,2.6vw,2rem)">Les fenêtres indisponibles, déjà absorbées.</h2>
+          <p>Ces quatre périodes sont intégrées au plan : les semaines concernées ont été allégées, pas rattrapées.</p>
         </div>
-
-        <div class="toolbar" role="group" aria-label="Filtrer les semaines">
-          <button class="filter" type="button" data-filter="all" aria-pressed="true">Toutes</button>
-          <button class="filter" type="button" data-filter="charge" aria-pressed="false">Charge</button>
-          <button class="filter" type="button" data-filter="allege" aria-pressed="false">Allègement</button>
-          <button class="filter" type="button" data-filter="course" aria-pressed="false">Course</button>
-          <button class="filter" type="button" id="filter-upcoming" aria-pressed="false">À venir uniquement</button>
-          <span class="toolbar__spacer"></span>
-          <button class="filter" type="button" id="expand-all" data-state="closed">Tout déplier</button>
-        </div>
-
-        <div class="weeks" id="weeks"></div>
-        <p id="weeks-empty" hidden style="color:var(--text-3);padding:26px 0">Aucune semaine ne correspond à ce filtre.</p>
+        <div class="indispos" id="indispos"></div>
       </div>
     </section>
 
@@ -307,12 +388,13 @@
        ========================================================== -->
   <footer class="site-foot">
     <div class="wrap site-foot__inner">
-      <span><b>Mrun</b> — Plan SaintéSprint 2026 · v4 (plan en durée) · généré le <span id="generated-on">—</span></span>
+      <span><b>Mrun</b> — Plan SaintéSprint 2026 · v5 (contraintes de septembre intégrées) · généré le <span id="generated-on">—</span></span>
       <span>Page privée, non listée sur le site. Prépare-toi. Vis-le. Montre-le.</span>
     </div>
   </footer>
 
   <script src="assets/js/plan-saintesprint-data.js"></script>
+  <script src="assets/js/plan-comparaison-data.js"></script>
   <script src="assets/js/plan.js"></script>
 </body>
 </html>

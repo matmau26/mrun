@@ -15,8 +15,9 @@ Site internet de l'association **Mrun** (trail running & course nature).
     ├── css/style.css                         # Feuille de style du site
     ├── css/plan.css                          # Feuille de style de la page plan
     ├── js/main.js                            # Interactions (nav, scroll, animations)
-    ├── js/plan.js                            # Rendu du plan d'entraînement
+    ├── js/plan.js                            # Rendu du plan, des graphiques et de la nav
     ├── js/plan-saintesprint-data.js          # Données du plan (généré depuis le JSON)
+    ├── js/plan-comparaison-data.js           # Séries de comparaison v5 vs prépa 2024
     └── data/plan-saintesprint-mm.json        # Source des données du plan
 ```
 
@@ -38,7 +39,8 @@ python3 -m http.server 8000
 
 ## Page privée — plan d'entraînement
 
-`matmau.html` est un plan d'entraînement personnel (SaintéSprint 2026). La page
+`matmau.html` est un plan d'entraînement personnel (SaintéSprint 2026, version **v5**
+— contraintes de septembre intégrées). La page
 **n'est liée depuis aucune autre page** du site : elle n'est accessible que par
 son URL directe — <https://mrun.vercel.app/matmau.html>.
 
@@ -61,3 +63,17 @@ n'est envoyé sur un serveur, et la progression est propre à chaque appareil.
 
 La page se réadapte seule : nombre de semaines, totaux, graphique, compte à rebours
 et détection de la semaine en cours sont tous calculés depuis les données.
+
+Champs attendus par semaine : `code_semaine` (S1…S14), `semaine_avant_course` (S-13…S0),
+`dates_affichage`, `phase`, `focus`, `contraintes` (optionnel), `renforcement`, `velo`,
+les totaux, et une liste `seances` (`code`, `type`, `jour_suggere`, `duree_min`,
+`intensite`, `km_estimes`, `denivele_m`, `detail_seance`, `element_en_tete`, `autres`).
+Une séance dont le `type` contient « vélo » est traitée comme sans impact : km et D+
+s'affichent en « — ».
+
+### Mettre à jour le comparatif
+
+`assets/js/plan-comparaison-data.js` contient les séries hebdomadaires du plan actuel
+et de la préparation 2024 (durée, km, D+). Dans les deux séries : **course finale exclue**
+et **course à pied uniquement** — c'est la seule base comparable, et les totaux affichés
+dans cette section diffèrent donc volontairement de ceux du plan complet.

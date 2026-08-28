@@ -1,12 +1,13 @@
 /* =========================================================
-   Mrun — Plan SaintéSprint 2026 (Mathieu)
-   Rendu du plan + progression locale + graphique de charge.
-   Données : assets/js/plan-saintesprint-data.js
+   Mrun — Plan SaintéSprint 2026 (Mathieu) · v5
+   Rendu du plan, progression locale, graphiques et navigation.
+   Données : plan-saintesprint-data.js + plan-comparaison-data.js
    ========================================================= */
 (function () {
   'use strict';
 
   var PLAN = window.PLAN_SAINTESPRINT;
+  var COMP = window.PLAN_COMPARAISON;
   if (!PLAN) return;
 
   var STORAGE_KEY = 'mrun-plan-saintesprint-2026-v1';
@@ -27,7 +28,7 @@
 
   function fmtDuration(min) {
     var h = Math.floor(min / 60);
-    var m = min % 60;
+    var m = Math.round(min % 60);
     if (h === 0) return m + " min";
     if (m === 0) return h + " h";
     return h + " h " + (m < 10 ? '0' + m : m);
@@ -35,7 +36,7 @@
 
   function fmtDurationShort(min) {
     var h = Math.floor(min / 60);
-    var m = min % 60;
+    var m = Math.round(min % 60);
     if (h === 0) return m + "'";
     return h + 'h' + (m < 10 ? '0' + m : m);
   }
@@ -58,6 +59,13 @@
     return t.content.firstElementChild;
   }
 
+  function byId(id) { return document.getElementById(id); }
+
+  function set(id, value) {
+    var node = byId(id);
+    if (node) node.textContent = value;
+  }
+
   /* ---------------------------------------------------------
      Groupes de phase — 3 familles seulement.
      Distinguer « Spécifique 1 » de « Spécifique 2 » n'apporte
@@ -73,7 +81,8 @@
   function groupOf(week) {
     var p = week.phase.toLowerCase();
     if (p.indexOf('course') !== -1) return 'course';
-    if (p.indexOf('décharge') !== -1 || p.indexOf('affûtage') !== -1) return 'allege';
+    if (p.indexOf('décharge') !== -1 || p.indexOf('affûtage') !== -1 ||
+        p.indexOf('reprise') !== -1 || p.indexOf('allégée') !== -1) return 'allege';
     return 'charge';
   }
 
@@ -93,6 +102,8 @@
     return ZONES[seance.intensite.zone] || { key: seance.intensite.zone, color: 'var(--line-2)', name: '' };
   }
 
+  function isBike(seance) { return /v[ée]lo/i.test(seance.type); }
+
   /* ---------------------------------------------------------
      État
      --------------------------------------------------------- */
@@ -107,7 +118,8 @@
     w._group = groupOf(w);
     w._isPast = TODAY > w._end;
     w._isNow = TODAY >= w._start && TODAY <= w._end;
-    w.seances.forEach(function (s, j) { s._id = w.semaine_avant_course + '-' + (j + 1); });
+    w._anchor = 'semaine-' + w.code_semaine;
+    w.seances.forEach(function (s) { s._id = s.code; });
   });
 
   var nowWeek = weeks.filter(function (w) { return w._isNow; })[0]
@@ -143,29 +155,22 @@
      --------------------------------------------------------- */
   function renderHero() {
     var days = Math.max(0, Math.round((RACE - TODAY) / MS_DAY));
-    var cdValue = document.getElementById('countdown-value');
-    var cdUnit = document.getElementById('countdown-unit');
+
     if (days === 0) {
-      cdValue.textContent = "C'est";
-      cdUnit.textContent = 'aujourd’hui';
+      set('countdown-value', "C'est");
+      set('countdown-unit', 'aujourd’hui');
     } else {
-      cdValue.textContent = 'J−' + days;
-      cdUnit.textContent = days > 1 ? 'jours' : 'jour';
+      set('countdown-value', 'J−' + days);
+      set('countdown-unit', days > 1 ? 'jours' : 'jour');
     }
 
-    document.getElementById('topbar-countdown').innerHTML =
+    byId('topbar-countdown').innerHTML =
       '<span class="dot" aria-hidden="true"></span> <b>' + (days === 0 ? 'Jour J' : 'J−' + days) + '</b>';
 
     set('stat-weeks', fmtNum(weeks.length));
-    set('stat-hours', fmtNum(Math.round(TOTALS.min / 60)));
+    set('stat-hours', fmtNum(TOTALS.min / 60, 1));
     set('stat-km', fmtNum(Math.round(TOTALS.km)));
     set('stat-dplus', fmtNum(TOTALS.dplus));
-    set('stat-seances', fmtNum(TOTALS.seances));
-  }
-
-  function set(id, value) {
-    var node = document.getElementById(id);
-    if (node) node.textContent = value;
   }
 
   /* ---------------------------------------------------------
@@ -192,25 +197,21 @@
 
   function renderProgress() {
     var st = progressStats();
-    var circle = document.getElementById('ring-value');
-    var r = 52;
-    var circ = 2 * Math.PI * r;
+    var circle = byId('ring-value');
+    var circ = 2 * Math.PI * 52;
     circle.setAttribute('stroke-dasharray', circ.toFixed(1));
     circle.setAttribute('stroke-dashoffset', (circ * (1 - st.pct / 100)).toFixed(1));
 
     set('ring-pct', st.pct + '%');
-    document.getElementById('progress-bar').style.width = st.pct + '%';
-    document.getElementById('progress-count').innerHTML =
-      '<b>' + st.count + '</b> / ' + TOTALS.seances + ' séances';
-    document.getElementById('progress-time').innerHTML =
-      '<b>' + fmtDuration(st.min) + '</b> sur ' + fmtDuration(TOTALS.min);
-    document.getElementById('progress-km').innerHTML =
+    byId('progress-bar').style.width = st.pct + '%';
+    byId('progress-count').innerHTML = '<b>' + st.count + '</b> / ' + TOTALS.seances + ' séances';
+    byId('progress-time').innerHTML = '<b>' + fmtDuration(st.min) + '</b> sur ' + fmtDuration(TOTALS.min);
+    byId('progress-km').innerHTML =
       '<b>' + fmtNum(Math.round(st.km)) + ' km</b> · ' + fmtNum(st.dplus) + ' m D+';
 
-    var label = document.getElementById('progress-week');
-    label.textContent = nowWeek._isNow
-      ? 'Semaine en cours : ' + nowWeek.semaine_avant_course + ' · ' + nowWeek.dates_affichage
-      : 'Prochaine semaine : ' + nowWeek.semaine_avant_course + ' · ' + nowWeek.dates_affichage;
+    byId('progress-week').innerHTML = (nowWeek._isNow ? 'Semaine en cours : ' : 'Prochaine semaine : ') +
+      '<b>' + esc(nowWeek.code_semaine) + '</b> · ' + esc(nowWeek.semaine_avant_course) +
+      ' · ' + esc(nowWeek.dates_affichage);
   }
 
   /* ---------------------------------------------------------
@@ -221,7 +222,7 @@
     var fcMax = PLAN.meta.athlete.fc_max;
     var floor = 90;
     var colors = ['var(--z-rest)', 'var(--z-easy)', 'var(--z-tempo)', 'var(--z-mix)', 'var(--z-hard)'];
-    var host = document.getElementById('zones-list');
+    var host = byId('zones-list');
 
     Object.keys(z).forEach(function (key, i) {
       var d = z[key];
@@ -243,10 +244,10 @@
   }
 
   /* ---------------------------------------------------------
-     Règles transverses
+     Règles transverses & indisponibilités
      --------------------------------------------------------- */
   function renderRules() {
-    var host = document.getElementById('rules-grid');
+    var host = byId('rules-grid');
     PLAN.meta.regles_transverses.forEach(function (rule, i) {
       var critical = i === 0;
       host.appendChild(el(
@@ -258,11 +259,28 @@
     });
   }
 
+  function renderIndispos() {
+    var list = PLAN.meta.indisponibilites || [];
+    var host = byId('indispos');
+    if (!host || !list.length) return;
+
+    list.forEach(function (item) {
+      host.appendChild(el(
+        '<div class="indispo">' +
+          '<div class="indispo__periode">' + esc(item.periode) + '</div>' +
+          '<div class="indispo__motif">' + esc(item.motif) + '</div>' +
+          '<div class="indispo__impact">' + esc(item.impact) + '</div>' +
+        '</div>'
+      ));
+    });
+  }
+
   /* ---------------------------------------------------------
      Semaines & séances
      --------------------------------------------------------- */
   var ICON_KEY = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4Z"/><path d="M9 12h6"/></svg>';
   var ICON_INFO = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>';
+  var ICON_WARN = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.7 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>';
   var ICON_CHECK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5.5 5.5L20 7"/></svg>';
   var ICON_CHEV = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 
@@ -270,25 +288,34 @@
     var zone = zoneOf(seance);
     var isRace = seance.intensite.zone === 'COURSE';
     var isDone = !!done[seance._id];
+    var bike = isBike(seance);
 
-    var html =
-      '<article class="session' + (isDone ? ' is-done' : '') + (isRace ? ' is-race' : '') + '" style="--zone-color:' + zone.color + '" data-session="' + seance._id + '">' +
+    /* Sur une séance de vélo, km et D+ valent 0 par construction :
+       afficher « — » plutôt qu'un zéro qui ressemble à une donnée manquante. */
+    var km = bike ? '—' : fmtNum(seance.km_estimes, seance.km_estimes % 1 ? 1 : 0);
+    var dplus = bike ? '—' : fmtNum(seance.denivele_m);
+
+    return '<article class="session' + (isDone ? ' is-done' : '') + (isRace ? ' is-race' : '') + '"' +
+        ' style="--zone-color:' + zone.color + '" data-session="' + esc(seance._id) + '">' +
+
         '<div class="session__top">' +
           '<div>' +
-            '<span class="session__num">Séance ' + seance.numero + '</span>' +
+            '<span class="session__num">' + esc(seance.code) +
+              (seance.jour_suggere ? ' · <span class="session__day">' + esc(seance.jour_suggere) + '</span>' : '') +
+            '</span>' +
             '<h4 class="session__type">' + esc(seance.type) + '</h4>' +
           '</div>' +
-          '<span class="zone-pill"><b>' + esc(zone.key) + '</b><small>' + esc(zone.name) + '</small></span>' +
+          '<span class="zone-pill"><b>' + esc(zone.key) + '</b><small>' + esc(bike ? 'Vélo' : zone.name) + '</small></span>' +
         '</div>' +
 
         '<div class="session__stats">' +
           '<div class="session__stat"><b>' + fmtDurationShort(seance.duree_min) + '</b><span>Durée</span></div>' +
-          '<div class="session__stat"><b>' + fmtNum(seance.km_estimes, seance.km_estimes % 1 ? 1 : 0) + '</b><span>km est.</span></div>' +
-          '<div class="session__stat"><b>' + fmtNum(seance.denivele_m) + '</b><span>m D+</span></div>' +
+          '<div class="session__stat"><b>' + km + '</b><span>km est.</span></div>' +
+          '<div class="session__stat"><b>' + dplus + '</b><span>m D+</span></div>' +
         '</div>' +
 
         '<p class="session__pace"><b>' + esc(seance.intensite.detail) + '</b></p>' +
-        '<p class="session__pace" style="margin-top:-8px">' + esc(seance.intensite.allure_cible) + '</p>' +
+        '<p class="session__pace session__pace--sub">' + esc(seance.intensite.allure_cible) + '</p>' +
 
         '<p class="session__detail">' + esc(seance.detail_seance) + '</p>' +
 
@@ -300,14 +327,12 @@
           : '') +
 
         '<div class="session__foot">' +
-          '<button class="check" type="button" aria-pressed="' + isDone + '" data-check="' + seance._id + '">' +
+          '<button class="check" type="button" aria-pressed="' + isDone + '" data-check="' + esc(seance._id) + '">' +
             '<span class="check__box">' + ICON_CHECK + '</span>' +
             '<span class="check__text">' + (isDone ? 'Séance validée' : 'Marquer comme faite') + '</span>' +
           '</button>' +
         '</div>' +
       '</article>';
-
-    return html;
   }
 
   function weekCard(week) {
@@ -319,20 +344,21 @@
       return '<i class="' + (done[s._id] ? 'is-done' : '') + '"></i>';
     }).join('');
 
-    var node = el(
+    return el(
       '<section class="week' + (week._isNow ? ' is-now' : '') + (week._isPast ? ' is-past' : '') + (isRace ? ' is-race' : '') + '"' +
-        ' id="' + week.semaine_avant_course.replace('-', 'moins') + '" data-group="' + week._group + '" data-past="' + week._isPast + '">' +
+        ' id="' + week._anchor + '" data-group="' + week._group + '" data-week="' + week._index + '">' +
 
         '<button class="week__head" type="button" aria-expanded="false" aria-controls="body-' + week._index + '">' +
           '<span class="week__id">' +
-            '<span class="week__code">' + esc(week.semaine_avant_course) + '</span>' +
-            '<span class="week__dates">' + esc(week.dates_affichage) + '</span>' +
+            '<span class="week__code">' + esc(week.code_semaine) + '</span>' +
+            '<span class="week__dates">' + esc(week.semaine_avant_course) + ' · ' + esc(week.dates_affichage) + '</span>' +
           '</span>' +
 
           '<span class="week__main">' +
             '<span class="week__badges">' +
               '<span class="badge badge--solid" style="background:' + group.color + '">' + esc(week.phase) + '</span>' +
               (week._isNow ? '<span class="badge badge--now">Semaine en cours</span>' : '') +
+              (week.contraintes ? '<span class="badge badge--warn">⚠ Contraintes</span>' : '') +
               (doneInWeek === week.seances.length ? '<span class="badge" data-done-badge style="color:var(--z-easy)">Terminée</span>' : '') +
             '</span>' +
             '<span class="week__focus">' + esc(week.focus) + '</span>' +
@@ -350,6 +376,10 @@
         '</button>' +
 
         '<div class="week__body" id="body-' + week._index + '">' +
+          (week.contraintes
+            ? '<div class="constraint">' + ICON_WARN + '<div><b>Contraintes de la semaine</b>' +
+              '<p>' + esc(week.contraintes.replace(/⚠\s*/g, '')) + '</p></div></div>'
+            : '') +
           '<div class="week__support">' +
             '<div><div class="support__label">Renforcement</div><div class="support__value">' + esc(week.renforcement) + '</div></div>' +
             '<div><div class="support__label">Vélo</div><div class="support__value">' + esc(week.velo) + '</div></div>' +
@@ -359,12 +389,10 @@
         '</div>' +
       '</section>'
     );
-
-    return node;
   }
 
   function renderWeeks() {
-    var host = document.getElementById('weeks');
+    var host = byId('weeks');
     weeks.forEach(function (w) { host.appendChild(weekCard(w)); });
 
     host.addEventListener('click', function (e) {
@@ -398,7 +426,7 @@
 
   function refreshWeekHeader(weekNode) {
     if (!weekNode) return;
-    var week = weeks[+weekNode.querySelector('.week__body').id.replace('body-', '')];
+    var week = weeks[+weekNode.dataset.week];
     var doneInWeek = week.seances.filter(function (s) { return done[s._id]; }).length;
 
     var dots = weekNode.querySelectorAll('.week__dots i');
@@ -423,17 +451,15 @@
     var upcomingOnly = false;
 
     var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-filter]'));
-    var upcoming = document.getElementById('filter-upcoming');
-    var expandAll = document.getElementById('expand-all');
-    var empty = document.getElementById('weeks-empty');
+    var upcoming = byId('filter-upcoming');
+    var expandAll = byId('expand-all');
+    var empty = byId('weeks-empty');
 
     function apply() {
       var visible = 0;
       weeks.forEach(function (w) {
-        var node = document.getElementById(w.semaine_avant_course.replace('-', 'moins'));
-        var okGroup = current === 'all' || w._group === current;
-        var okTime = !upcomingOnly || !w._isPast;
-        var show = okGroup && okTime;
+        var node = byId(w._anchor);
+        var show = (current === 'all' || w._group === current) && (!upcomingOnly || !w._isPast);
         node.hidden = !show;
         if (show) visible++;
       });
@@ -465,17 +491,31 @@
     });
   }
 
+  /* =========================================================
+     Graphiques
+     ========================================================= */
+  function niceMaxFor(max, step) { return Math.max(step, Math.ceil((max * 1.02) / step) * step); }
+
+  function roundedTopPath(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h);
+    return 'M' + x + ',' + (y + h) +
+      'V' + (y + r) +
+      'a' + r + ',' + r + ' 0 0 1 ' + r + ',' + -r +
+      'h' + (w - 2 * r) +
+      'a' + r + ',' + r + ' 0 0 1 ' + r + ',' + r +
+      'V' + (y + h) + 'Z';
+  }
+
   /* ---------------------------------------------------------
-     Graphique — charge hebdomadaire
-     Une seule mesure à l'écran (jamais deux axes) : la
-     bascule change la mesure, pas l'échelle superposée.
+     Charge hebdomadaire du plan (barres)
+     Une seule mesure à l'écran : la bascule change la mesure,
+     jamais deux axes superposés.
      --------------------------------------------------------- */
   var MEASURES = {
     duree: {
       label: 'Durée hebdomadaire',
       get: function (w) { return w.temps_total_min; },
       fmt: function (v) { return fmtDurationShort(v); },
-      /* Pas de graduation « rond » : sinon l'axe ment (3 h 05 arrondi à 3 h). */
       step: 60,
       axis: function (v) { return (v / 60) + ' h'; }
     },
@@ -497,26 +537,15 @@
 
   var chartMeasure = 'duree';
 
-  function roundedTopPath(x, y, w, h, r) {
-    r = Math.min(r, w / 2, h);
-    return 'M' + x + ',' + (y + h) +
-      'V' + (y + r) +
-      'a' + r + ',' + r + ' 0 0 1 ' + r + ',' + -r +
-      'h' + (w - 2 * r) +
-      'a' + r + ',' + r + ' 0 0 1 ' + r + ',' + r +
-      'V' + (y + h) + 'Z';
-  }
-
   function renderChart() {
     var m = MEASURES[chartMeasure];
-    var W = 1000, H = 360;
-    var padL = 68, padR = 10, padT = 34, padB = 74;
+    var W = 1000, H = 380;
+    var padL = 68, padR = 10, padT = 34, padB = 92;
     var plotW = W - padL - padR;
     var plotH = H - padT - padB;
 
-    var values = weeks.map(m.get);
-    var max = Math.max.apply(null, values);
-    var niceMax = Math.ceil((max * 1.06) / m.step) * m.step;
+    var max = Math.max.apply(null, weeks.map(m.get));
+    var niceMax = niceMaxFor(max, m.step);
     var steps = Math.round(niceMax / m.step);
 
     var slot = plotW / weeks.length;
@@ -527,7 +556,6 @@
     svg.push('<title id="chart-title">' + m.label + ' sur les ' + weeks.length + ' semaines du plan</title>');
     svg.push('<desc id="chart-desc">Le détail chiffré est disponible dans le tableau sous le graphique.</desc>');
 
-    /* Grille + axe */
     for (var i = 0; i <= steps; i++) {
       var v = m.step * i;
       var y = padT + plotH - (v / niceMax) * plotH;
@@ -535,12 +563,12 @@
       svg.push('<text class="axis-text" x="' + (padL - 12) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end">' + m.axis(v) + '</text>');
     }
 
-    /* Barres */
     weeks.forEach(function (w, i) {
       var v = m.get(w);
       var h = Math.max(3, (v / niceMax) * plotH);
       var x = padL + i * slot + offset;
       var y = padT + plotH - h;
+      var cx = (x + barW / 2).toFixed(1);
       var hex = GROUPS[w._group].hex;
 
       svg.push('<g class="bar-group" data-bar="' + i + '">');
@@ -548,44 +576,44 @@
       if (w._isNow) {
         svg.push('<rect class="now-marker" x="' + (x - 3).toFixed(1) + '" y="' + (y - 3).toFixed(1) + '" width="' + (barW + 6).toFixed(1) + '" height="' + (h + 6).toFixed(1) + '" rx="6"/>');
       }
-      svg.push('<text class="bar-label" x="' + (x + barW / 2).toFixed(1) + '" y="' + (y - 9).toFixed(1) + '" text-anchor="middle">' + m.fmt(v) + '</text>');
-      svg.push('<text class="week-label' + (w._isNow ? ' is-now' : '') + '" x="' + (x + barW / 2).toFixed(1) + '" y="' + (padT + plotH + 22) + '" text-anchor="middle">' + esc(w.semaine_avant_course) + '</text>');
-      /* Bande de phase sous l'axe : la couleur redit la phase, en continu,
-         avec 2 px de fond entre deux blocs. */
-      svg.push('<rect class="phase-band" x="' + (padL + i * slot + 1).toFixed(1) + '" y="' + (padT + plotH + 32) + '" width="' + (slot - 2).toFixed(1) + '" height="6" fill="' + hex + '"/>');
-      /* Cible de survol pleine hauteur, plus large que la barre */
+      svg.push('<text class="bar-label" x="' + cx + '" y="' + (y - 9).toFixed(1) + '" text-anchor="middle">' + m.fmt(v) + '</text>');
+      /* Double libellé : code du plan (S1…S14) + semaines avant course (S-13…S0) */
+      svg.push('<text class="week-label' + (w._isNow ? ' is-now' : '') + '" x="' + cx + '" y="' + (padT + plotH + 22) + '" text-anchor="middle">' + esc(w.code_semaine) + '</text>');
+      svg.push('<text class="week-sublabel" x="' + cx + '" y="' + (padT + plotH + 36) + '" text-anchor="middle">' + esc(w.semaine_avant_course) + '</text>');
+      /* Bande de phase sous l'axe : la couleur redit la phase, en continu */
+      svg.push('<rect class="phase-band" x="' + (padL + i * slot + 1).toFixed(1) + '" y="' + (padT + plotH + 46) + '" width="' + (slot - 2).toFixed(1) + '" height="6" fill="' + hex + '"/>');
       svg.push('<rect x="' + (padL + i * slot).toFixed(1) + '" y="' + padT + '" width="' + slot.toFixed(1) + '" height="' + plotH + '" fill="transparent"/>');
       svg.push('</g>');
     });
 
-    /* Repères de fin de bande */
-    svg.push('<text class="axis-text" x="' + padL + '" y="' + (padT + plotH + 56) + '">Début du plan</text>');
-    svg.push('<text class="axis-text" x="' + (W - padR) + '" y="' + (padT + plotH + 56) + '" text-anchor="end">SaintéSprint</text>');
-
+    svg.push('<text class="axis-text" x="' + padL + '" y="' + (padT + plotH + 72) + '">Début du plan</text>');
+    svg.push('<text class="axis-text" x="' + (W - padR) + '" y="' + (padT + plotH + 72) + '" text-anchor="end">SaintéSprint</text>');
     svg.push('</svg>');
-    document.getElementById('chart').innerHTML = svg.join('');
-    bindChartHover();
+
+    byId('chart').innerHTML = svg.join('');
+    bindBarHover();
   }
 
-  function bindChartHover() {
-    var chart = document.getElementById('chart');
-    var tip = document.getElementById('chart-tooltip');
+  function bindBarHover() {
+    var chart = byId('chart');
+    var tip = byId('chart-tooltip');
 
     chart.querySelectorAll('.bar-group').forEach(function (g) {
-      g.addEventListener('mouseenter', function () { showTip(g); });
-      g.addEventListener('mousemove', function () { showTip(g); });
+      g.addEventListener('mouseenter', function () { show(g); });
+      g.addEventListener('mousemove', function () { show(g); });
       g.addEventListener('mouseleave', function () { tip.classList.remove('is-visible'); });
     });
 
-    function showTip(g) {
+    function show(g) {
       var w = weeks[+g.dataset.bar];
       var group = GROUPS[w._group];
       var rect = g.querySelector('.bar-rect').getBoundingClientRect();
-      var host = chart.getBoundingClientRect();
+      var host = chart.parentNode.getBoundingClientRect();
 
       tip.innerHTML =
         '<div class="tt-phase" style="color:' + group.color + '">' + esc(w.phase) + '</div>' +
-        '<h4>' + esc(w.semaine_avant_course) + ' · ' + esc(w.dates_affichage) + '</h4>' +
+        '<h4>' + esc(w.code_semaine) + ' · ' + esc(w.semaine_avant_course) + '</h4>' +
+        '<p class="tt-sub">' + esc(w.dates_affichage) + '</p>' +
         '<dl>' +
           '<dt>Durée</dt><dd>' + fmtDuration(w.temps_total_min) + '</dd>' +
           '<dt>Distance</dt><dd>' + fmtNum(w.km_estimes_total, 1) + ' km</dd>' +
@@ -593,25 +621,26 @@
           '<dt>Séances</dt><dd>' + w.seances.length + '</dd>' +
         '</dl>';
 
-      /* L'infobulle reste dans le cadre : au-dessus de la barre quand il y a
-         la place, sinon juste en dessous de son sommet. */
-      tip.classList.add('is-visible');
-      var tipW = tip.offsetWidth;
-      var tipH = tip.offsetHeight;
-      var cx = rect.left - host.left + rect.width / 2;
-      var barTop = rect.top - host.top;
-      var left = Math.min(Math.max(cx - tipW / 2, 4), host.width - tipW - 4);
-      var top = barTop - tipH - 12;
-      if (top < 4) top = barTop + 14;
-
-      tip.style.left = left + 'px';
-      tip.style.top = top + 'px';
+      placeTooltip(tip, host, rect.left - host.left + rect.width / 2, rect.top - host.top);
     }
+  }
+
+  /* L'infobulle reste dans le cadre : au-dessus du point quand il y a
+     la place, sinon juste en dessous. */
+  function placeTooltip(tip, host, cx, anchorTop) {
+    tip.classList.add('is-visible');
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var left = Math.min(Math.max(cx - w / 2, 4), host.width - w - 4);
+    var top = anchorTop - h - 12;
+    if (top < 4) top = anchorTop + 16;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
   }
 
   function renderTable() {
     var rows = weeks.map(function (w) {
       return '<tr class="' + (w._isNow ? 'is-now' : '') + '">' +
+        '<td>' + esc(w.code_semaine) + '</td>' +
         '<td>' + esc(w.semaine_avant_course) + '</td>' +
         '<td>' + esc(w.dates_affichage) + '</td>' +
         '<td>' + esc(w.phase) + '</td>' +
@@ -621,52 +650,364 @@
         '</tr>';
     }).join('');
 
-    document.getElementById('chart-table').innerHTML =
+    byId('chart-table').innerHTML =
       '<table><caption class="sr-only">Charge hebdomadaire du plan SaintéSprint 2026</caption><thead><tr>' +
-      '<th scope="col">Semaine</th><th scope="col">Dates</th><th scope="col">Phase</th>' +
+      '<th scope="col">Semaine</th><th scope="col">Avant course</th><th scope="col">Dates</th><th scope="col">Phase</th>' +
       '<th scope="col">Durée</th><th scope="col">Distance</th><th scope="col">D+</th>' +
       '</tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
-  function initChartControls() {
-    var seg = document.getElementById('chart-measures');
+  /* ---------------------------------------------------------
+     Comparatif v5 vs prépa 2024 (courbes)
+     --------------------------------------------------------- */
+  var SERIES = [
+    { key: 'v5', label: 'Plan actuel (v5)', hex: '#e0561f', width: 2.5 },
+    { key: 'p24', label: 'Prépa 2024 réelle', hex: '#3592cc', width: 2 }
+  ];
+
+  var COMP_MEASURES = {
+    h: {
+      label: 'Durée hebdomadaire',
+      pick: function (s) { return s.h.map(function (v) { return v * 60; }); },
+      step: 60,
+      axis: function (v) { return (v / 60) + ' h'; },
+      fmt: function (v) { return fmtDurationShort(v); },
+      hint: 'Heures de course à pied par semaine. L’indicateur principal du plan.'
+    },
+    km: {
+      label: 'Kilométrage',
+      pick: function (s) { return s.km; },
+      step: 10,
+      axis: function (v) { return fmtNum(v) + ' km'; },
+      fmt: function (v) { return fmtNum(v, v % 1 ? 1 : 0) + ' km'; },
+      hint: 'Estimation à ton allure réelle pour le plan, kilomètres réellement courus pour 2024.'
+    },
+    dp: {
+      label: 'Dénivelé positif',
+      pick: function (s) { return s.dp; },
+      step: 250,
+      axis: function (v) { return fmtNum(v) + ' m'; },
+      fmt: function (v) { return fmtNum(v) + ' m'; },
+      hint: '2024 était très irrégulier : quasi plat pendant des semaines, puis 1 094 m à 3 semaines de la course.'
+    },
+    cumul: {
+      label: 'Charge cumulée',
+      pick: function (s) { return cumulative(s.h).map(function (v) { return v * 60; }); },
+      step: 600,
+      axis: function (v) { return (v / 60) + ' h'; },
+      fmt: function (v) { return fmtDurationShort(v); },
+      hint: 'Vision intégrale : l’écart de charge totale absorbée sur le cycle.'
+    }
+  };
+
+  function cumulative(arr) {
+    var total = 0;
+    return arr.map(function (v) { total += v; return total; });
+  }
+
+  var compMeasure = 'h';
+
+  function renderComparison() {
+    if (!COMP) return;
+    var m = COMP_MEASURES[compMeasure];
+    var n = COMP.labels.length;
+    var series = SERIES.map(function (s) {
+      return { key: s.key, label: s.label, hex: s.hex, width: s.width, values: m.pick(COMP[s.key]) };
+    });
+
+    var W = 1000, H = 360;
+    var padL = 68, padR = 96, padT = 30, padB = 74;
+    var plotW = W - padL - padR;
+    var plotH = H - padT - padB;
+
+    var max = Math.max.apply(null, series.reduce(function (a, s) { return a.concat(s.values); }, []));
+    var niceMax = niceMaxFor(max, m.step);
+    var steps = Math.round(niceMax / m.step);
+    var stepX = plotW / (n - 1);
+
+    var xOf = function (i) { return padL + i * stepX; };
+    var yOf = function (v) { return padT + plotH - (v / niceMax) * plotH; };
+
+    var svg = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-labelledby="comp-title comp-desc" preserveAspectRatio="xMidYMid meet">'];
+    svg.push('<title id="comp-title">' + m.label + ' — plan actuel v5 comparé à la préparation 2024</title>');
+    svg.push('<desc id="comp-desc">Le détail chiffré est disponible dans le tableau sous le graphique.</desc>');
+
+    for (var i = 0; i <= steps; i++) {
+      var v = m.step * i;
+      var y = yOf(v);
+      svg.push('<line class="grid-line" x1="' + padL + '" y1="' + y.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + y.toFixed(1) + '"/>');
+      svg.push('<text class="axis-text" x="' + (padL - 12) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end">' + m.axis(v) + '</text>');
+    }
+
+    COMP.labels.forEach(function (lab, i) {
+      svg.push('<text class="week-label" x="' + xOf(i).toFixed(1) + '" y="' + (padT + plotH + 22) + '" text-anchor="middle">' + esc(lab) + '</text>');
+      svg.push('<text class="week-sublabel" x="' + xOf(i).toFixed(1) + '" y="' + (padT + plotH + 36) + '" text-anchor="middle">' + esc(COMP.labels_course[i]) + '</text>');
+    });
+
+    svg.push('<line class="crosshair" id="comp-crosshair" x1="0" y1="' + padT + '" x2="0" y2="' + (padT + plotH) + '" style="opacity:0"/>');
+
+    series.forEach(function (s) {
+      var d = s.values.map(function (v, i) { return (i ? 'L' : 'M') + xOf(i).toFixed(1) + ',' + yOf(v).toFixed(1); }).join(' ');
+      svg.push('<path d="' + d + '" fill="none" stroke="' + s.hex + '" stroke-width="' + s.width + '" stroke-linejoin="round" stroke-linecap="round"/>');
+      s.values.forEach(function (v, i) {
+        svg.push('<circle class="pt" data-serie="' + s.key + '" data-i="' + i + '" cx="' + xOf(i).toFixed(1) + '" cy="' + yOf(v).toFixed(1) + '" r="4" fill="' + s.hex + '" stroke="var(--surface)" stroke-width="2"/>');
+      });
+    });
+
+    /* Libellés directs en bout de courbe : l'identité ne repose pas que sur
+       la couleur. Les deux séries finissent souvent au même niveau — on les
+       écarte pour qu'elles ne se superposent jamais. */
+    var ends = series.map(function (s) { return { label: s.key === 'v5' ? 'Plan v5' : '2024', hex: s.hex, y: yOf(s.values[n - 1]) }; });
+    if (Math.abs(ends[0].y - ends[1].y) < 15) {
+      var mid = (ends[0].y + ends[1].y) / 2;
+      var first = ends[0].y <= ends[1].y ? 0 : 1;
+      ends[first].y = mid - 8;
+      ends[1 - first].y = mid + 8;
+    }
+    ends.forEach(function (e) {
+      svg.push('<text class="serie-label" x="' + (xOf(n - 1) + 12) + '" y="' + (e.y + 4).toFixed(1) + '" fill="' + e.hex + '">' + esc(e.label) + '</text>');
+    });
+
+    for (var j = 0; j < n; j++) {
+      svg.push('<rect class="comp-hit" data-i="' + j + '" x="' + (xOf(j) - stepX / 2).toFixed(1) + '" y="' + padT + '" width="' + stepX.toFixed(1) + '" height="' + plotH + '" fill="transparent"/>');
+    }
+
+    svg.push('</svg>');
+    byId('comp-chart').innerHTML = svg.join('');
+    byId('comp-hint').textContent = m.hint;
+    bindCompHover(series, xOf, yOf, padT, plotH);
+  }
+
+  function bindCompHover(series, xOf, yOf, padT, plotH) {
+    var chart = byId('comp-chart');
+    var tip = byId('comp-tooltip');
+    var cross = byId('comp-crosshair');
+    var m = COMP_MEASURES[compMeasure];
+
+    chart.querySelectorAll('.comp-hit').forEach(function (hit) {
+      hit.addEventListener('mouseenter', function () { show(+hit.dataset.i); });
+      hit.addEventListener('mousemove', function () { show(+hit.dataset.i); });
+      hit.addEventListener('mouseleave', hide);
+    });
+    chart.addEventListener('mouseleave', hide);
+
+    function hide() {
+      tip.classList.remove('is-visible');
+      cross.style.opacity = 0;
+      chart.querySelectorAll('.pt').forEach(function (p) { p.classList.remove('is-active'); });
+    }
+
+    function show(i) {
+      cross.setAttribute('x1', xOf(i).toFixed(1));
+      cross.setAttribute('x2', xOf(i).toFixed(1));
+      cross.style.opacity = 1;
+
+      chart.querySelectorAll('.pt').forEach(function (p) {
+        p.classList.toggle('is-active', +p.dataset.i === i);
+      });
+
+      var rows = series.map(function (s) {
+        return '<dt><i style="background:' + s.hex + '"></i>' + esc(s.key === 'v5' ? 'Plan v5' : 'Prépa 2024') + '</dt>' +
+          '<dd>' + m.fmt(s.values[i]) + '</dd>';
+      }).join('');
+
+      var delta = series[0].values[i] - series[1].values[i];
+      tip.innerHTML =
+        '<h4>' + esc(COMP.labels[i]) + ' · ' + esc(COMP.labels_course[i]) + '</h4>' +
+        '<p class="tt-sub">' + esc(weeks[i] ? weeks[i].dates_affichage : '') + '</p>' +
+        '<dl>' + rows + '</dl>' +
+        '<p class="tt-delta">Écart : ' + (delta >= 0 ? '+' : '−') + m.fmt(Math.abs(delta)) + '</p>';
+
+      var pt = chart.querySelector('.pt[data-i="' + i + '"]');
+      var rect = pt.getBoundingClientRect();
+      var host = chart.parentNode.getBoundingClientRect();
+      var topPx = Math.min.apply(null, series.map(function (s) {
+        return (yOf(s.values[i]) / 360) * host.height;
+      }));
+      placeTooltip(tip, host, rect.left - host.left + rect.width / 2, topPx);
+    }
+  }
+
+  function renderComparisonSummary() {
+    if (!COMP) return;
+    var sum = function (a) { return a.reduce(function (x, y) { return x + y; }, 0); };
+    var v5h = sum(COMP.v5.h), p24h = sum(COMP.p24.h);
+    var ecart = Math.round((v5h / p24h - 1) * 100);
+
+    /* La semaine de course est écartée du « creux » : son volume est bas
+       par construction puisque la course elle-même n'est pas comptée. */
+    var horsCourse = COMP.v5.h.slice(0, -1);
+    var creuxV5 = Math.min.apply(null, horsCourse);
+
+    var cards = [
+      ['Plan v5 · course à pied', fmtDurationShort(v5h * 60),
+        fmtNum(sum(COMP.v5.km)) + ' km · ' + fmtNum(sum(COMP.v5.dp)) + ' m D+ · course exclue'],
+      ['Prépa 2024 réelle', fmtDurationShort(p24h * 60),
+        fmtNum(sum(COMP.p24.km)) + ' km · ' + fmtNum(sum(COMP.p24.dp)) + ' m D+ · course exclue'],
+      ['v5 vs 2024', '+' + ecart + ' %', 'de temps de course en plus'],
+      ['Semaine la plus creuse', fmtDurationShort(creuxV5 * 60),
+        'hors semaine de course · en 2024, une semaine complète à 0 h'],
+      ['Pic hebdomadaire', fmtDurationShort(Math.max.apply(null, COMP.v5.h) * 60) + ' en S10',
+        '2024 : ' + fmtDurationShort(Math.max.apply(null, COMP.p24.h) * 60) + ' en S11, à 3 semaines de la course']
+    ];
+
+    byId('comp-kpis').innerHTML = cards.map(function (c) {
+      return '<div class="kpi"><div class="kpi__value">' + c[1] + '</div>' +
+        '<div class="kpi__label"><b>' + c[0] + '</b>' + esc(c[2]) + '</div></div>';
+    }).join('');
+
+    byId('comp-note').innerHTML =
+      '<b>Lecture.</b> Le plan v5 reste plus chargé que ta prépa 2024 (+' + ecart + ' % de temps de course), ' +
+      'mais il est surtout beaucoup plus <b>régulier</b>. 2024, c’était une semaine à 0 h, deux semaines sous 1 h 30, ' +
+      'puis un pic de 4 h 32 avec 1 094 m D+ à trois semaines de la course : exactement le motif « creux puis relance » ' +
+      'associé au risque de blessure. Le v5 lisse la progression et place son pic à S10 (S-4), avec quatre semaines ' +
+      'de décrue derrière. Les contraintes de septembre ont été <b>absorbées, pas compensées</b> : deux footings sont ' +
+      'devenus du vélo sans impact, et rien n’a été rattrapé.';
+  }
+
+  function renderComparisonTable() {
+    if (!COMP) return;
+    var rows = COMP.labels.map(function (lab, i) {
+      return '<tr>' +
+        '<td>' + esc(lab) + '</td>' +
+        '<td>' + esc(COMP.labels_course[i]) + '</td>' +
+        '<td>' + fmtDurationShort(COMP.v5.h[i] * 60) + '</td>' +
+        '<td>' + fmtDurationShort(COMP.p24.h[i] * 60) + '</td>' +
+        '<td>' + fmtNum(COMP.v5.km[i], 1) + '</td>' +
+        '<td>' + fmtNum(COMP.p24.km[i], 1) + '</td>' +
+        '<td>' + fmtNum(COMP.v5.dp[i]) + '</td>' +
+        '<td>' + fmtNum(COMP.p24.dp[i]) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    byId('comp-table').innerHTML =
+      '<table><caption class="sr-only">Comparaison hebdomadaire entre le plan v5 et la préparation 2024</caption><thead><tr>' +
+      '<th scope="col">Semaine</th><th scope="col">Avant course</th>' +
+      '<th scope="col">v5 durée</th><th scope="col">2024 durée</th>' +
+      '<th scope="col">v5 km</th><th scope="col">2024 km</th>' +
+      '<th scope="col">v5 D+</th><th scope="col">2024 D+</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  /* ---------------------------------------------------------
+     Contrôles des graphiques
+     --------------------------------------------------------- */
+  function initSegmented(segId, onChange) {
+    var seg = byId(segId);
+    if (!seg) return;
     seg.addEventListener('click', function (e) {
       var btn = e.target.closest('button[data-measure]');
       if (!btn) return;
-      chartMeasure = btn.dataset.measure;
       seg.querySelectorAll('button').forEach(function (b) {
         b.setAttribute('aria-selected', String(b === btn));
       });
-      document.getElementById('chart-caption').textContent = MEASURES[chartMeasure].label +
-        ' — chaque barre est une semaine, de S-13 au jour de course.';
-      renderChart();
+      onChange(btn.dataset.measure);
     });
+  }
 
-    var toggle = document.getElementById('table-toggle');
-    var table = document.getElementById('chart-table');
+  function initTableToggle(btnId, tableId, labelOn, labelOff) {
+    var toggle = byId(btnId);
+    var table = byId(tableId);
+    if (!toggle || !table) return;
     toggle.addEventListener('click', function () {
       var open = table.hasAttribute('hidden');
       if (open) table.removeAttribute('hidden'); else table.setAttribute('hidden', '');
-      toggle.textContent = open ? 'Masquer le tableau de données' : 'Afficher le tableau de données';
+      toggle.textContent = open ? labelOn : labelOff;
       toggle.setAttribute('aria-expanded', String(open));
     });
+  }
+
+  function initCharts() {
+    initSegmented('chart-measures', function (key) {
+      chartMeasure = key;
+      byId('chart-caption').textContent = MEASURES[key].label +
+        ' — chaque barre est une semaine, de S1 (S-13) au jour de course.';
+      renderChart();
+    });
+
+    initSegmented('comp-measures', function (key) {
+      compMeasure = key;
+      renderComparison();
+    });
+
+    initTableToggle('table-toggle', 'chart-table', 'Masquer le tableau de données', 'Afficher le tableau de données');
+    initTableToggle('comp-table-toggle', 'comp-table', 'Masquer le tableau de données', 'Afficher le tableau de données');
 
     var resize;
     window.addEventListener('resize', function () {
       clearTimeout(resize);
-      resize = setTimeout(renderChart, 180);
+      resize = setTimeout(function () { renderChart(); renderComparison(); }, 180);
     });
+  }
+
+  /* ---------------------------------------------------------
+     Navigation par sections
+     --------------------------------------------------------- */
+  function initNav() {
+    var nav = byId('nav');
+    if (!nav) return;
+
+    var toggle = byId('nav-toggle');
+    var list = byId('nav-list');
+    var links = Array.prototype.slice.call(list.querySelectorAll('a'));
+    var targets = links.map(function (a) { return byId(a.getAttribute('href').slice(1)); });
+
+    function closeMenu() {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle.addEventListener('click', function () {
+      var open = !nav.classList.contains('is-open');
+      nav.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+
+    list.addEventListener('click', function (e) {
+      if (e.target.closest('a')) closeMenu();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!nav.contains(e.target)) closeMenu();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+
+    /* Surlignage de la section courante */
+    var ticking = false;
+    function updateActive() {
+      var trigger = window.scrollY + 140;
+      var current = -1;
+      targets.forEach(function (node, i) {
+        if (node && node.getBoundingClientRect().top + window.scrollY <= trigger) current = i;
+      });
+      /* En bas de page, la dernière section ne franchit jamais la ligne de
+         déclenchement : on la marque active dès qu'on touche le fond. */
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+        current = targets.length - 1;
+      }
+      links.forEach(function (a, i) {
+        if (i === current) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+    }
+    window.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { updateActive(); ticking = false; });
+    }, { passive: true });
+    updateActive();
   }
 
   /* ---------------------------------------------------------
      Divers
      --------------------------------------------------------- */
   function goToCurrentWeek() {
-    var node = document.getElementById(nowWeek.semaine_avant_course.replace('-', 'moins'));
+    var node = byId(nowWeek._anchor);
     if (!node) return;
-    if (node.hidden) {
-      document.querySelector('[data-filter="all"]').click();
-    }
+    if (node.hidden) document.querySelector('[data-filter="all"]').click();
     toggleWeek(node, node.querySelector('.week__head'), true);
     node.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -676,7 +1017,7 @@
       btn.addEventListener('click', goToCurrentWeek);
     });
 
-    document.getElementById('reset-progress').addEventListener('click', function () {
+    byId('reset-progress').addEventListener('click', function () {
       if (!window.confirm('Remettre la progression à zéro ? Les séances validées seront décochées.')) return;
       done = {};
       saveDone();
@@ -694,8 +1035,9 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    document.getElementById('generated-on').textContent =
-      new Date(PLAN.meta.genere_le).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    set('generated-on', new Date(PLAN.meta.genere_le)
+      .toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }));
+    set('plan-version', PLAN.meta.version);
   }
 
   /* ---------------------------------------------------------
@@ -704,16 +1046,21 @@
   renderHero();
   renderZones();
   renderRules();
+  renderIndispos();
   renderWeeks();
   renderProgress();
   renderChart();
   renderTable();
-  initChartControls();
+  renderComparison();
+  renderComparisonSummary();
+  renderComparisonTable();
+  initCharts();
   initFilters();
+  initNav();
   initMisc();
 
   /* La semaine en cours s'ouvre d'office : c'est l'information
      que Mathieu vient chercher 9 fois sur 10. */
-  var nowNode = document.getElementById(nowWeek.semaine_avant_course.replace('-', 'moins'));
+  var nowNode = byId(nowWeek._anchor);
   if (nowNode) toggleWeek(nowNode, nowNode.querySelector('.week__head'), true);
 })();
