@@ -71,6 +71,14 @@ les totaux, et une liste `seances` (`code`, `type`, `jour_suggere`, `duree_min`,
 Une séance dont le `type` contient « vélo » est traitée comme sans impact : km et D+
 s'affichent en « — ».
 
+### Cache des ressources
+
+`matmau.html` charge ses ressources avec un jeton de version (`?v=5.1`) et
+`vercel.json` les sert en `must-revalidate` : le navigateur revalide à chaque
+visite, donc une mise à jour des données est visible sans vider le cache.
+Après une modification de `plan.js`, `plan.css` ou d'un fichier de données,
+incrémenter le jeton dans `matmau.html` reste la garantie la plus sûre.
+
 ### Mettre à jour le comparatif
 
 `assets/js/plan-comparaison-data.js` contient les séries hebdomadaires du plan actuel
