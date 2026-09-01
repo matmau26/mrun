@@ -532,6 +532,7 @@ button { font: inherit; color: inherit; }
 .chart .week-label { fill: var(--text-2); font-size: 11.5px; font-weight: 800; }
 .chart .week-label.is-now { fill: var(--text); }
 .chart .week-sublabel { fill: var(--text-3); font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; }
+.chart .excl-label { fill: #b0632f; font-size: 9px; font-weight: 800; letter-spacing: 0.02em; }
 .chart .serie-label { font-size: 11.5px; font-weight: 900; letter-spacing: -0.01em; }
 .chart .crosshair { stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 3 4; }
 .chart .pt { transition: r 0.15s var(--ease); }
@@ -563,11 +564,15 @@ button { font: inherit; color: inherit; }
 .chart-tooltip .tt-sub { margin: 0 0 8px; font-size: 0.74rem; color: var(--text-3); }
 .chart-tooltip .tt-delta {
   margin: 9px 0 0;
+  max-width: 230px;
   padding-top: 8px;
   border-top: 1px solid var(--line);
   font-size: 0.76rem;
+  line-height: 1.45;
   color: var(--text-3);
 }
+.chart-tooltip .tt-delta b { color: var(--text-2); font-weight: 800; }
+.chart-tooltip .tt-delta + .tt-delta { border-top: 0; margin-top: 4px; padding-top: 0; }
 .chart-tooltip dt { color: var(--text-3); display: flex; align-items: center; gap: 7px; }
 .chart-tooltip dt i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
 .chart-tooltip dd { margin: 0; text-align: right; color: var(--text); font-weight: 700; }

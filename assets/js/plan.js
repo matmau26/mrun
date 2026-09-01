@@ -675,7 +675,7 @@
       step: 60,
       axis: function (v) { return (v / 60) + ' h'; },
       fmt: function (v) { return fmtDurationShort(v); },
-      hint: 'Heures de course à pied par semaine. L’indicateur principal du plan.'
+      hint: 'Heures de course à pied par semaine — le vélo de S3 et S4 et la course finale ne sont pas comptés, d’où l’écart avec le total affiché dans le plan.'
     },
     km: {
       label: 'Kilométrage',
@@ -683,7 +683,7 @@
       step: 10,
       axis: function (v) { return fmtNum(v) + ' km'; },
       fmt: function (v) { return fmtNum(v, v % 1 ? 1 : 0) + ' km'; },
-      hint: 'Estimation à ton allure réelle pour le plan, kilomètres réellement courus pour 2024.'
+      hint: 'Estimation à ton allure réelle pour le plan, kilomètres réellement courus pour 2024. Les 24 km de la course ne sont pas comptés.'
     },
     dp: {
       label: 'Dénivelé positif',
@@ -703,6 +703,28 @@
     }
   };
 
+  /* La série de comparaison ne compte que la course à pied, course finale
+     exclue : sur certaines semaines elle est donc plus basse que le total
+     affiché dans le plan. On calcule l'écart pour l'annoncer à l'écran,
+     sinon 3 h 30 au plan et 2 h 40 sur la courbe ressemblent à un bug. */
+  function exclusionsOf(week) {
+    var bike = 0, race = 0, bikeKm = 0, raceKm = 0, bikeD = 0, raceD = 0;
+    week.seances.forEach(function (s) {
+      if (s.intensite.zone === 'COURSE') { race += s.duree_min; raceKm += s.km_estimes; raceD += s.denivele_m; }
+      else if (isBike(s)) { bike += s.duree_min; bikeKm += s.km_estimes; bikeD += s.denivele_m; }
+    });
+    var motifs = [];
+    if (bike) motifs.push('vélo');
+    if (race) motifs.push('course');
+    return {
+      motif: motifs.join(' + '),
+      h: bike + race,
+      km: bikeKm + raceKm,
+      dp: bikeD + raceD,
+      total: { h: week.temps_total_min, km: week.km_estimes_total, dp: week.denivele_total_m }
+    };
+  }
+
   function cumulative(arr) {
     var total = 0;
     return arr.map(function (v) { total += v; return total; });
@@ -719,7 +741,7 @@
     });
 
     var W = 1000, H = 360;
-    var padL = 68, padR = 96, padT = 30, padB = 74;
+    var padL = 68, padR = 96, padT = 30, padB = 84;
     var plotW = W - padL - padR;
     var plotH = H - padT - padB;
 
@@ -745,6 +767,14 @@
     COMP.labels.forEach(function (lab, i) {
       svg.push('<text class="week-label" x="' + xOf(i).toFixed(1) + '" y="' + (padT + plotH + 22) + '" text-anchor="middle">' + esc(lab) + '</text>');
       svg.push('<text class="week-sublabel" x="' + xOf(i).toFixed(1) + '" y="' + (padT + plotH + 36) + '" text-anchor="middle">' + esc(COMP.labels_course[i]) + '</text>');
+
+      /* Ce que la courbe ne compte pas, écrit sous la semaine concernée */
+      var exc = compMeasure === 'cumul' || !weeks[i] ? null : exclusionsOf(weeks[i]);
+      var hidden = exc ? exc[compMeasure] : 0;
+      if (hidden > 0) {
+        svg.push('<text class="excl-label" x="' + xOf(i).toFixed(1) + '" y="' + (padT + plotH + 52) + '" text-anchor="middle">+' +
+          esc(m.fmt(compMeasure === 'h' ? hidden : hidden)) + ' ' + esc(exc.motif) + '</text>');
+      }
     });
 
     svg.push('<line class="crosshair" id="comp-crosshair" x1="0" y1="' + padT + '" x2="0" y2="' + (padT + plotH) + '" style="opacity:0"/>');
@@ -815,11 +845,19 @@
       }).join('');
 
       var delta = series[0].values[i] - series[1].values[i];
+
+      var exc = compMeasure === 'cumul' || !weeks[i] ? null : exclusionsOf(weeks[i]);
+      var horsSerie = exc && exc[compMeasure] > 0
+        ? '<p class="tt-delta">Semaine complète au plan : <b>' + m.fmt(exc.total[compMeasure]) +
+          '</b> — ' + m.fmt(exc[compMeasure]) + ' de ' + esc(exc.motif) + ' hors comparaison.</p>'
+        : '';
+
       tip.innerHTML =
         '<h4>' + esc(COMP.labels[i]) + ' · ' + esc(COMP.labels_course[i]) + '</h4>' +
         '<p class="tt-sub">' + esc(weeks[i] ? weeks[i].dates_affichage : '') + '</p>' +
         '<dl>' + rows + '</dl>' +
-        '<p class="tt-delta">Écart : ' + (delta >= 0 ? '+' : '−') + m.fmt(Math.abs(delta)) + '</p>';
+        '<p class="tt-delta">Écart : ' + (delta >= 0 ? '+' : '−') + m.fmt(Math.abs(delta)) + '</p>' +
+        horsSerie;
 
       var pt = chart.querySelector('.pt[data-i="' + i + '"]');
       var rect = pt.getBoundingClientRect();
@@ -844,7 +882,7 @@
 
     var cards = [
       ['Plan v5 · course à pied', fmtDurationShort(v5h * 60),
-        fmtNum(sum(COMP.v5.km)) + ' km · ' + fmtNum(sum(COMP.v5.dp)) + ' m D+ · course exclue'],
+        fmtNum(sum(COMP.v5.km)) + ' km · ' + fmtNum(sum(COMP.v5.dp)) + ' m D+ · hors course et vélo'],
       ['Prépa 2024 réelle', fmtDurationShort(p24h * 60),
         fmtNum(sum(COMP.p24.km)) + ' km · ' + fmtNum(sum(COMP.p24.dp)) + ' m D+ · course exclue'],
       ['v5 vs 2024', '+' + ecart + ' %', 'de temps de course en plus'],
