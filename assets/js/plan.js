@@ -81,8 +81,11 @@
   function groupOf(week) {
     var p = week.phase.toLowerCase();
     if (p.indexOf('course') !== -1) return 'course';
+    /* « Allégée » ne suffit plus : depuis que S3 garde sa sortie longue,
+       c'est une des semaines les plus chargées du bloc 1. Seules les vraies
+       semaines à charge réduite passent en bleu. */
     if (p.indexOf('décharge') !== -1 || p.indexOf('affûtage') !== -1 ||
-        p.indexOf('reprise') !== -1 || p.indexOf('allégée') !== -1) return 'allege';
+        p.indexOf('reprise') !== -1) return 'allege';
     return 'charge';
   }
 
@@ -862,7 +865,8 @@
       'puis un pic de 4 h 32 avec 1 094 m D+ à trois semaines de la course : exactement le motif « creux puis relance » ' +
       'associé au risque de blessure. Le v5 lisse la progression et place son pic à S10 (S-4), avec quatre semaines ' +
       'de décrue derrière. Les contraintes de septembre ont été <b>absorbées, pas compensées</b> : deux footings sont ' +
-      'devenus du vélo sans impact, et rien n’a été rattrapé.';
+      'devenus du vélo sans impact, la longue de S3 est courue sur place pendant l’assistance au Vercors, ' +
+      'et rien n’a été rattrapé.';
   }
 
   function renderComparisonTable() {

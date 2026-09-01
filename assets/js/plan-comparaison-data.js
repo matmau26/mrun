@@ -3,14 +3,16 @@
    Course finale EXCLUE des deux séries, course à pied uniquement (le vélo est compté à part).
    Source 2024 : export GDPR Garmin (summarizedActivities), 13 semaines avant le 30/11/2024,
    course de Soucieu-en-Jarrest (24,2 km / 414 m D+ / 3h02) exclue des cumuls.
-   Le plan initial v4 n'est volontairement plus affiché : il est remplacé par le v5. */
+   Le plan initial v4 n'est volontairement plus affiché : il est remplacé par le v5.
+   S3 mise à jour : la sortie longue est maintenue et courue pendant l'assistance
+   au Vercors (2h40 de course à pied, 20 km, 650 m D+ sur la semaine). */
 window.PLAN_COMPARAISON = {
   labels: ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14"],
   labels_course: ["S-13", "S-12", "S-11", "S-10", "S-9", "S-8", "S-7", "S-6", "S-5", "S-4", "S-3", "S-2", "S-1", "S0"],
   v5: {
-    h: [3.25, 3.42, 2.08, 1.83, 3.0, 3.5, 3.75, 2.5, 3.83, 4.08, 3.25, 2.58, 1.92, 1.08],
-    km: [24.8, 25.8, 15.5, 13.8, 23.1, 26.5, 28, 18.9, 28.3, 30.3, 24.8, 19.6, 15.3, 8.6],
-    dp: [450, 500, 440, 280, 460, 670, 680, 350, 700, 800, 500, 350, 100, 30]
+    h: [3.25, 3.42, 2.67, 1.83, 3.0, 3.5, 3.75, 2.5, 3.83, 4.08, 3.25, 2.58, 1.92, 1.08],
+    km: [24.8, 25.8, 20.0, 13.8, 23.1, 26.5, 28, 18.9, 28.3, 30.3, 24.8, 19.6, 15.3, 8.6],
+    dp: [450, 500, 650, 280, 460, 670, 680, 350, 700, 800, 500, 350, 100, 30]
   },
   p24: {
     h: [2.82, 1.4, 2.66, 3.16, 3.0, 0.0, 2.04, 2.72, 1.37, 2.36, 4.54, 3.36, 2.89, 1.05],

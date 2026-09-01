@@ -85,7 +85,7 @@ window.PLAN_SAINTESPRINT = {
       {
         "periode": "ven. 11/09 fin de journée → dim. 13/09",
         "motif": "Vercors — assistance Mathilde (UTV 84K)",
-        "impact": "Semaine S3 : week-end perdu, pas de sortie longue"
+        "impact": "Semaine S3 : sortie longue courue sur place, entre deux ravitaillements"
       },
       {
         "periode": "ven. 18/09 → lun. 21/09",
@@ -94,9 +94,9 @@ window.PLAN_SAINTESPRINT = {
       }
     ],
     "totaux": {
-      "heures": 44.8,
-      "km_estimes": 327.3,
-      "denivele_m": 6810,
+      "heures": 45.3,
+      "km_estimes": 331.8,
+      "denivele_m": 7020,
       "semaines": 14,
       "seances": 42
     },
@@ -250,13 +250,13 @@ window.PLAN_SAINTESPRINT = {
       "date_debut": "2026-09-07",
       "dates_affichage": "7–13 sept. 2026",
       "phase": "Spécifique 1 · ALLÉGÉE (contraintes)",
-      "focus": "Semaine comprimée : 3 créneaux, pas de sortie longue possible. Lundi en vélo pour ne pas enchaîner deux jours de course après la longue du dim. 6. On protège, on ne rattrape pas.",
-      "contraintes": "⚠ Déplacement sans temps libre : mer. 9/09 matin → jeu. 10/09 soir. ⚠ Vercors (assistance Mathilde, UTV 84K) : ven. 11/09 fin de journée → dim. 13/09. Créneaux réels : lun. 7, mar. 8, ven. 11 en journée. ⚠ La longue de S2 tombant le dim. 6, le lundi 7 passe en VÉLO (sans impact) : pas de course deux jours de suite.",
-      "renforcement": "×1 suffit cette semaine (kiné 30', à coupler au vélo du lun. 7)",
+      "focus": "Semaine reconfigurée : la sortie longue est MAINTENUE, courue pendant l'assistance de Mathilde (Vercors) sur un long tronçon entre deux ravitaillements. Lundi en vélo pour ne pas enchaîner deux jours de course après la longue du dim. 6. Vendredi 11 = repos (déplacement + on protège la longue).",
+      "contraintes": "⚠ Déplacement sans temps libre : mer. 9/09 matin → jeu. 10/09 soir. ⚠ Vercors (assistance Mathilde, UTV 84K) : ven. 11/09 fin de journée → dim. 13/09 — sortie longue courue SUR PLACE entre deux ravitaillements. ✔ Vendredi 11 = repos (déplacement, et on garde 48 h+ avant la longue). ⚠ La longue de S2 tombant le dim. 6, le lundi 7 passe en VÉLO (sans impact).",
+      "renforcement": "×1 cette semaine (kiné 30', à coupler au vélo du lun. 7)",
       "velo": "intégré comme séance 1 (lun. 7)",
-      "temps_total_min": 175,
-      "km_estimes_total": 15.5,
-      "denivele_total_m": 440,
+      "temps_total_min": 210,
+      "km_estimes_total": 20.0,
+      "denivele_total_m": 650,
       "seances": [
         {
           "code": "S3-01",
@@ -295,19 +295,19 @@ window.PLAN_SAINTESPRINT = {
         {
           "code": "S3-03",
           "numero": 3,
-          "type": "Sortie mi-longue",
-          "jour_suggere": "ven. 11 matin",
-          "duree_min": 75,
+          "type": "Sortie longue (Vercors)",
+          "jour_suggere": "sam. 12 ou dim. 13",
+          "duree_min": 110,
           "intensite": {
             "zone": "Z2",
             "detail": "Z2 (120–141 bpm)",
             "allure_cible": "7:15–7:45/km (allure libre, pilotée par la FC)"
           },
-          "km_estimes": 9,
-          "denivele_m": 290,
-          "detail_seance": "1h15 en Z2 sur terrain vallonné. Remplace la sortie longue (week-end indisponible).",
-          "element_en_tete": "Le week-end Vercors = beaucoup d'heures debout + nuit blanche : c'est une charge réelle, sans bénéfice d'entraînement. Ne rien ajouter après.",
-          "autres": "Ven. 11 en matinée/midi, AVANT le départ pour le Vercors"
+          "km_estimes": 13.5,
+          "denivele_m": 500,
+          "detail_seance": "1h50 en Z2 pendant l'assistance de Mathilde, sur un long tronçon entre deux ravitaillements. Terrain de montagne : rester STRICTEMENT en Z2, marcher les montées raides et TOUTES les descentes techniques. Cible D+ ~500 m, pas plus.",
+          "element_en_tete": "Fenêtre dictée par la course de Mathilde : si tu n'as qu'1 h de créneau, tu prends 1 h — on ne court pas après le chrono. Et si nuit blanche ou grosse fatigue d'assistance : 1h15 max, sans culpabiliser.",
+          "autres": "Sam. 12 ou dim. 13 selon le déroulé de l'UTV. Avantage : voiture = ravitaillement et matériel de secours à portée. Vigilance : privation de sommeil + terrain inconnu = deux facteurs de risque cumulés, donc allure basse et pieds prudents."
         }
       ]
     },
