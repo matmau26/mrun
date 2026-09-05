@@ -1105,6 +1105,13 @@ button { font: inherit; color: inherit; }
   color: var(--text-3);
 }
 .site-foot b { color: var(--text-2); font-weight: 800; }
+.site-foot__legal a {
+  color: var(--text-3);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+.site-foot__legal a:hover { color: var(--text-2); }
 
 /* =========================================================
    Responsive
