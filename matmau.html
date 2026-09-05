@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plan SaintéSprint 2026 — Mathieu</title>
+  <meta name="description" content="Plan d'entraînement personnel — SaintéSprint 24 km, 28 novembre 2026." />
+
+  <!-- Page privée : non listée sur le site, non indexable, accessible par le lien uniquement. -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+  <meta name="googlebot" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="theme-color" content="#08080b" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,400;1,500&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/plan.css?v=5.2" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='50' fill='%23FF5722'/%3E%3Ctext x='50' y='68' font-family='Inter,sans-serif' font-size='54' font-weight='900' fill='%23fff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+
+  <!-- ==========================================================
+       Barre supérieure + navigation par sections
+       ========================================================== -->
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a class="mark" href="#top">Mrun <small>Plan privé</small></a>
+
+      <nav class="nav" id="nav" aria-label="Sections de la page">
+        <button class="nav__toggle" type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          Sections
+        </button>
+        <ul class="nav__list" id="nav-list">
+          <li><a href="#plan">Le plan</a></li>
+          <li><a href="#charge">Charge</a></li>
+          <li><a href="#comparatif">Comparatif</a></li>
+          <li><a href="#zones">Zones</a></li>
+          <li><a href="#regles">Règles</a></li>
+          <li><a href="#jour-j">Jour J</a></li>
+        </ul>
+      </nav>
+
+      <div class="topbar__meta">
+        <span class="chip-count" id="topbar-countdown"></span>
+        <button class="btn btn--ghost btn--sm" type="button" data-goto-now>
+          <span class="btn__long">Semaine en cours</span><span class="btn__short">Ma semaine</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ==========================================================
+         Hero
+         ========================================================== -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero__grid">
+          <div>
+            <span class="eyebrow">Plan d'entraînement · Mathieu · <span id="plan-version">v5</span></span>
+            <h1>Sainté<span>Sprint</span>.</h1>
+            <p class="hero__sub">
+              14 semaines pour arriver au départ de la <strong>SaintéLyon format 24 km</strong>,
+              de nuit, avec une seule obsession : <strong>zéro douleur, tout en durée</strong>.
+            </p>
+
+            <div class="hero__tags">
+              <span class="tag">📍 <b>Lyon</b> · arrivée</span>
+              <span class="tag">🌙 <b>Course de nuit</b></span>
+              <span class="tag">📏 <b>24 km</b> · 500 m D+</span>
+              <span class="tag">🎯 Objectif <b>~3 h 00</b></span>
+              <span class="tag">⏱ Allure <b>7:15–7:30/km</b></span>
+            </div>
+
+            <div class="hero__cta">
+              <button class="btn btn--primary" type="button" data-goto-now>Ma semaine en cours</button>
+              <a class="btn btn--ghost" href="#comparatif">Comparatif 2024</a>
+            </div>
+          </div>
+
+          <aside class="countdown" aria-label="Compte à rebours avant la course">
+            <div class="countdown__label">Avant le départ</div>
+            <div class="countdown__value">
+              <span id="countdown-value">—</span>
+              <small id="countdown-unit"></small>
+            </div>
+            <div class="countdown__date">
+              <b>Samedi 28 novembre 2026</b>
+              Départ le soir · SaintéSprint (format 24 km)
+            </div>
+          </aside>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat__value" id="stat-weeks">—</div>
+            <div class="stat__label">Semaines</div>
+          </div>
+          <div class="stat">
+            <div class="stat__value"><span id="stat-hours">—</span><small>h</small></div>
+            <div class="stat__label">Temps total</div>
+          </div>
+          <div class="stat">
+            <div class="stat__value"><span id="stat-km">—</span><small>km</small></div>
+            <div class="stat__label">Distance estimée</div>
+          </div>
+          <div class="stat">
+            <div class="stat__value"><span id="stat-dplus">—</span><small>m</small></div>
+            <div class="stat__label">Dénivelé positif</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Progression
+         ========================================================== -->
+    <section class="section section--tight" id="progression">
+      <div class="wrap">
+        <div class="panel progress-panel">
+          <div class="ring" aria-hidden="true">
+            <svg viewBox="0 0 120 120">
+              <circle class="ring__track" cx="60" cy="60" r="52" fill="none" stroke-width="9" />
+              <circle class="ring__value" id="ring-value" cx="60" cy="60" r="52" fill="none" stroke-width="9" stroke-dasharray="327" stroke-dashoffset="327" />
+            </svg>
+            <div class="ring__text">
+              <div class="ring__pct" id="ring-pct">0%</div>
+              <div class="ring__cap">Fait</div>
+            </div>
+          </div>
+
+          <div class="progress-body">
+            <h3>Ta progression</h3>
+            <p id="progress-week">—</p>
+            <div class="bar"><div class="bar__fill" id="progress-bar" style="width:0%"></div></div>
+            <div class="progress-legend">
+              <span id="progress-count">—</span>
+              <span id="progress-time">—</span>
+              <span id="progress-km">—</span>
+            </div>
+          </div>
+
+          <div class="progress-actions">
+            <button class="btn btn--ghost btn--sm" type="button" data-goto-now>Aller à la semaine</button>
+            <button class="btn btn--ghost btn--sm" type="button" id="reset-progress">Réinitialiser</button>
+          </div>
+        </div>
+        <p class="fineprint">
+          Les séances validées sont enregistrées dans ce navigateur uniquement (rien n'est envoyé nulle part).
+        </p>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Le plan — semaine par semaine
+         ========================================================== -->
+    <section class="section section--tight" id="plan">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Le plan</span>
+          <h2>14 semaines, <em class="display">séance par séance</em>.</h2>
+          <p>Clique sur une semaine pour ouvrir le détail. Coche les séances au fil de l'eau : la progression se met à jour toute seule.</p>
+        </div>
+
+        <div class="toolbar" role="group" aria-label="Filtrer les semaines">
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">Toutes</button>
+          <button class="filter" type="button" data-filter="charge" aria-pressed="false">Charge</button>
+          <button class="filter" type="button" data-filter="allege" aria-pressed="false">Allègement</button>
+          <button class="filter" type="button" data-filter="course" aria-pressed="false">Course</button>
+          <button class="filter" type="button" id="filter-upcoming" aria-pressed="false">À venir uniquement</button>
+          <span class="toolbar__spacer"></span>
+          <button class="filter" type="button" id="expand-all" data-state="closed">Tout déplier</button>
+        </div>
+
+        <div class="weeks" id="weeks"></div>
+        <p id="weeks-empty" hidden class="fineprint" style="padding:26px 0">Aucune semaine ne correspond à ce filtre.</p>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Charge hebdomadaire
+         ========================================================== -->
+    <section class="section" id="charge">
+      <div class="wrap">
+        <div class="panel">
+          <div class="chart-head">
+            <div>
+              <h3>La charge, semaine par semaine</h3>
+              <p id="chart-caption">Durée hebdomadaire — chaque barre est une semaine, de S1 (S-13) au jour de course.</p>
+            </div>
+            <div class="seg" id="chart-measures" role="tablist" aria-label="Mesure affichée">
+              <button type="button" role="tab" data-measure="duree" aria-selected="true">Durée</button>
+              <button type="button" role="tab" data-measure="distance" aria-selected="false">Distance</button>
+              <button type="button" role="tab" data-measure="denivele" aria-selected="false">D+</button>
+            </div>
+          </div>
+
+          <div class="chart">
+            <div class="chart__scroll"><div id="chart"></div></div>
+            <div class="chart-tooltip" id="chart-tooltip" role="status" aria-live="polite"></div>
+          </div>
+
+          <p class="chart-hint">Fais glisser le graphique pour voir les 14 semaines →</p>
+
+          <div class="legend">
+            <span><i style="background:var(--c-charge)"></i> Charge (spécifique &amp; pic)</span>
+            <span><i style="background:var(--c-allege)"></i> Allègement (décharge, reprise &amp; affûtage)</span>
+            <span><i style="background:var(--c-course)"></i> Semaine de course</span>
+          </div>
+
+          <button class="table-toggle" type="button" id="table-toggle" aria-expanded="false" aria-controls="chart-table">
+            Afficher le tableau de données
+          </button>
+          <div class="data-table" id="chart-table" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Comparatif v5 vs prépa 2024
+         ========================================================== -->
+    <section class="section section--tight" id="comparatif">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Le comparatif</span>
+          <h2>Ce plan face à ta prépa 2024.</h2>
+          <p>
+            Les 14 semaines alignées sur les mêmes repères avant course. <strong>Course finale exclue</strong> des deux
+            séries et <strong>course à pied uniquement</strong> (le vélo est compté à part) : c'est la seule façon de
+            comparer ce qui est comparable.
+          </p>
+        </div>
+
+        <div class="kpis" id="comp-kpis"></div>
+
+        <div class="panel" style="margin-top:16px">
+          <div class="chart-head">
+            <div>
+              <h3>Semaine par semaine</h3>
+              <p id="comp-hint">—</p>
+            </div>
+            <div class="seg" id="comp-measures" role="tablist" aria-label="Mesure comparée">
+              <button type="button" role="tab" data-measure="h" aria-selected="true">Durée</button>
+              <button type="button" role="tab" data-measure="km" aria-selected="false">Km</button>
+              <button type="button" role="tab" data-measure="dp" aria-selected="false">D+</button>
+              <button type="button" role="tab" data-measure="cumul" aria-selected="false">Cumul</button>
+            </div>
+          </div>
+
+          <div class="chart">
+            <div class="chart__scroll"><div id="comp-chart"></div></div>
+            <div class="chart-tooltip" id="comp-tooltip" role="status" aria-live="polite"></div>
+          </div>
+
+          <p class="chart-hint">Fais glisser le graphique pour voir les 14 semaines →</p>
+
+          <div class="legend">
+            <span><i style="background:#e0561f"></i> Plan actuel (v5)</span>
+            <span><i style="background:#3592cc"></i> Prépa 2024 réellement effectuée</span>
+          </div>
+
+          <button class="table-toggle" type="button" id="comp-table-toggle" aria-expanded="false" aria-controls="comp-table">
+            Afficher le tableau de données
+          </button>
+          <div class="data-table" id="comp-table" hidden></div>
+        </div>
+
+        <div class="callout" id="comp-note"></div>
+
+        <p class="fineprint">
+          Source 2024 : export GDPR Garmin (13 semaines avant le 30/11/2024), course de Soucieu-en-Jarrest
+          (24,2 km · 414 m D+ · 3 h 02) exclue des cumuls. Le plan initial v4 n'est plus affiché : il est remplacé par le v5.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Zones FC & allures
+         ========================================================== -->
+    <section class="section" id="zones">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Le référentiel</span>
+          <h2>Zones cardiaques &amp; allures.</h2>
+          <p>Le plan est piloté par la fréquence cardiaque et par la durée. L'allure n'est qu'une conséquence — jamais une consigne.</p>
+        </div>
+
+        <div class="zones-grid">
+          <div class="panel">
+            <div id="zones-list"></div>
+          </div>
+
+          <div class="facts">
+            <dl class="fact">
+              <dt>Endurance fondamentale</dt>
+              <dd>7:15–7:45<small>Footings et sorties longues, pilotés à la FC</small></dd>
+            </dl>
+            <dl class="fact">
+              <dt>Seuil</dt>
+              <dd>6:10–6:40<small>Z3 : 6:20–6:40 · Z3–Z4 : 6:10–6:30</small></dd>
+            </dl>
+            <dl class="fact">
+              <dt>Allure course</dt>
+              <dd>7:15–7:30<small>Objectif ~3 h 00 sur 24 km · 500 m D+</small></dd>
+            </dl>
+            <dl class="fact">
+              <dt>Repères physiologiques</dt>
+              <dd>197 / 49 / 173<small>FC max · FC repos · seuil (LTHR) en bpm</small></dd>
+            </dl>
+            <dl class="fact">
+              <dt>Cadence cible</dt>
+              <dd>178 ppm<small>Protocole métronome sur S1 et S2</small></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Règles + contraintes de septembre
+         ========================================================== -->
+    <section class="section section--tight" id="regles">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Non négociable</span>
+          <h2>Les règles qui tiennent le plan.</h2>
+          <p>Elles priment sur n'importe quelle séance. En cas de doute, c'est la règle qui gagne.</p>
+        </div>
+        <div class="rules-grid" id="rules-grid"></div>
+
+        <div class="section-head" style="margin-top:44px">
+          <span class="eyebrow">Septembre</span>
+          <h2 style="font-size:clamp(1.4rem,2.6vw,2rem)">Les fenêtres indisponibles, déjà absorbées.</h2>
+          <p>Ces quatre périodes sont intégrées au plan : les semaines concernées ont été allégées, pas rattrapées.</p>
+        </div>
+        <div class="indispos" id="indispos"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Jour J
+         ========================================================== -->
+    <section class="section section--tight" id="jour-j">
+      <div class="wrap">
+        <div class="panel raceday">
+          <span class="eyebrow eyebrow--plain" style="color:var(--c-course)">🎯 Samedi 28 novembre 2026 · au soir</span>
+          <h2 style="margin-top:12px">Le protocole du jour J.</h2>
+          <p style="color:var(--text-2);max-width:62ch;margin:0">
+            24 km de nuit. Départ prudent, milieu à l'allure cible, et on finit fort si les jambes répondent.
+            <strong style="color:var(--text)">Négatif split</strong> — c'est la stratégie qui colle le mieux à ton profil.
+          </p>
+
+          <div class="raceday__grid">
+            <div class="raceday__item">
+              <h4>Premier tiers</h4>
+              <p>Z2 à bas Z3, FC sous 150. On se retient volontairement, même si ça semble trop facile.</p>
+            </div>
+            <div class="raceday__item">
+              <h4>Hydratation</h4>
+              <p>300–500 ml/h + 300–600 mg de sodium/h. Rappel toutes les 20–25 min : le froid coupe la soif.</p>
+            </div>
+            <div class="raceday__item">
+              <h4>Nutrition</h4>
+              <p>1 prise toutes les 40–45 min, dès la 45<sup>e</sup> minute. Rien de nouveau le jour J.</p>
+            </div>
+            <div class="raceday__item">
+              <h4>Thermique</h4>
+              <p>Partir légèrement frileux. Ventiler <em>avant</em> de transpirer, pas après.</p>
+            </div>
+            <div class="raceday__item">
+              <h4>À l'arrivée</h4>
+              <p>Couche sèche + doudoune immédiatement. Risque n°1 de la SaintéLyon : l'after-chill.</p>
+            </div>
+            <div class="raceday__item">
+              <h4>Le sac</h4>
+              <p>Frontale chargée + piles de secours, flasque sous la veste, tour de cou, gants fins.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==========================================================
+       Pied de page
+       ========================================================== -->
+  <footer class="site-foot">
+    <div class="wrap site-foot__inner">
+      <span><b>Mrun</b> — Plan SaintéSprint 2026 · v5 (contraintes de septembre intégrées) · généré le <span id="generated-on">—</span></span>
+      <span>Page privée, non listée sur le site. Prépare-toi. Vis-le. Montre-le.</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/plan-saintesprint-data.js?v=5.2"></script>
+  <script src="assets/js/plan-comparaison-data.js?v=5.2"></script>
+  <script src="assets/js/plan.js?v=5.2"></script>
+</body>
+</html>
