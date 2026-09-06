@@ -45,7 +45,7 @@ python3 -m http.server 8000
 `matmau.html` est un plan d'entraînement personnel (SaintéSprint 2026, version **v5**
 — contraintes de septembre intégrées). La page
 **n'est liée depuis aucune autre page** du site : elle n'est accessible que par
-son URL directe — <https://mrun.vercel.app/matmau.html>.
+son URL directe — <https://mrun.fr/matmau.html>.
 
 Elle est aussi marquée `noindex, nofollow` (balise `<meta name="robots">` + en-tête
 `X-Robots-Tag` déclaré dans `vercel.json`) pour ne pas remonter dans les moteurs
