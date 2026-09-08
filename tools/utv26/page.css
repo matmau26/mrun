@@ -185,7 +185,7 @@ text.ax.pk{fill:var(--ink);text-anchor:start;font-size:7.4px}
 .cp{
   position:relative;background:var(--surf);border:1px solid var(--line);
   border-left:4px solid var(--line2);border-radius:var(--rs);
-  margin:7px 0;box-shadow:var(--shadow);scroll-margin-top:132px;
+  margin:7px 0;box-shadow:var(--shadow);scroll-margin-top:calc(var(--hh,64px) + var(--jh,0px) + 10px);
 }
 .cp.ravito{border-left-color:var(--acc)}
 .cp.barriere{border-left-color:var(--bad)}
@@ -268,14 +268,21 @@ ul.chk input:checked+span{color:var(--ink3);text-decoration:line-through}
 .count.full{background:var(--ok-soft);color:var(--ok)}
 
 /* -------------------------------------------------------------- navigation */
-.jump{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:9px 10px;margin:0 -10px;scrollbar-width:none}
+.jump,.stuck{
+  position:sticky;top:var(--hh,64px);z-index:20;
+  margin:0 -10px;padding:7px 10px;background:var(--bg);
+  box-shadow:0 1px 0 var(--line),0 6px 8px -8px rgba(18,20,22,.28);
+}
+.jump{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .jump::-webkit-scrollbar{display:none}
 .jump button{
-  flex:0 0 auto;min-height:34px;padding:5px 11px;border:1px solid var(--line2);
+  flex:0 0 auto;min-height:32px;padding:4px 11px;border:1px solid var(--line2);
   border-radius:20px;background:var(--surf);color:var(--ink2);
   font:inherit;font-size:.76rem;font-weight:650;cursor:pointer;white-space:nowrap;
 }
 .jump button.on{background:var(--ink);border-color:var(--ink);color:var(--surf)}
+/* cible d'un saut : sous l'en-tête ET sous la barre de sous-menu */
+[data-anchor]{scroll-margin-top:calc(var(--hh,64px) + var(--jh,0px) + 10px)}
 
 /* ------------------------------------------------------------- nutrition */
 .tl{list-style:none;margin:8px 0 0;padding:0;position:relative}
@@ -362,6 +369,7 @@ footer{padding:14px 4px 4px;text-align:center;font-size:.68rem;color:var(--ink3)
 @media print{
   :root{--bg:#fff;--surf:#fff;--surf2:#fff;--surf3:#f2f2f2;--ink:#000;--ink2:#333;--ink3:#555;--line:#bbb;--line2:#888;--shadow:none;--night:#f0f0f0}
   .tabs,.toolbar,.jump,.live,.iconbtn,input[type=search],.chart-wrap,.chips{display:none!important}
+  .stuck{position:static;box-shadow:none;margin:0;padding:0}
   header{position:static;border:0;padding:0;background:none}
   .brand{padding:0 0 6pt}
   .brand h1{font-size:13pt}

@@ -377,9 +377,12 @@ def frn(n):
     return format(int(round(n)), ',d').replace(',', ' ')
 
 # ------------------------------------------------------------- textes repris tels quels
-REGLES = """<div class="card rules"><h3>Les 3 règles</h3><ol><li><b>≤ 120 W sur la première montée.</b> Sommet attendu km 12,43 entre 06h51 et 07h02 ; avant 06h50, ce sont les watts moyens de M1 qui tranchent (&gt; 125 W = trop vite). Alarme FC 165 = « regarde les watts », pas « ralentis ».</li><li><b>Repartie d'Autrans avant 12h15</b>, sinon mode barrière (Pertuson km 56,45 ferme à 15h00).</li><li><b>Aucun arrêt debout « pour souffler ».</b> Les seuls arrêts : les 3 ravitos, un pipi, un caillou dans la chaussure. Tout le reste se fait en marchant.</li></ol><p class="knee"><b>Règle du genou (« règle des 10 minutes »)</b> — dès que le genou fait mal en descente : foulée courte, cadence haute, bâtons, pendant <b>10 minutes</b>. Toujours là après 10 minutes → <b>tu MARCHES toute la descente en cours</b>. À la descente suivante, tu recours et tu refais le test. Marcher 10 min de descente coûte 3-4 min ; courir sur un genou qui parle coûte la portion ④.</p></div>"""
+REGLES_TPL = """<div class="card rules"%s><h3>Les 3 règles</h3><ol><li><b>≤ 120 W sur la première montée.</b> Sommet attendu km 12,43 entre 06h51 et 07h02 ; avant 06h50, ce sont les watts moyens de M1 qui tranchent (&gt; 125 W = trop vite). Alarme FC 165 = « regarde les watts », pas « ralentis ».</li><li><b>Repartie d'Autrans avant 12h15</b>, sinon mode barrière (Pertuson km 56,45 ferme à 15h00).</li><li><b>Aucun arrêt debout « pour souffler ».</b> Les seuls arrêts : les 3 ravitos, un pipi, un caillou dans la chaussure. Tout le reste se fait en marchant.</li></ol><p class="knee"><b>Règle du genou (« règle des 10 minutes »)</b> — dès que le genou fait mal en descente : foulée courte, cadence haute, bâtons, pendant <b>10 minutes</b>. Toujours là après 10 minutes → <b>tu MARCHES toute la descente en cours</b>. À la descente suivante, tu recours et tu refais le test. Marcher 10 min de descente coûte 3-4 min ; courir sur un genou qui parle coûte la portion ④.</p></div>"""
 
-LECTURE = """<div class="card"><h3>Lecture rapide aux ravitos</h3><table class="kv"><tr><th>St-Nizier 25,4</th><td>avant 08h34 bonne · 08h34-09h00 réaliste · 09h00-09h19 prudent · 09h19-09h43 dégradé · après 09h43 alerte</td></tr><tr><th>Autrans 41,3</th><td>avant 10h53 bonne · 10h53-<b>11h30</b> réaliste · 11h30-12h10 prudent · 12h10-12h30 dégradé · <b>après 12h30 → mode barrière</b></td></tr><tr><th>Rencurel 65,3</th><td>avant 14h15 bonne · 14h15-15h33 réaliste · 15h33-16h27 prudent · 16h27-17h00 dégradé</td></tr><tr><th>Arrivée</th><td>avant 17h45 bonne · 17h45-19h00 réaliste · 19h00-20h00 prudent (crépuscule) · 20h00-21h00 dégradé (nuit)</td></tr></table></div>"""
+def regles(el_id=''):
+    return REGLES_TPL % ((' id="%s"' % el_id) if el_id else '')
+
+LECTURE = """<div class="card" id="su-lecture"><h3>Lecture rapide aux ravitos</h3><table class="kv"><tr><th>St-Nizier 25,4</th><td>avant 08h34 bonne · 08h34-09h00 réaliste · 09h00-09h19 prudent · 09h19-09h43 dégradé · après 09h43 alerte</td></tr><tr><th>Autrans 41,3</th><td>avant 10h53 bonne · 10h53-<b>11h30</b> réaliste · 11h30-12h10 prudent · 12h10-12h30 dégradé · <b>après 12h30 → mode barrière</b></td></tr><tr><th>Rencurel 65,3</th><td>avant 14h15 bonne · 14h15-15h33 réaliste · 15h33-16h27 prudent · 16h27-17h00 dégradé</td></tr><tr><th>Arrivée</th><td>avant 17h45 bonne · 17h45-19h00 réaliste · 19h00-20h00 prudent (crépuscule) · 20h00-21h00 dégradé (nuit)</td></tr></table></div>"""
 
 INFOS = """<div class="card"><h3>Repères de la journée</h3><table class="kv"><tr><th>Départ</th><td>Samedi 12/09/2026 · 05h00 · Villard-de-Lans, Colline des Bains</td></tr><tr><th>Parcours</th><td>84,9 km · D+ 4 888 (trace) / 4 300 (orga) · alt 680 → 1 918 m</td></tr><tr><th>Lumière</th><td>Aube ~06h40 · lever 07h13 · coucher 19h51 · nuit 20h21</td></tr><tr><th>Barrières</th><td>Pertuson km 56,45 : <b>15h00</b> · arrivée 23h30 · 5 autres barrières (km 25,4 · 33 · 41,3 · 65,3 · 72,6) — <b>heures à récupérer au briefing</b> : le dégradé passe Rencurel à 16h27 et le km 72,6 à 18h10</td></tr><tr><th>Ravitos</th><td>St-Nizier km 25,44 · Autrans (La Sure) km 41,28 · Rencurel km 65,29 — aucun gobelet, assistance autorisée</td></tr><tr><th>Secours</th><td>Postes aux km 12,3 · 20,4 · 25,5 · 33 · 36,9 · 46 · 58,2 · 65,3 · 71 · 76 · arrivée (positions de la trace officielle)</td></tr><tr><th>Interdits</th><td><b>Anti-inflammatoires (ibuprofène…) toute la journée.</b> Paracétamol seulement si Mathieu le donne.</td></tr><tr><th>Chronos live</th><td>km 12,3 · 25,4 · 30 · 33,1 · 41,3 · 58,2 · 65,3 · 76,1 — live.l-chrono.com</td></tr><tr><th>Météo (J-4)</th><td>Sec, peu nuageux · 8 °C matin / 17-19 °C après-midi à 1 027 m · 3-6 °C au sommet à 07h · 20-23 °C aux points bas 15h-17h · vent N 10 km/h. À revérifier le 11/09.</td></tr><tr><th>Physio</th><td>CP 179 W · FCmax 197 · LTHR 183 · plafonds puissance ① ≤120 W · ② ≤117 · ③ ≤112 · ④ ≤107 (estimations)</td></tr></table></div>"""
 
@@ -426,8 +429,9 @@ def sec_suivi():
 
     tot_up = up_dn(0, L)[0]
     return (
+      '%s'
       '<div class="card tint" id="pertuson" hidden><p id="pertL"></p></div>'
-      '<div class="card">'
+      '<div class="card" id="su-profil">'
         '<div class="toolbar" style="justify-content:space-between;align-items:baseline">'
           '<h2 style="font-size:.94rem;font-weight:750">Profil · %s km · D+ %s m</h2>'
           '<button type="button" class="btn" id="chartZoom" aria-pressed="false">Agrandir</button>'
@@ -449,7 +453,7 @@ def sec_suivi():
         '<p class="sub" style="margin-top:8px">Calculé sur le dernier point de passage saisi.</p>'
       '</div>'
       '%s'
-      '<div class="card">'
+      '<div class="card" id="su-outils">'
         '<p class="sub">Saisis l\'heure réelle à chaque passage connu : le scénario se calcule tout seul. '
         'Une seule lecture ne veut rien dire — c\'est la tendance sur 2-3 points qui compte. '
         'Heures des ravitos = arrêt inclus. Sauvegarde automatique sur cet appareil.</p>'
@@ -461,12 +465,15 @@ def sec_suivi():
           '<span class="msg" id="msg" role="status"></span>'
         '</div>'
       '</div>'
-      '<div class="cplist">%s</div>'
+      '<div class="cplist" id="su-passages">%s</div>'
       '%s'
-      '<div class="card"><h3>Notes de course</h3>'
+      '<div class="card" id="su-notes"><h3>Notes de course</h3>'
       '<textarea id="notes" placeholder="Ce qu\'elle a dit aux ravitos, ce qu\'elle a mangé, décisions prises…"></textarea></div>'
-      '<details class="card tablewrap">%s<table class="big"><thead>%s</thead><tbody>%s</tbody></table></details>'
-      % (fr(L), frn(tot_up), main_profile(), fr(L), frn(tot_up), REGLES,
+      '<details class="card tablewrap" id="su-tableau">%s<table class="big"><thead>%s</thead><tbody>%s</tbody></table></details>'
+      % (jump([('su-profil', 'Profil'), ('su-regles', '3 règles'),
+                ('su-passages', 'Passages'), ('su-lecture', 'Lecture rapide'),
+                ('su-notes', 'Notes'), ('su-tableau', 'Tableau')]),
+         fr(L), frn(tot_up), main_profile(), fr(L), frn(tot_up), regles('su-regles'),
          "".join(cards), LECTURE,
          sumline('Tableau complet', 'Les 23 points × 5 scénarios — pour l\'écran large et l\'impression'),
          thead, "".join(rows)))
@@ -540,7 +547,7 @@ def sec_briefing():
     o = [jump([('br-%d' % i, short(b['t'])) for i, b in enumerate(BRIEFING)])]
     o.append('<p class="intro">Le film de la journée : quoi faire, quand, et ce que tu vas ressentir '
              '— pour l\'avoir déjà vécu avant de le vivre.</p>')
-    o.append(REGLES)
+    o.append(regles('br-regles'))
     for i, b in enumerate(BRIEFING):
         o.append('<details class="card" id="br-%d"%s>'
                  '<summary><span class="sum-t"><b>%s</b><span class="sub">%s</span></span>%s</summary>'
@@ -561,11 +568,12 @@ def sec_whatif():
     def norm(t):
         t = unicodedata.normalize('NFD', t.lower())
         return "".join(c for c in t if unicodedata.category(c) != 'Mn')
-    o = ['<p class="intro">Un signal = un plan. Tu bascules, tu ne réfléchis pas.</p>'
-         '<div class="card" style="padding:10px 11px">'
+    o = ['<div class="stuck">'
          '<label class="vh" for="wiQ">Filtrer les situations</label>'
          '<input type="search" id="wiQ" placeholder="Filtrer : genou, estomac, chaud, barrière…" '
-         'autocomplete="off" enterkeyhint="done"></div><div id="wiList">']
+         'autocomplete="off" enterkeyhint="done"></div>'
+         '<p class="intro">Un signal = un plan. Tu bascules, tu ne réfléchis pas.</p>'
+         '<div id="wiList">']
     for w in WHATIF:
         hay = norm(" ".join([w['titre'], w['signal'], w['decision'], " ".join(w['plan']), w['mathieu']]))
         o.append('<details class="card%s" data-s="%s">'

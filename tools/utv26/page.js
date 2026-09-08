@@ -17,6 +17,7 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  var header = $('header'), root = document.documentElement;
 
   /* ------------------------------------------------------- heures et durées */
   function toH(v) {                        // « 08:47 » -> heures depuis 05h00
@@ -73,7 +74,9 @@
   $('#btnTheme').addEventListener('click', function () {
     st.theme = THEMES[(THEMES.indexOf(st.theme || 'auto') + 1) % 3]; save(); applyTheme();
   });
-  $('#btnBig').addEventListener('click', function () { st.big = !st.big; save(); applyBig(); });
+  $('#btnBig').addEventListener('click', function () {
+    st.big = !st.big; save(); applyBig(); syncOffsets();
+  });
 
   var wl = null, btnWake = $('#btnWake');
   if (btnWake && 'wakeLock' in navigator) {
@@ -109,6 +112,7 @@
     });
     $$('main > section').forEach(function (s) { s.classList.toggle('on', s.id === t); });
     st.tab = t; save();
+    syncOffsets(); spy();
     if (push && location.hash.slice(1) !== t) history.pushState(null, '', '#' + t);
     return t;
   }
@@ -296,18 +300,66 @@
     $('#wiNone').hidden = n > 0;
   });
 
+  /* --------------------------------------- barres collées : hauteurs réelles
+     --hh = hauteur de l'en-tête, --jh = hauteur de la barre de sous-menu.
+     Mesurées plutôt que codées en dur : elles bougent avec la taille de
+     texte, l'encoche de l'écran et le retour à la ligne du bandeau live. */
+  function syncOffsets() {
+    if (!header) return;
+    root.style.setProperty('--hh', Math.round(header.getBoundingClientRect().height) + 'px');
+    var sec = $('main > section.on'), bar = sec && $('.jump, .stuck', sec);
+    root.style.setProperty('--jh', bar ? Math.round(bar.getBoundingClientRect().height) + 'px' : '0px');
+  }
+  syncOffsets();
+  window.addEventListener('resize', syncOffsets);
+  window.addEventListener('orientationchange', syncOffsets);
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(syncOffsets);
+    ro.observe(header);
+    $$('.jump, .stuck').forEach(function (b) { ro.observe(b); });
+  }
+
   /* ------------------------------------------------- navigation par pastilles */
-  $$('.jump').forEach(function (bar) {
-    $$('button', bar).forEach(function (b) {
-      b.addEventListener('click', function () {
-        var t = document.getElementById(b.dataset.go);
-        if (!t) return;
-        if (t.tagName === 'DETAILS') t.open = true;
-        t.scrollIntoView({ block: 'start', behavior: 'smooth' });
-        $$('button', bar).forEach(function (x) { x.classList.toggle('on', x === b); });
-      });
+  $$('.jump button').forEach(function (b) {
+    var t = document.getElementById(b.dataset.go);
+    if (t) t.setAttribute('data-anchor', '');   /* -> scroll-margin-top en CSS */
+    b.addEventListener('click', function () {
+      if (!t) return;
+      if (t.tagName === 'DETAILS') t.open = true;
+      syncOffsets();
+      t.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      mark(b);
     });
   });
+  function mark(b) {
+    var bar = b.parentNode;
+    $$('button', bar).forEach(function (x) { x.classList.toggle('on', x === b); });
+    var bl = bar.getBoundingClientRect(), cl = b.getBoundingClientRect();
+    if (cl.left < bl.left + 6 || cl.right > bl.right - 6) {
+      var to = bar.scrollLeft + (cl.left - bl.left) - 14;
+      if (bar.scrollTo) bar.scrollTo({ left: to, behavior: 'smooth' }); else bar.scrollLeft = to;
+    }
+  }
+
+  /* la pastille active suit la lecture, pour que la barre dise où on en est */
+  var spyPending = 0;
+  function spy() {
+    spyPending = 0;
+    var sec = header && $('main > section.on');
+    if (!sec) return;
+    var bar = $('.jump', sec);
+    if (!bar) return;
+    var limit = header.getBoundingClientRect().height + bar.getBoundingClientRect().height + 12;
+    var btns = $$('button', bar), cur = btns[0];
+    btns.forEach(function (b) {
+      var t = document.getElementById(b.dataset.go);
+      if (t && t.getBoundingClientRect().top <= limit) cur = b;
+    });
+    if (cur && !cur.classList.contains('on')) mark(cur);
+  }
+  window.addEventListener('scroll', function () {
+    if (!spyPending) spyPending = requestAnimationFrame(spy);
+  }, { passive: true });
 
   /* ------------------------------------------------------------------ profil */
   $('#chartZoom').addEventListener('click', function () {
