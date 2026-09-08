@@ -253,14 +253,15 @@ BKM = [(None, None), (0, 0.3), (0, 12.43), (12.43, 25.44), (25.44, 25.8),
        (25.44, 35.82), (35.82, 41.28), (41.28, 65.29), (65.29, 65.6),
        (65.22, 69.42), (69.42, 72.41), (72.41, 81.52), (81.52, L)]
 
-def ou_tu_es(k0, k1):
+def ou_tu_es(k0, k1, dec='.'):
     if k0 is None:
         return ""
     up, dn = up_dn(k0, k1)
     rup, rdn = up_dn(k1, L)
-    return ("<p class='ou'><b>km %.1f → %.1f</b> · alt %d → %d m · cette section : "
-            "+%d / −%d m · <b>il restera %.1f km et %d m de D+</b> (%d m de descente)</p>"
-            % (k0, k1, alt_at(k0), alt_at(k1), up, dn, L - k1, rup, rdn))
+    t = ("<p class='ou'><b>km %.1f → %.1f</b> · alt %d → %d m · cette section : "
+         "+%d / −%d m · <b>il restera %.1f km et %d m de D+</b> (%d m de descente)</p>"
+         % (k0, k1, alt_at(k0), alt_at(k1), up, dn, L - k1, rup, rdn))
+    return t if dec == '.' else t.replace('.', dec)
 
 # ------------------------------------------------------- prises de nutrition
 PKM = [(0, 25.44), (25.44, 41.28), (41.28, 65.29), (65.29, L)]
@@ -433,7 +434,7 @@ def sec_suivi():
       '<div class="card tint" id="pertuson" hidden><p id="pertL"></p></div>'
       '<div class="card" id="su-profil">'
         '<div class="toolbar" style="justify-content:space-between;align-items:baseline">'
-          '<h2 style="font-size:.94rem;font-weight:750">Profil · %s km · D+ %s m</h2>'
+          '<h2>Profil · %s km · D+ %s m</h2>'
           '<button type="button" class="btn" id="chartZoom" aria-pressed="false">Agrandir</button>'
         '</div>'
         '<div class="chart-wrap" id="chartWrap">%s</div>'
@@ -557,7 +558,7 @@ def sec_briefing():
                  % (i, ' open' if i < 2 else '', md2html(b['t']), md2html(b['h']), CHEV,
                     "".join('<div>%s</div>' % md2html(x) for x in b['carte']),
                     ('<div class="chart-wrap">%s</div>' % mini_profile(BKM[i][0], BKM[i][1], i)) if BKM[i][0] is not None else '',
-                    ou_tu_es(BKM[i][0], BKM[i][1]),
+                    ou_tu_es(BKM[i][0], BKM[i][1], ','),
                     li_list(b['faire']), md2html(b['reperes']), md2html(b['ressenti']),
                     ('<h4>Leçon du Mont-Blanc</h4><p class="mmb">%s</p>' % md2html(b['mmb'])) if b['mmb'] else ''))
     return "".join(o)
@@ -667,7 +668,7 @@ def build_html():
 <header>
   <div class="brand">
     <div class="brand-t">
-      <h1>UTV 84K · Mathilde</h1>
+      <h1><span class="mk">UTV 84K</span> · Mathilde</h1>
       <span class="sub">Sam. 12/09/2026 · départ 05h00 · plan v3</span>
     </div>
     <button type="button" class="iconbtn" id="btnBig" aria-pressed="false" aria-label="Agrandir le texte" title="Taille du texte">A+</button>
