@@ -13,6 +13,9 @@ Site internet de l'association **Mrun** (trail running & course nature).
 │   ├── 2026-04-grand-raid-ventoux.html       # Communiqué Grand Raid du Ventoux
 │   └── 2026-06-marathon-mont-blanc.html      # Communiqué Marathon du Mont-Blanc
 ├── matmau.html                               # Page privée (non listée) — plan SaintéSprint
+├── UTV26.html                                # Page privée (non listée) — plan de course UTV 84K (généré)
+├── utv26-sw.js                               # Service worker de UTV26.html (lecture hors réseau)
+├── tools/utv26/                              # Sources et générateur de UTV26.html (voir son README)
 ├── public/                                   # Photos (dossier par course : 2026GRV, 2026MMB…)
 └── assets/
     ├── css/style.css                         # Feuille de style du site
@@ -88,3 +91,39 @@ incrémenter le jeton dans `matmau.html` reste la garantie la plus sûre.
 et de la préparation 2024 (durée, km, D+). Dans les deux séries : **course finale exclue**
 et **course à pied uniquement** — c'est la seule base comparable, et les totaux affichés
 dans cette section diffèrent donc volontairement de ceux du plan complet.
+
+## Page privée — plan de course UTV 84K
+
+`UTV26.html` est le plan de course de Mathilde pour l'**Ultra Trail du Vercors
+84K du samedi 12/09/2026** : suivi des 23 points de passage sur 5 scénarios,
+organisation des ravitos, plan nutrition, briefing des 13 phases de la journée
+et 20 bascules « what if ». Conçue pour être ouverte sur téléphone pendant la
+course — mobile d'abord, gros boutons, thème clair/sombre, taille de texte
+réglable.
+
+Comme `matmau.html` : **liée depuis aucune autre page**, `noindex, nofollow`
+(balise + `X-Robots-Tag` dans `vercel.json`), accessible seulement par son URL
+directe — <https://mrun.fr/UTV26.html>. Ce n'est pas une protection par mot de
+passe : qui a le lien a la page.
+
+Particularités :
+
+- **Un seul fichier, zéro requête réseau** au chargement (pas de CDN, pas de
+  police web, pas d'analytics) : profil du parcours dessiné en SVG inline.
+- `utv26-sw.js` est un service worker de **portée limitée à `/UTV26.html`**
+  (il n'intercepte rien d'autre sur le site), en stratégie **réseau d'abord** :
+  en ligne la page servie est toujours celle du serveur, hors ligne elle se
+  recharge depuis la dernière copie — utile en zone blanche dans le Vercors.
+- Heures saisies, cases cochées et notes restent dans le `localStorage` de
+  l'appareil (clé `utv84k_v3`) : rien n'est envoyé sur un serveur.
+
+### Mettre à jour la page
+
+La page est **générée** : ne pas l'éditer à la main.
+
+```bash
+cd tools/utv26 && python3 build.py   # -> ../../UTV26.html
+```
+
+Contenu, données de pacing et procédure de vérification : voir
+[`tools/utv26/README.md`](tools/utv26/README.md).
