@@ -1,5 +1,12 @@
 {
   "outputDirectory": ".",
+  "redirects": [
+    { "source": "/utv26.html", "destination": "/UTV26.html", "permanent": false },
+    { "source": "/Utv26.html", "destination": "/UTV26.html", "permanent": false },
+    { "source": "/utv26", "destination": "/UTV26.html", "permanent": false },
+    { "source": "/UTV26", "destination": "/UTV26.html", "permanent": false },
+    { "source": "/Utv26", "destination": "/UTV26.html", "permanent": false }
+  ],
   "headers": [
     {
       "source": "/matmau.html",
