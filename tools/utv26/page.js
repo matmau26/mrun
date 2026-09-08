@@ -235,7 +235,7 @@
     var r = last >= 0 ? classify(last, toH(st.reel[last])) : null;
     var l1 = $('#liveL1'), l2 = $('#liveL2');
     if (r) {
-      l1.textContent = (r.label ? r.label + ' · ' : '') + (r.delta >= 0 ? '+' : '') + r.delta + ' min vs réaliste';
+      l1.textContent = (r.label ? r.label + ' · ' : 'Départ · ') + (r.delta >= 0 ? '+' : '') + r.delta + ' min';
       l1.className = 'l1 scen ' + r.cls;
     } else {
       l1.textContent = IS_RACE_DAY ? 'Aucun passage saisi' : 'J−' + daysToRace() + ' · samedi 12/09, départ 05h00';
