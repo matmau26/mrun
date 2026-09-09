@@ -380,7 +380,7 @@ ul.chk input:checked+span{color:var(--ink3);text-decoration:line-through}
 .big td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
 .big td.nm{text-align:left;white-space:normal;min-width:150px;font-size:.72rem}
 .big td.km{text-align:right;color:var(--ink2)}
-.big td.alt{color:var(--ink3)}
+.big td.dp{color:var(--ink2);white-space:nowrap}
 .big td.h0{color:var(--s0)}.big td.h1{color:var(--s1)}.big td.h2{color:var(--s2)}
 .big td.h3{color:var(--s3)}.big td.h4{color:var(--s4)}
 .big tr.ravito td,.big tr.terminus td,.big tr.barriere td{font-weight:750}

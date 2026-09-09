@@ -411,9 +411,9 @@ def sec_suivi():
     rows = []
     for c in CP:
         rows.append('<tr class="%s" data-i="%d"><td class="km num">%s</td>'
-                    '<td class="alt num">%d</td><td class="nm">%s</td>%s'
+                    '<td class="dp num">%s</td><td class="nm">%s</td>%s'
                     '<td class="reel num" data-reel="%d">—</td><td data-scen="%d"></td></tr>'
-                    % (c['type'], c['i'], fr(c['km']), c['alt'], md2html(c['nom']),
+                    % (c['type'], c['i'], fr(c['km']), frn(up_dn(0, c['km'])[0]), md2html(c['nom']),
                        "".join('<td class="h%d num">%s</td>' % (j, clock(c['h'][j])) for j in range(5)),
                        c['i'], c['i']))
     rows.append('<tr><td></td><td></td><td class="nm"><b>Temps en mouvement</b></td>%s<td></td><td></td></tr>'
@@ -425,7 +425,7 @@ def sec_suivi():
                 % "".join('<td class="h%d num"><b>%s</b><br>→ %s</td>' % (j, hm(sc[s]['total']), clock(sc[s]['total']))
                           for j, s in enumerate(S)))
 
-    thead = ('<tr><th>km</th><th>alt</th><th>Point</th>%s<th>Réel</th><th>Scénario</th></tr>'
+    thead = ('<tr><th>km</th><th>D+ cum.</th><th>Point</th>%s<th>Réel</th><th>Scénario</th></tr>'
              % "".join('<th class="h%d">%s</th>' % (j, SH[j]) for j in range(5)))
 
     tot_up = up_dn(0, L)[0]
