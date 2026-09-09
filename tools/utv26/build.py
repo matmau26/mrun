@@ -12,7 +12,7 @@ Sources (ne pas éditer le HTML à la main) :
 Les textes, chiffres et heures viennent de ces fichiers : seule la présentation
 est définie ici.
 """
-import json, re, html, os
+import hashlib, json, re, html, os
 
 from content import RAVITOS, MATHIEU_LOGISTIQUE, NUTRITION, BRIEFING, WHATIF
 
@@ -230,16 +230,16 @@ def mini_profile(k0, k1, idx):
 
 def portion_profile(k0, k1, intakes, idx):
     """Profil complet, portion surlignée, prises de nutrition numérotées."""
-    o = '<svg class="chart port" viewBox="0 -44 400 194" role="img" aria-label="Profil de la portion km %.1f à %.1f avec les %d prises numérotées">' % (k0, k1, len(intakes))
+    o = '<svg class="chart port" viewBox="0 -56 400 206" role="img" aria-label="Profil de la portion km %.1f à %.1f avec les %d prises numérotées">' % (k0, k1, len(intakes))
     o += base_profile((k0, k1))
     prev, lvl = -99.0, 0
     for n, (km, txt) in enumerate(intakes, 1):
         if km is None:
             continue
         x, y = px(km), py(alt_at(km))
-        lvl = (lvl + 1) % 2 if (x - prev) < 42 else 0
+        lvl = (lvl + 1) % 3 if (x - prev) < 40 else 0
         prev = x
-        yb = -32 + lvl * 15
+        yb = -46 + lvl * 15
         o += ('<line class="lead" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f"/>'
               '<circle class="nb" cx="%.1f" cy="%.1f" r="6"/>'
               '<text class="nbt" x="%.1f" y="%.1f">%d</text>'
@@ -274,14 +274,12 @@ def intakes_of(p):
         short = re.sub(r'\*\*|—.*| .*', ' ', b_).split()[0] if b_ else ''
         short = {'gel': 'gel', 'barre': 'barre', 'purée': 'purée',
                  'rien': '—'}.get(short.lower().strip('*'), short.strip('*'))
-        if 'caféiné' in b_:
-            short = 'gel caf.'
         if 'salée' in b_:
             short = 'purée salée'
-        if 'rien' in b_.lower():
+        if 'plus rien' in b_.lower():
             short = '(fin flasques)'
-        if 'seulement' in b_:
-            short = 'gel opt.'
+        if 'caféiné' in b_ or 'CAF' in b_:
+            short = 'gel caf.'
         out.append((km, short))
     return out
 
@@ -293,7 +291,7 @@ for pi, p in enumerate(NUTRITION['portions']):
 # ------------------------------------------------------- export markdown (relecture)
 def build_md():
     M = []
-    M.append("# UTV 84K — CONTENU DE LA PAGE (source pour Claude Code)\n\nGénéré le 08/09/2026 · pacing v3 · nutrition v3 · météo J-4. Cinq onglets.\n")
+    M.append("# UTV 84K — CONTENU DE LA PAGE (source pour Claude Code)\n\nGénéré le 09/09/2026 · pacing v3 · nutrition v3.4 · météo J-4. Cinq onglets.\n")
     M.append("## ONGLET 1 — SUIVI DE COURSE (digital)\n\nTable des 23 points de passage × 5 scénarios, colonne « Réel » saisissable (heure), colonne « Scénario » calculée automatiquement, notes libres, sauvegarde locale (localStorage) et export JSON. Données dans `data.json`. Le profil `UTV84K_Profil_Pacing.png` est affiché au-dessus.\n")
     M.append("| km | alt | Point | " + " | ".join(SH) + " |\n|---|---|---|" + "---|" * 5)
     for p in pts:
@@ -309,6 +307,8 @@ def build_md():
     M.append("### Logistique Mathieu\n" + "\n".join("- **%s** — %s" % (a, b) for a, b in MATHIEU_LOGISTIQUE) + "\n")
     M.append("## ONGLET 3 — NUTRITION & HYDRATATION (pour Mathilde)\n")
     M.append("### Ce qu'il faut savoir\n" + "\n".join("- **%s** %s" % (a, b) for a, b in NUTRITION['principes']) + "\n")
+    M.append("### Tes produits (étiquettes relevées le 09/09)\n\n| Produit | Format | Glucides | Sodium | Lipides | Testé ? |\n|---|---|---|---|---|---|\n"
+             + "\n".join("| " + " | ".join(r) + " |" for r in NUTRITION['produits']) + "\n")
     M.append("### Cibles\n" + "\n".join("- **%s** : %s" % (a, b) for a, b in NUTRITION['cibles']) + "\n")
     M.append("### Avant le départ\n" + "\n".join("- **%s** — %s" % (a, b) for a, b in NUTRITION['avant']) + "\n")
     for p in NUTRITION['portions']:
@@ -363,9 +363,18 @@ def li_list(items, cls=''):
                               "".join('<li>%s</li>' % md2html(x) for x in items))
 
 def chk_list(items, key):
-    return ('<ul class="chk">%s</ul>' % "".join(
-        '<li><label><input type="checkbox" data-k="%s-%d"><span>%s</span></label></li>'
-        % (key, i, md2html(x)) for i, x in enumerate(items)))
+    """Liste à cocher. La clé de sauvegarde vient du TEXTE de la ligne, pas de sa
+    position : après une mise à jour du plan, une ligne déplacée garde sa coche et
+    une ligne réécrite la perd — ce qui est le comportement voulu, on veut la
+    relire. Avec un index, tout se décalait en silence."""
+    seen, out = set(), []
+    for x in items:
+        h = hashlib.sha1(x.encode('utf-8')).hexdigest()[:8]
+        assert h not in seen, 'deux lignes identiques dans %s' % key
+        seen.add(h)
+        out.append('<li><label><input type="checkbox" data-k="%s-%s"><span>%s</span></label></li>'
+                   % (key, h, md2html(x)))
+    return '<ul class="chk">%s</ul>' % "".join(out)
 
 def jump(pairs):
     return ('<nav class="jump" aria-label="Aller à">%s</nav>'
@@ -514,15 +523,26 @@ def sec_ravitos():
 # ----------------------------------------------------------- onglet NUTRITION
 def sec_nutrition():
     dest = ['St-Nizier', 'Autrans', 'Rencurel', 'Arrivée']
-    o = [jump([('nut-savoir', 'À savoir'), ('nut-cibles', 'Cibles'), ('nut-avant', 'Avant')]
+    o = [jump([('nut-savoir', 'À savoir'), ('nut-produits', 'Produits'),
+               ('nut-cibles', 'Cibles'), ('nut-avant', 'Avant')]
               + [('nut-p%d' % (i + 1), '%s %s' % (PNUM[i], dest[i])) for i in range(4)]
               + [('nut-plan', 'Plan B/C')])]
     o.append('<p class="intro">Pour Mathilde : quoi prendre, quand, et comment gérer. '
-             'Plan v3 du 08/09, construit sur tes propres données.</p>'
+             'Plan nutrition v3.4 du 09/09, construit sur tes propres données '
+             'et sur les étiquettes de tes produits.</p>'
              '<p class="card tint" id="nutNext" hidden style="font-weight:700;font-size:.85rem"></p>')
     o.append('<div class="card" id="nut-savoir"><h3>Ce qu\'il faut savoir</h3>%s</div>'
              % "".join('<div class="pr"><b>%s</b><p>%s</p></div>' % (md2html(a), md2html(b))
                        for a, b in NUTRITION['principes']))
+    prod = []
+    for nom, fmt, gl, na, li, note in NUTRITION['produits']:
+        prod.append('<li><div class="p-h"><b>%s</b><span>%s</span></div>'
+                    '<div class="p-n"><span><i>Glucides</i>%s</span><span><i>Sodium</i>%s</span>'
+                    '<span><i>Lipides</i>%s</span></div><p class="p-t">%s</p></li>'
+                    % (md2html(nom), md2html(fmt), md2html(gl), md2html(na), md2html(li), md2html(note)))
+    o.append('<div class="card" id="nut-produits"><h3>Tes produits</h3>'
+             '<p class="sub">Valeurs relevées sur les étiquettes le 09/09.</p>'
+             '<ul class="prod">%s</ul></div>' % "".join(prod))
     o.append('<div class="card" id="nut-cibles"><h3>Cibles</h3><table class="kv">%s</table></div>'
              % "".join('<tr><th>%s</th><td>%s</td></tr>' % (a, md2html(b)) for a, b in NUTRITION['cibles']))
     o.append('<div class="card" id="nut-avant"><h3>Avant le départ</h3><table class="kv">%s</table></div>'
@@ -533,10 +553,11 @@ def sec_nutrition():
             m = re.search(r'(\d{1,2})h(\d{2})', a)
             at = ' data-at="%s:%s"' % (m.group(1).zfill(2), m.group(2)) if m else ''
             km = p['_kms'][j]
+            # depuis la v3.4 les libellés portent souvent le km : on ne le répète pas
+            suffixe = (' · km %s' % fr(km)) if (km is not None and 'km' not in a) else ''
             tl.append('<li%s><span class="n">%d</span>'
                       '<span class="w">%s%s</span><span class="q">%s</span></li>'
-                      % (at, j + 1, md2html(a),
-                         (' · km %s' % fr(km)) if km is not None else '', md2html(b)))
+                      % (at, j + 1, md2html(a), suffixe, md2html(b)))
         o.append('<div class="card" id="nut-p%d"><h3>%s</h3>'
                  '<p class="sub">km %s · %s · %s</p><p><b>Flasques :</b> %s</p>'
                  '<div class="chart-wrap">%s</div><ul class="tl">%s</ul>'
@@ -685,7 +706,7 @@ def build_html():
   <div class="brand">
     <div class="brand-t">
       <h1><span class="mk">UTV 84K</span> · Mathilde</h1>
-      <span class="sub">Sam. 12/09/2026 · départ 05h00 · plan v3</span>
+      <span class="sub">Sam. 12/09/2026 · 05h00 · pacing v3 · nutrition v3.4</span>
     </div>
     <button type="button" class="iconbtn" id="btnBig" aria-pressed="false" aria-label="Agrandir le texte" title="Taille du texte">A+</button>
     <button type="button" class="iconbtn" id="btnTheme" aria-label="Thème" title="Thème">%(themeico)s</button>
@@ -698,7 +719,7 @@ def build_html():
 </header>
 %(defs)s
 <main>%(body)s
-<footer>Page privée · plan de course généré depuis les sources (pacing v3 du 08/09/2026) · aucune donnée ne quitte cet appareil.</footer>
+<footer>Page privée · plan de course généré depuis les sources (pacing v3 · nutrition v3.4 du 09/09/2026) · aucune donnée ne quitte cet appareil.</footer>
 </main>
 <nav class="tabs" role="tablist" aria-label="Sections">%(tabs)s</nav>
 <script>%(js)s</script>

@@ -1,6 +1,6 @@
 # UTV 84K — CONTENU DE LA PAGE (source pour Claude Code)
 
-Généré le 08/09/2026 · pacing v3 · nutrition v3 · météo J-4. Cinq onglets.
+Généré le 09/09/2026 · pacing v3 · nutrition v3.4 · météo J-4. Cinq onglets.
 
 ## ONGLET 1 — SUIVI DE COURSE (digital)
 
@@ -44,10 +44,10 @@ Flasques à donner :
 - 1 iso Baouw — flasque avant gauche
 - 2 eau pure — arrière
 Solides (pochette) :
-- 2 gels (parfums différents)
-- 1 barre
-- 1 purée fruit
-- **3 gélules de sel dans la poche avant** (urgence hyponatrémie uniquement — pas au plan)
+- 2 gels Baouw — abricot-thym + fruits rouges
+- 1 barre vanille macadamia
+- 1 purée framboise-fraise-basilic
+- **Pas de capsules de sel sur elle** — elles fondent ou s'ouvrent dans une poche avant. Elles restent avec Mathieu aux 3 ravitos (voir What if / hyponatrémie)
 Matériel :
 - Frontale allumée, **testée vendredi soir**, piles/batterie de rechange
 - Veste imperméable, gants, buff (sommet 1 916 m à 07h : 3-6 °C)
@@ -55,23 +55,24 @@ Matériel :
 - Couverture de survie, sifflet, téléphone chargé **avec les alarmes en doublon** (la montre a coupé sur 2 sorties longues)
 - Gobelet souple + contenant solide (contrôle matériel)
 - **Crème anti-frottement** sous les bretelles et sur les côtes (le sac a brûlé le 24/07)
+- *Option si on trouve un mini-pilulier à vis étanche (3-4 g) : 3 capsules dedans, dans la poche **arrière** du sac — pas la poche avant, trop de chaleur et de sueur. Sinon rien : le protocole hyponatrémie fonctionne sans.*
 - Dossard, puce
 Actions :
 - Pré-hydratation : 1 iso (500 ml) bue entre 04h00 et 04h45 · **pipi à 04h50**
 - Montre : alarme boisson 15 min · alarme nutrition 40 min · alarme FC 165 (= « regarde les watts », pas « ralentis »)
+- Heures écrites sur la pochette ① : **05h40 gel · 06h20 barre · 06h50 gel (avant le sommet) · 07h40 purée**
 - Rappel unique avant le départ : « ≤ 120 W sur la montée, tu laisses partir tout le monde. On serre à 120 — pas 143 comme à Chamonix — parce que c'est 84 km. »
 
 ### RAVITO 1 — SAINT-NIZIER-DU-MOUCHEROTTE · km 25,4
-**Prévu 08h47 · fenêtre 08h34 → 09h43 · y être 08h15** · Portion suivante : ② → Autrans · 15,8 km · ~2h20 · 10-15 °C
+**Prévu 08h47 · fenêtre 08h34 → 09h43 · y être 08h15** · Portion suivante : ② → Autrans · 15,8 km · ~2h27 · 10-15 °C · **1 flasque énergie seulement, 3 d'eau pure**
 
 Flasques à donner :
-- 1 bouillon **ou** 1 iso (je demande : « bouillon ou iso ? »)
-- 1 iso
-- 2 eau pure
+- **1 seule flasque énergie** : bouillon **ou** iso (je demande : « bouillon ou iso ? »)
+- **3 eau pure**
 Solides (pochette) :
-- 2 gels
-- 1 barre
-- Heures de prise écrites sur la pochette : 09h30 gel · 10h10 barre · 10h50 gel
+- 2 gels Baouw (fruits rouges + pêche matcha)
+- 1 barre vanille macadamia
+- Heures écrites sur la pochette ② : **09h25 gel · 10h05 barre · 10h45 gel**
 Matériel :
 - Je récupère : 4 flasques vides, déchets, **la frontale**, gants/buff si elle a chaud (elle garde la veste légère)
 - **Casquette + crème solaire** (soleil de 08h à 15h à 1 200-1 600 m)
@@ -89,10 +90,10 @@ Flasques à donner :
 - 2 eau pure fraîches
 - **+ 1 flasque d'eau pure supplémentaire si > 24 °C annoncés**
 Solides (pochette) :
-- 3 gels (le 3ᵉ est optionnel : « si tu as faim, sinon tu me le rends »)
-- 1 barre
-- 1 purée fruit
-- Heures écrites : 11h45 gel (haut du mur) · 12h25 barre · 13h05 gel · 13h45 purée · 14h25 gel si faim
+- **3 gels Baouw — les trois se prennent, aucun n'est optionnel** : c'est la portion la plus longue (3h38) et la dernière où l'absorption est intacte
+- 1 barre vanille macadamia — **la dernière de la journée**
+- 1 purée framboise-fraise-basilic
+- Heures écrites sur la pochette ③ : **11h45 gel (sommet km 44, avant le mur) · 12h30 barre · 13h10 gel · 13h45 purée · 14h20 gel**
 Matériel :
 - Casquette mouillée · crème solaire
 - Flasques **fraîches** (glacière)
@@ -107,13 +108,13 @@ Actions :
 Flasques à donner :
 - **2 bouillons froids** (glacière) — ou 1 bouillon + 1 iso si elle demande
 - 2 eau pure fraîches
-- Coffre : 2 Maurten Drink Mix 160 prêts (joker si le solide ne passe plus) · thermos de bouillon (chaud ou froid, au choix)
+- Coffre : **Maurten Drink Mix 160 + 3 sachets de bouillon prêts à préparer** (Plan C = 3 flasques énergie) · **capsules de sel TA Energy (je les ai sur moi, elles ne partent pas avec elle)** · thermos de bouillon (chaud ou froid, au choix)
 Solides (pochette) :
-- 1 purée **salée** (à prendre en premier, haut de la montée à 16 %)
-- 1 gel **caféiné** Maurten CAF 100 (pied du mur km 69,4) — **pas si l'estomac est douteux : coca à la place**
-- 1 gel
-- 1 barre
-- Heures écrites : 15h15 purée salée · 15h40 caféine · 16h20 gel · 17h10 barre
+- 1 purée **salée cari de légumes** (en premier, haut de la montée à 16 %) — elle apporte 189 mg de sodium
+- 1 gel **caféiné** Maurten CAF 100 (pied du mur km 69,4) — **pas si l'estomac est douteux : coca du ravito à la place**
+- 2 gels Baouw (parfums différents)
+- **Aucune barre en ④** : 11 g de lipides et 3,7 g de fibres à la 11ᵉ heure, c'est le solide le plus lourd du stock
+- Heures écrites sur la pochette ④ : **15h10 purée salée (au sommet, avant la descente à −15 %) · 15h40 caféine · 16h30 gel · 17h30 gel**
 Matériel :
 - **Frontale vérifiée allumée devant elle si départ après 16h10** (prudent = crépuscule, dégradé = nuit)
 - Couche chaude (manches longues) pour la fin
@@ -123,6 +124,7 @@ Actions :
 - Dernière assistance : elle repart **sans l'estomac plein à bloc** (+259 m à 16 % dès la sortie)
 - Dire l'heure d'arrivée prévue et la règle du mur km 69,4 : « tu marches, tu manges, tu ne t'arrêtes pas dans la pente »
 - Si un podium est à moins de 8 min au live : une phrase, pas une discussion (voir What if)
+- **Capsules de sel : je les ai sur moi, ici.** Je ne les sors que si elle décrit des crampes qui reviennent malgré le bouillon, ou un doute hyponatrémie — sinon elles restent dans la boîte
 - Si arrivée après 16h00 : lui dire clairement qu'elle finira de nuit
 
 ### ARRIVÉE — Villard-de-Lans · km 84,9
@@ -138,9 +140,9 @@ Actions :
 - Manger dans les 30 min, boire salé, pas de bilan chrono avant 24 h
 
 ### Logistique Mathieu
-- **Vendredi soir** — 8 flasques énergie préparées et étiquetées par portion (5 bouillons, 3 iso — le bouillon ① sera réchauffé à 04h30) · 4 pochettes zip ①②③④ avec les solides et **les heures de prise écrites au marqueur** · frontale testée 10 min · sac chargé 1,5 L porté 30 min · alarmes programmées sur montre ET téléphone
-- **Glacière** — Les 8 flasques énergie · 6 flasques d'eau · 2 bidons de 5 L · glace · 1 iso pour la pré-hydratation · thermos de bouillon (scénario estomac fermé)
-- **Coffre** — Tout le surplus (stock v2 : 12 bouillons, 6 iso, 18 gels, 12 barres, 10 purées) · 2 Maurten Drink Mix · gélules de sel · trousse : pansements ampoules, compresses, strap, crème anti-frottement, crème solaire, lunettes, casquette de rechange, veste, chaussettes · frontale de secours + batterie externe · bâtons de rechange · numéro PC course et secours dans le téléphone
+- **Vendredi soir** — **7 flasques énergie** préparées et étiquetées par portion (**5 bouillons + 2 iso** — le bouillon ① sera réchauffé à 04h30) et **9 flasques d'eau pure** (① 2 · ② **3** · ③ 2 · ④ 2) · 4 pochettes zip ①②③④ avec les solides et **les heures de prise écrites au marqueur** (① 2 gels dont abricot-thym + 1 barre + 1 purée fruit — 05h40/06h20/06h50/07h40 · ② 2 gels + 1 barre — 09h25/10h05/10h45 · ③ **3 gels** + 1 barre + 1 purée fruit — 11h45/12h30/13h10/13h45/14h20 · ④ 1 purée cari + 1 Maurten CAF + 2 gels — 15h10/15h40/16h30/17h30) · frontale testée 10 min · sac chargé 1,5 L porté 30 min · alarmes programmées sur montre ET téléphone
+- **Glacière** — Les 7 flasques énergie (5 bouillons, 2 iso citron) · 9 flasques d'eau · 2 bidons de 5 L · glace · 1 iso pour la pré-hydratation · thermos de bouillon (scénario estomac fermé) · **Drink Mix 160 et de quoi préparer 3 flasques énergie par portion** si on passe en Plan C
+- **Coffre** — Tout le surplus (stock v2 : 12 bouillons, 6 iso, 18 gels, 12 barres, 10 purées) · **Maurten Drink Mix 160 + bouillons et iso en plus, prêts à préparer** (Plan C : 3 flasques énergie par portion) · **boîte de capsules de sel TA Energy — elle reste dans mon sac et voyage avec moi aux 3 ravitos** (elles fondent ou s'ouvrent dans une poche de trail) · **2 bidons d'eau en bouteille faiblement minéralisée** — obligatoire pour le Drink Mix (fabricant : ≤ 80 mg/L de calcium, l'eau du Vercors est calcaire) · trousse : pansements ampoules, compresses, strap, crème anti-frottement, crème solaire, lunettes, casquette de rechange, veste, chaussettes · frontale de secours + batterie externe · bâtons de rechange · numéro PC course et secours dans le téléphone
 - **Routes (estimations, à vérifier)** — Villard → St-Nizier ~15 km / 20 min · St-Nizier → Autrans ~20 km / 30 min (partir ≤ 09h50) · Autrans → Rencurel ~20 km / 30 min · Rencurel → Villard ~25 km / 35 min
 - **Séquence ravito — 6 min** — Elle entre → je reprends ses 4 flasques → « bouillon ou iso ? » → je donne les 4 pleines → pochette dans la poche avant → 3 questions (estomac / genoux-ischio-tibia / tout bu ?) → lecture scénario → elle repart. Tout est décidé avant qu'elle arrive.
 - **À récupérer au briefing de l'orga** — Heures des barrières km 33 · St-Nizier · Autrans · Rencurel · km 72,6 (le dégradé arrive à Rencurel à 16h27 et au km 72,6 à 18h10) · existence et lieu du sac de délestage · eau aux postes de secours · contenu des ravitos officiels
@@ -152,13 +154,31 @@ Actions :
 - **Tu sais faire — jusqu'à 5 heures.** 56 g/h sur 3h24 et 64 g/h sur 2h14, sans aucun trouble digestif sur toute la prépa. Sur tes sorties de 4-5 h tu es à 43 g/h, et ce qui a manqué ce n'est jamais l'estomac : ce sont les prises oubliées (1 gel + ½ flasque = 43 g perdus à Chamonix). **Au-delà de 5h19 tu n'as jamais testé : après, on applique le plan, on ne l'invente pas.**
 - **Tes règles, on les garde.** Pas de gros gels · variété · l'iso à 38 g « passe très bien » · bouillon ou iso, tu choisis à chaque ravito · **une flasque d'eau pure toujours à côté** : tout solide s'avale avec l'eau pure, jamais avec l'iso ou le bouillon.
 - **Tu ne sens pas la soif au froid — et il y a aussi un plafond.** 340 ml/h à Chamonix. Ce matin il fera 3-6 °C au sommet : **tu bois toutes les 15 minutes au signal, même sans soif.** L'après-midi ~550 ml/h. Le seul contrôle dont tu disposes : **le pipi**. Tu feras pipi 3 à 5 fois, c'est normal. Pipi clair et fréquent + doigts gonflés = tu bois trop → tu sautes une alarme d'eau pure. Pas de pipi depuis 4 h + urine foncée = tu bois une flasque d'eau en 30 min.
-- **Le sel n'est pas ton problème.** Depuis qu'on le compte tu n'as jamais été en déficit. Le bouillon = 990 mg de sodium par flasque, l'iso 350 mg. « Boire plus, pas saler plus. » Les 3 gélules dans ta poche ne servent qu'à l'urgence (voir What if).
+- **Le sel n'est pas ton problème.** Depuis qu'on le compte tu n'as jamais été en déficit. Le bouillon = 990 mg de sodium par flasque, l'iso 350 mg. « Boire plus, pas saler plus. » Tu pars à **439 mg de sodium par heure**, dont 602 sur la dernière portion : c'est le haut de la fourchette. **Tu n'as pas de capsules de sel sur toi** — elles fondent ou s'ouvrent dans une poche. Elles sont dans le sac de Mathieu aux 3 ravitos, et elles ne servent qu'à l'urgence (voir What if).
+- **La loi des prises : tu manges en montée, jamais en descente raide.** Le parcours alterne 10 montées et 10 descentes. **Toute prise se fait dans une montée ou sur du roulant, en marchant.** Dans une descente à −12 %, −15 % ou −33 %, tes deux mains sont sur les bâtons et ton estomac est secoué : tu ne sors rien. Conséquence directe : **quand une grosse descente arrive, tu manges AVANT, au sommet**, même si l'alarme n'a pas encore sonné. Il y a trois prises « avant de basculer » dans la journée : **06h50** (sommet du km 12,4, avant −11,6 %), **11h45** (sommet du km 44, avant le mur à −33 %), **15h10** (sommet du km 66,8, avant −15,2 %). Ce sont les trois à ne pas rater — les autres tombent naturellement à l'alarme.
+
+### Tes produits (étiquettes relevées le 09/09)
+
+| Produit | Format | Glucides | Sodium | Lipides | Testé ? |
+|---|---|---|---|---|---|
+| Bouillon salé Baouw | sachet 45 g / 500 ml | 37 g | **990 mg** | 0 g | **Plan A** · **5 sur la journée** : 1 en ①②③, 2 en ④ — testé Chamonix |
+| Iso citron-fleur de sureau Baouw | sachet 45 g / 500 ml | 38 g | 350 mg | 0 g | **Plan A** · **2 sur la journée** : 1 en ① et 1 en ③ — testé Chamonix J2 |
+| Gel fruits rouges-hibiscus | gourde 85 g | 30 g | 4 mg | 3,0 g | **Plan A** · 9 gels sur la journée (2+2+3+2) — testé |
+| Gel pêche-thé matcha | gourde 85 g | 30 g | 4 mg | 3,2 g | **Plan A** — testé |
+| Gel abricot-thym | gourde 85 g | 30 g | 4 mg | 3,3 g | **Plan A** — testé et apprécié |
+| Barre vanille-macadamia | 50 g | 23 g | 13 mg | **11 g** | **Plan A** · ①②③ — testée · fibres 3,7 g, **la plus lourde : aucune après le km 65** |
+| Purée cari de légumes (salée) | 90 g | 14 g | **189 mg** | 8 g | **Plan A** · ④ en 1ʳᵉ prise — testée |
+| Purée framboise-fraise-basilic | 90 g | 11 g | 1 mg | 1,8 g | **Plan A** · ① et ③ — testée |
+| Maurten GEL 100 CAF 100 | 40 g | 25 g | ~22 mg | 0 g | **Plan A** · ④ au pied du mur — testé (100 mg de caféine) |
+| **Capsules de sel TA Energy** | capsule | 0 | **169 mg / capsule** | 0 g | **Dans le sac de Mathieu, aux 3 ravitos — pas sur elle** (elles fondent ou s'ouvrent dans une poche). Urgence hyponatrémie et crampes uniquement. 1 dose = 3 capsules = **507 mg de sodium** (+ K 300, Mg 57, gingembre 99). Boîte de 60 |
+| **Maurten DRINK MIX 160** | sachet 42 g / 500 ml | **40 g** | n.c. | 0 g | **Coffre — Plan C** (hydrogel, quand plus rien de solide ne passe). ⚠️ à préparer avec de l'**eau en bouteille** : le fabricant demande ≤ 80 mg/L de calcium, l'eau du Vercors est calcaire |
 
 ### Cibles
-- **Glucides** : ~52 g/h en moyenne : 710 g dans les 4 pochettes (48 g/h en ①, 69 en ② si tout passe, 50 en ③ + 1 gel optionnel, 47 en ④). Le petit-déjeuner et l'iso d'avant-course couvrent le début de ①.
-- **Liquide** : ~450 ml/h le matin au frais → ~550 ml/h l'après-midi. 8 L à disposition, ~6,5-7 L bus. Contrôle = le pipi.
-- **Sodium** : 350-575 mg/h selon la portion (444 en moyenne) — assuré par bouillon + iso, rien à ajouter
-- **Caféine** : 1 gel Maurten CAF 100 (100 mg, 25 g de glucides) au pied du mur du km 69,4 — sauf estomac douteux
+- **Glucides** : **661 g = 48,9 g/h** sur 13h31, calculé sur les étiquettes réelles de tes produits : **45 g/h en ①, 49 en ②, 55 en ③, 47 en ④**. Plus aucune prise « optionnelle » : tout ce qui est dans la pochette se prend. Le petit-déjeuner et l'iso d'avant-course couvrent le début de ①.
+- **Liquide** : **7 flasques énergie (3,5 L) + 9 flasques d'eau pure (4,5 L)** mises à disposition, ~6,5-7 L réellement bus : ~450 ml/h le matin au frais → ~550 ml/h l'après-midi. **Il y a toujours au moins autant d'eau pure que d'énergie dans le sac** — c'est ce qui te permet d'avaler les solides. Contrôle = le pipi.
+- **Sodium** : **5 938 mg = 439 mg/h** : 360 en ①, 413 en ②, 376 en ③, **602 en ④** — assuré par le bouillon (990 mg), l'iso (350) et la purée cari (189). **Rien à ajouter.**
+- **Caféine** : 1 gel Maurten CAF 100 (100 mg de caféine, 25 g de glucides) au pied du mur du km 69,4 — sauf estomac douteux
+- **Lipides** : **73 g sur la journée** — les produits Baouw contiennent tous de l'huile d'olive, et la barre 11 g à elle seule. C'est ce qui ralentit la digestion : d'où **3 barres maximum, aucune après le km 65**
 - **Alarmes** : Boisson 15 min · Nutrition 40 min = « regarde la pochette, les heures sont écrites dessus » · FC 165 = « regarde les watts »
 
 ### Avant le départ
@@ -166,77 +186,82 @@ Actions :
 - **03h30** — Lever.
 - **03h45 → 04h00** — **Ton petit-déjeuner habituel de course, tel quel, sans le grossir pour atteindre un chiffre** : avec l'iso qui suit tu as largement ce qu'il faut.
 - **04h00 → 04h45** — **Pré-hydratation : 1 iso (500 ml)** par petites gorgées — la seule fois de la journée où l'iso remplace l'eau pure.
-- **04h50** — Pipi. Dernière gorgée. Bouillon tiède devant à droite, iso devant à gauche, eau à l'arrière, 3 gélules de sel dans la poche avant.
+- **04h50** — Pipi. Dernière gorgée. Bouillon tiède devant à droite, iso devant à gauche, **2 eau pure à l'arrière**. Pochette ① dans la poche avant, heures écrites dessus. **Pas de capsules de sel sur toi** — Mathieu les a aux ravitos.
 
-### ① Départ → St-Nizier · km 0 → 25,4 · ~3h35 · 05h00 → 08h47 · nuit, 3-6 °C au sommet, soleil 07h13
-**Flasques :** 1 bouillon tiède (bu en premier) · 1 iso · 2 eau pure
+### ① Départ → St-Nizier · km 0 → 25,4 · ~3h47 · 05h00 → 08h47 · nuit, 3-6 °C au sommet, soleil 07h13
+**Flasques :** 1 bouillon tiède (bu en premier) · 1 iso citron · **2 eau pure**
 
 | # | Quand | Où (km, réaliste) | Quoi |
 |---|---|---|---|
-| 1 | 05h40 · T+40 · dans M1 | km 4.0 | gel |
-| 2 | 06h20 · T+1h20 · haut de M1 | km 8.9 | barre |
-| 3 | 07h00 · T+2h00 · début D2 | km 12.8 | gel |
-| 4 | 07h40 · T+2h40 · dans D4 | km 18.1 | purée |
-| 5 | 08h20 · T+3h20 | km 22.3 | rien — tu finis les flasques |
+| 1 | 05h40 · T+40 · km 4, dans M1, en marchant | km 4.0 | gel abricot-thym |
+| 2 | 06h20 · T+1h20 · km 8,9, dans M1 | km 8.9 | barre vanille-macadamia |
+| 3 | 06h50 · T+1h50 · km 11,7 — **7 min avant le sommet** | km 11.7 | gel · **tu le prends AVANT de basculer** : après, c'est 32 min de descente à −11,6 % |
+| 4 | 07h40 · T+2h40 · km 18,1, dans M3 (+333 m) | km 18.1 | purée framboise |
+| 5 | après 08h03 · D4 | km 20.4 | **plus rien** : 60 min de descente à −11,8 % jusqu'au ravito. Tu finis tes flasques, tu ne sors aucun solide. |
 
-**Total :** 175 g (48 g/h) · 1 340 mg Na · objectif 1,5 L bus
-- 48 g/h paraît bas : c'est voulu, ton petit-déjeuner et l'iso d'avant-course sont encore en cours de digestion.
+**Total :** **169 g (45 g/h) · 1 362 mg Na (360/h) · 19 g de lipides** · objectif 1,5 L bus
+- 45 g/h paraît bas : c'est voulu, ton petit-déjeuner et l'iso d'avant-course sont encore en cours de digestion.
 - **Ne saute rien** — sur cette portion l'estomac est ouvert, c'est la plus facile à réussir.
+- Les prises de 06h20 et 06h50 sont rapprochées **exprès** (30 min) : c'est la dernière fenêtre avant 07h29. Après le sommet il n'y a plus de terrain pour manger avant M3.
 - Le bouillon tiède au départ est un confort, pas un chauffage. L'iso ensuite.
-- Au sommet (km 12,4) : une gorgée avant la descente, puis les mains sur les bâtons.
+- Au sommet (km 12,4) : gel avalé, veste fermée, une gorgée, puis les mains sur les bâtons.
 
-### ② St-Nizier → Autrans · km 25,4 → 41,3 · ~2h20 · 08h47 → 11h14 · 10-15 °C, soleil
-**Flasques :** 1 bouillon ou iso · 1 iso · 2 eau pure
+### ② St-Nizier → Autrans · km 25,4 → 41,3 · ~2h27 · 08h47 → 11h14 · 10-15 °C, soleil
+**Flasques :** **1 seule flasque énergie** (bouillon ou iso, tu choisis) · **3 eau pure**
 
 | # | Quand | Où (km, réaliste) | Quoi |
 |---|---|---|---|
-| 1 | 09h30 · T+40 · début M5 | km 29.6 | gel |
-| 2 | 10h10 · T+1h20 · dans M5 | km 33.6 | barre |
-| 3 | 10h50 · T+2h05 · D6 | km 38.9 | gel |
+| 1 | 09h25 · T+38 · km 29,2, dans M5 | km 29.2 | gel |
+| 2 | 10h05 · T+1h18 · km 32,8, milieu de M5 | km 32.8 | barre vanille-macadamia |
+| 3 | 10h45 · T+1h58 · km 38,2, dans D6 (descente roulante à −8 %, on peut y manger) | km 38.2 | gel |
 
-**Total :** 160 g si tout est pris (69 g/h) · 1 340 mg Na
-- 3 prises à l'alarme, comme partout. Si la barre ne te tente pas au milieu de M5, tu la rends à Autrans — **mais les deux gels, tu les prends.**
-- M5 (+772 m) : **tu manges dans la montée, en marchant**, pas au sommet.
-- Finir les deux flasques énergie avant Autrans.
+**Total :** **120 g (49 g/h) · 1 011 mg Na (413/h) · 17 g de lipides**
+- **Une seule flasque énergie ici, et trois d'eau pure — c'est la correction du plan.** La version précédente t'en donnait deux sur 2h27 : ça te montait à 68 g/h (au-dessus de tout ce que tu as testé) et il ne te restait plus assez d'eau claire pour avaler les solides. 49 g/h avec 1,5 L d'eau pure, c'est exactement ton régime éprouvé.
+- M5 (+772 m sur 8,2 km, 83 min) : **tu manges dans la montée, en marchant.** Les deux premières prises sont là.
+- D6 est roulante à −8 %, pas technique : le gel de 10h45 s'y prend sans problème.
+- Finir la flasque énergie avant Autrans.
 
-### ③ Autrans → Rencurel · km 41,3 → 65,3 · ~3h30 · 11h14 → 14h52 · 15-19 °C, la partie la plus chaude en altitude
+### ③ Autrans → Rencurel · km 41,3 → 65,3 · ~3h38 · 11h14 → 14h52 · 15-19 °C, la partie la plus chaude en altitude
 **Flasques :** 1 bouillon froid ou iso · 1 iso froid · 2 eau pure fraîches (+ 1 eau si > 24 °C)
 
 | # | Quand | Où (km, réaliste) | Quoi |
 |---|---|---|---|
-| 1 | 11h45 · T+30 · **en haut du mur du km 44, avant de basculer** | km 43.9 | gel |
-| 2 | 12h25 · T+1h10 · M11 | km 47.6 | barre |
-| 3 | 13h05 · T+1h50 · D12 | km 52.7 | gel |
-| 4 | 13h45 · T+2h30 · M13 | km 57.4 | purée |
-| 5 | 14h25 · T+3h10 · D14 | km 62.4 | gel **seulement si tu as faim** — sinon tu le rends à Rencurel |
+| 1 | 11h45 · T+31 · km 43,9 — **sommet du km 44, avant de basculer** | km 43.9 | gel · le mur à −32,6 % arrive une minute plus tard |
+| 2 | 12h30 · T+1h16 · km 48,2, dans M11 (montée douce à 4,5 %) | km 48.2 | barre vanille-macadamia — **la dernière de la journée** |
+| 3 | 13h10 · T+1h56 · km 53,5, dans D12 (roulante à −5,5 %) | km 53.5 | gel |
+| 4 | 13h45 · T+2h31 · km 57,4, dans M13 (+203 m à 11,5 %) | km 57.4 | purée framboise |
+| 5 | 14h20 · T+3h06 · km 61,7, dans D14 (roulante à −8,4 %) | km 61.7 | gel — **il n'est plus optionnel** |
 
-**Total :** 175 g fermes (50 g/h) + 30 g optionnels · 1 340 mg Na · objectif **2 L bus**
+**Total :** **199 g (55 g/h) · 1 366 mg Na (376/h) · 22 g de lipides** · objectif **2 L bus**
+- **Trois gels ici, pas deux plus un « si tu as faim » — c'est l'autre correction du plan.** C'est ta plus longue portion (3h38) et la dernière où l'absorption est encore intacte : c'est le bon endroit pour prendre de l'avance sur le carburant, avant que ④ ne t'oblige au salé.
 - La portion « facile » : descendante, roulante. **Le piège est d'accélérer et d'oublier de manger parce que ça roule.**
 - Le gel de 11h45 se prend **au sommet, avant le mur à −33 %** — jamais dedans, les deux mains sont sur les bâtons.
+- La barre de 12h30 est **la dernière de la journée** : après, 11 g de lipides c'est trop lourd.
 - Barrière de Pertuson km 56,45 à 15h00 : tu y passes vers 13h30. Tu n'y penses pas, Mathieu s'en occupe.
 - **Si** vers la 8ᵉ heure (~13h) le sucré commence à écœurer : c'est prévu, la portion ④ est salée. Si ça n'arrive pas, tant mieux, tu ne changes rien.
 
-### ④ Rencurel → Arrivée · km 65,3 → 84,9 · ~3h40 · 14h52 → 18h31 · 20-23 °C aux points bas (15h-17h) puis frais
-**Flasques :** **2 bouillons froids** (ou 1 bouillon + 1 iso) · 2 eau pure
+### ④ Rencurel → Arrivée · km 65,3 → 84,9 · ~3h39 · 14h52 → 18h31 · 20-23 °C aux points bas (15h-17h) puis frais
+**Flasques :** **2 bouillons froids** (ou 1 bouillon + 1 iso) · 2 eau pure — *par forte chaleur, le fabricant conseille un **demi-sachet** de bouillon dans 500 ml : 1 entier + 1 demi vaut mieux que 2 entiers*
 
 | # | Quand | Où (km, réaliste) | Quoi |
 |---|---|---|---|
-| 1 | 15h15 · T+25 · haut de la montée à 16 % | km 66.9 | **purée salée** |
-| 2 | 15h40 · T+45 · point bas 681 m, pied du mur | km 69.6 | **gel caféiné** — sauf estomac douteux → rien, coca pris au ravito |
-| 3 | 16h20 · T+1h30 · haut du mur / début D18 | km 72.6 | gel |
-| 4 | 17h10 · T+2h20 · dans M19 | km 77.9 | barre |
+| 1 | 15h10 · T+18 · km 66,5 — **sommet de la montée à 16 %, avant la descente à −15,2 %** | km 66.5 | **purée salée cari** (189 mg de sodium) |
+| 2 | 15h40 · T+48 · km 69,6, premières minutes du mur | km 69.6 | **Maurten CAF 100** — sauf estomac douteux → rien, coca pris au ravito |
+| 3 | 16h30 · T+1h38 · km 73,5, dans D18 (roulante à −5,4 %) | km 73.5 | gel |
+| 4 | 17h30 · T+2h38 · km 79,2, dans M19 | km 79.2 | gel (autre parfum) — **la dernière prise solide de la journée** |
 
-**Total :** 169 g (47 g/h) · 1 980 mg Na
-- **Le salé prend le dessus** : deux bouillons, purée salée en premier.
-- Ne repars pas de Rencurel l'estomac plein à bloc : +259 m à 16 % dès la sortie.
-- La caféine agit 30-60 min après la prise : prise au pied du mur, elle te porte en haut du mur et sur D18/M19.
-- Dernière montée (km 76 → 81,5) : la barre + finir le 2ᵉ bouillon. **Tu continues à boire jusqu'à la ligne** — le coup de mou des 3 derniers km, c'est celui qu'on attrape en arrêtant de manger « parce que c'est bientôt fini ».
+**Total :** **173 g (47 g/h) · 2 199 mg Na (602/h) · 14 g de lipides seulement** — la portion la plus légère à digérer, c'est voulu
+- **Le salé prend le dessus** : deux bouillons, purée salée en premier. **Aucune barre ici** — 11 g de lipides et 3,7 g de fibres à la 11ᵉ heure, c'est le meilleur moyen de fermer l'estomac.
+- Ne repars pas de Rencurel l'estomac plein à bloc : +259 m à 16 % dès la sortie. La purée salée se prend **en haut** de cette montée, à 15h10, juste avant la descente raide.
+- Les prises de 15h10 et 15h40 sont à 30 min d'intervalle : c'est le timing de la caféine qui commande (elle agit 30-60 min après la prise, donc prise au pied du mur elle te porte en haut du mur et sur D18/M19).
+- **Après 17h30 tu n'as plus rien à manger.** Tu finis le 2ᵉ bouillon sur la fin de M19 et sur la descente d'arrivée. Le coup de mou des 3 derniers km, c'est celui qu'on attrape en arrêtant de boire « parce que c'est bientôt fini ».
+- **Tu n'as pas de capsules de sel sur toi** et tu n'en as pas besoin : cette portion te donne 602 mg de sodium par heure, le plus haut de la journée.
 
 ### Plan B / Plan C
-**Plan B — dès qu'un solide ne passe pas :** on garde les 2 flasques énergie et les gels, on laisse les barres. ≈ 47 g/h en ③, 37 g/h en ④. **En ④ on garde la purée salée** — c'est elle qui passe quand le sucré ne passe plus. Ce n'est pas un échec : « 58 g/h qui passent valent mieux que 60 visés et une prise sautée ». **Plan C — si même les gels ne passent plus :** bouillon (froid ou tiède, au choix) par gorgées toutes les 10 min + Maurten Drink Mix 160 dans la 2ᵉ flasque, 0 solide = ~22 g/h ; avec le coca des ravitos officiels tu es à 30 : tu finis.
+**Plan B — dès qu'un solide ne passe pas :** on garde les flasques énergie et les gels, on laisse la barre et la purée fruit. ≈ 40-45 g/h. **En ④ on garde la purée salée** — c'est elle qui passe quand le sucré ne passe plus. Ce n'est pas un échec : « 58 g/h qui passent valent mieux que 60 visés et une prise sautée ».  ·  **Plan C — si même les gels ne passent plus : tout en liquide.** Mathieu sort le **Maurten Drink Mix 160 du coffre** (40 g de glucides par flasque, hydrogel conçu pour passer quand l'estomac se ferme) : 1 bouillon (pour le sodium) + 1 Drink Mix par portion = 77 g, soit ~22 g/h ; **3 flasques** (1 bouillon + 2 Drink Mix) = 117 g = **33 g/h** ; plus le coca des ravitos officiels. Zéro solide, gorgées toutes les 10 minutes. À 30 g/h en liquide tu finis — à 0 tu ne finis pas.
 
 ### Non testé
-Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour acquis : **cinq bouillons dans la journée** (max testé : 1,5 le 22/08, au frais) · le bouillon à 20-23 °C · 550 ml/h (max démontré ~475) · 50-59 g/h entre la 6ᵉ et la 10ᵉ heure · le solide après 5h19 d'effort · le Maurten Drink Mix · le gel caféiné à la 11ᵉ heure · le petit-déjeuner à 03h45 (validé sur d'autres courses, pas cette prépa) · la frontale (jamais allumée en prépa). Chacun a sa bascule dans l'onglet What if — et à chaque ravito Mathieu demande « bouillon ou iso ? » : le stock a les deux.
+**Les neuf produits du plan A sont testés et connus** — rien de nouveau ne rentre dans ton sac le 12/09. Ce qui n'est pas testé, ce ne sont pas les produits, ce sont les **quantités et la durée** : **cinq bouillons dans la journée** (max testé : 1,5 le 22/08, au frais) · le bouillon à 20-23 °C · **550 ml/h** (max démontré ~475) · **49-55 g/h entre la 6ᵉ et la 10ᵉ heure** · le solide après 5h19 d'effort · le petit-déjeuner à 03h45 (validé sur d'autres courses, pas cette prépa) · la frontale (jamais allumée en prépa). Chacun a sa bascule dans l'onglet What if — et à chaque ravito Mathieu demande « bouillon ou iso ? » : le stock a les deux.
 
 ## ONGLET 4 — BRIEFING DE COURSE (le film de la journée)
 
@@ -266,12 +291,12 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 
 **Carte (3 lignes pour Mathilde) :**
 - 03h45 PDJ habituel · 04h00-04h45 1 iso · 04h50 pipi
-- Crème anti-frottement, 3 gélules de sel en poche, alarmes montre + téléphone
+- Crème anti-frottement · pochette ① avec les heures écrites · alarmes montre + téléphone
 - Sur la ligne : « je laisse partir tout le monde »
 
 **À faire :**
 - 03h45 petit-déjeuner habituel, fini à 04h00. 04h00-04h45 : 1 iso par gorgées. 04h50 : pipi.
-- Crème anti-frottement sous les bretelles. 3 gélules de sel dans la poche avant (urgence uniquement).
+- Crème anti-frottement sous les bretelles. Pochette ① dans la poche avant, **les 4 heures de prise écrites dessus** (05h40 / 06h20 / 06h50 / 07h40). **Pas de capsules de sel sur toi** : elles fondraient ou s'ouvriraient — Mathieu les a aux 3 ravitos, et elles ne sont de toute façon pas au plan, le bouillon suffit.
 - Montre : alarmes boisson 15 min / nutrition 40 min / **FC 165 = « regarde les watts »**. Téléphone en doublon.
 - Sur la ligne, dernière phrase de Mathieu : « tu laisses partir tout le monde ».
 
@@ -288,13 +313,14 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 
 **Carte (3 lignes pour Mathilde) :**
 - Je marche dès que ça monte, ≤ 120 W, je laisse passer
-- 05h40 gel · 06h20 barre · une gorgée toutes les 15 min même sans soif
+- 05h40 gel · 06h20 barre · **06h50 gel avant le sommet** · une gorgée toutes les 15 min même sans soif
 - Sommet 06h51-07h02 : veste fermée, buff, j'enchaîne
 
 **À faire :**
 - Tu marches dès que ça monte vraiment, tu ne cours que le roulant. Bâtons.
-- Gel à 05h40, barre à 06h20. Boire toutes les 15 min **même sans soif** (au froid la soif disparaît).
-- Au sommet (1 916 m, 3-6 °C, vent) : veste fermée, buff, une gorgée, et tu enchaînes sans t'arrêter.
+- Gel à 05h40, barre à 06h20, **puis un gel à 06h50, 7 minutes avant le sommet** : après, c'est 32 minutes de descente à −11,6 % où tu ne mangeras rien. C'est la règle de la journée — **on mange avant de basculer, pas après**.
+- Boire toutes les 15 min **même sans soif** (au froid la soif disparaît).
+- Au sommet (1 916 m, 3-6 °C, vent) : gel avalé, veste fermée, buff, une gorgée, et tu enchaînes sans t'arrêter.
 
 **Repères :** ≤ 120 W. FC : elle va monter à 155-165 en marchant, au froid, avec les bâtons — **alarme 165 → tu regardes les watts : > 120 W tu ralentis ; ≤ 120 W tu notes et tu continues** (au poignet avec les bâtons, le capteur exagère ; ton « cardio trop haut » du 12/08, c'est ça). Sommet attendu 06h51-07h02. **Avant 06h50, ce sont les watts moyens de M1 qui tranchent** : > 125 W = trop vite ; ≤ 120 W = bonne journée, on n'ajoute rien.
 
@@ -309,12 +335,13 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 
 **Carte (3 lignes pour Mathilde) :**
 - Bâtons, foulée courte, 7-7,5 min/km — si la montre dit 6:30 je freine
-- 07h00 gel · 07h40 purée · je finis l'iso avant St-Nizier
+- 07h40 purée dans M3 · **rien dans les deux descentes** · je finis l'iso avant St-Nizier
 - « Les jambes forcent pour retenir » = je raccourcis, je n'accélère pas
 
 **À faire :**
 - Bâtons sur toute la descente raide, foulée courte, cadence haute, aucun freinage brutal.
-- Gel à 07h00 (début D2), purée à 07h40 (dans D4). Finir l'iso avant St-Nizier.
+- **Aucune prise dans D2 ni dans D4** : à −11,6 % et −11,8 %, les deux mains sont sur les bâtons. La seule prise de ce bloc est la purée de **07h40, dans la montée M3**. Ton gel du sommet a déjà été pris à 06h50.
+- Finir l'iso avant St-Nizier.
 - Sur M3 (+333 m) : régularité, pas de relance.
 
 **Repères :** C'est la plus grosse charge excentrique de la journée, à la 3ᵉ heure. **C'est ici que tes genoux de l'après-midi se décident.** Descente à **7-7,5 min/km : c'est le rythme du plan. Si ta montre affiche 6:30, tu freines** — tu prends du temps que tu rendras double au km 70.
@@ -350,12 +377,12 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 **Où tu es :** km 25.4 → 35.8 · alt 1168 → 1633 m · cette section : +872 / −407 m · il restera 49.1 km et 2523 m de D+ (3154 m de descente)
 
 **Carte (3 lignes pour Mathilde) :**
-- ≤ 117 W · je mange en marchant : 09h30 gel, 10h10 barre
+- ≤ 117 W · je mange en marchant : 09h25 gel, 10h05 barre
 - Boire toutes les 15 min
 - Si c'est long, c'est normal — ça ne dit rien sur la fin
 
 **À faire :**
-- Tu manges en marchant : gel à 09h30 au pied, barre à 10h10 au milieu. Tu bois toutes les 15 min.
+- Tu manges en marchant : gel à 09h25 au pied, barre à 10h05 au milieu. Tu bois toutes les 15 min. **Cette portion ne contient qu'une flasque énergie et trois d'eau pure** : les trois solides ne sont pas négociables, c'est eux qui font le carburant.
 - Rythme de marche régulier, 100 pas / 10 respirations si ça pique.
 - Le sommet à 1 634 m arrive vers 10h27 (10h11 bonne journée, 10h45 prudent).
 
@@ -371,12 +398,12 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 **Où tu es :** km 35.8 → 41.3 · alt 1633 → 1308 m · cette section : +57 / −383 m · il restera 43.7 km et 2465 m de D+ (2771 m de descente)
 
 **Carte (3 lignes pour Mathilde) :**
-- Descente relâchée, 10h50 gel
+- Descente relâchée, 10h45 gel (D6 est roulante, on peut y manger)
 - Ravito ≤ 6 min, casquette mouillée, flasques froides
 - **Repartie avant 12h15 quoi qu'il arrive**
 
 **À faire :**
-- Descente −8 % roulante : tu relâches, tu ne relances pas. Gel à 10h50.
+- Descente −8 % roulante : tu relâches, tu ne relances pas. Gel à 10h45 — celle-ci est assez roulante pour manger dedans.
 - Ravito : flasques froides, pochette ③, casquette mouillée. **Tu repars avant 12h15 quoi qu'il arrive.**
 - Mathieu te donne une seule info : le scénario dans lequel tu es. Pas le classement.
 
@@ -392,7 +419,7 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 **Où tu es :** km 41.3 → 65.3 · alt 1308 → 814 m · cette section : +1019 / −1512 m · il restera 19.6 km et 1446 m de D+ (1258 m de descente)
 
 **Carte (3 lignes pour Mathilde) :**
-- 11h45 gel AU SOMMET avant le mur −33 % · 12h25 barre · 13h05 gel · 13h45 purée · 14h25 gel si faim
+- 11h45 gel AU SOMMET avant le mur −33 % · 12h30 barre · 13h10 gel · 13h45 purée · **14h20 gel (plus optionnel)**
 - 2 L bus, tout · faux-plat descendant à 6,7-7 min/km, pas plus vite
 - Genou qui parle en descente : 10 min de foulée courte + bâtons ; toujours là → je MARCHE la descente
 
@@ -435,12 +462,12 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 **Où tu es :** km 65.2 → 69.4 · alt 813 → 681 m · cette section : +272 / −405 m · il restera 15.5 km et 1175 m de D+ (853 m de descente)
 
 **Carte (3 lignes pour Mathilde) :**
-- Montée : marche, bâtons, 23-28 min · 15h15 purée salée au sommet
+- Montée : marche, bâtons, 23-28 min · **15h10 purée salée au sommet, avant de basculer**
 - Descente −15 % : bâtons, foulée courte ; douleur au genou qui dure plus de 10 min → je MARCHE la descente
 - Point bas 15h40 : gel caféiné (sauf estomac douteux)
 
 **À faire :**
-- Montée à 16 % : marche, bâtons, purée salée au sommet (15h15).
+- Montée à 16 % : marche, bâtons, **purée salée au sommet (15h10), avant la descente à −15,2 %** — c'est la troisième et dernière prise « avant de basculer » de la journée.
 - Descente raide à −15 % : bâtons, foulée courte. Règle du genou : douleur qui ne s'est pas calmée après 10 minutes → tu marches toute la descente.
 - Au point bas (km 69,4, 681 m, ~15h40) : **gel caféiné** — ou rien si l'estomac est douteux (coca pris au ravito).
 
@@ -475,13 +502,13 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 **Où tu es :** km 72.4 → 81.5 · alt 1142 → 1342 m · cette section : +627 / −427 m · il restera 3.4 km et 43 m de D+ (382 m de descente)
 
 **Carte (3 lignes pour Mathilde) :**
-- D18 roulante, 16h20 gel · km 76,1 : Mathieu connaît mon heure d'arrivée
-- M19 : 17h10 barre, je finis le bouillon, je cours ce qui est sous 5 % si les jambes répondent
+- D18 roulante, 16h30 gel · km 76,1 : Mathieu connaît mon heure d'arrivée
+- M19 : **17h30 dernier gel**, je finis le bouillon, je cours ce qui est sous 5 % si les jambes répondent
 - Sommet 1 342 m vers 17h58 · 60-76 min de montée
 
 **À faire :**
-- D18 : 3,7 km roulants vers le pied de la dernière montée (km 76,1, 941 m, poste de secours 11), gel à 16h20. Chrono live km 76,1 : Mathieu connaît alors ton heure d'arrivée à 5 min près.
-- M19 : la barre à 17h10, le reste du bouillon en montant. Pente douce : **tu peux courir les portions à moins de 5 %** si les jambes répondent.
+- D18 : 3,7 km roulants vers le pied de la dernière montée (km 76,1, 941 m, poste de secours 11), gel à 16h30. Chrono live km 76,1 : Mathieu connaît alors ton heure d'arrivée à 5 min près.
+- M19 : **le dernier gel à 17h30** (aucune barre en ④ : trop de lipides à la 12ᵉ heure), le reste du bouillon en montant. Pente douce : **tu peux courir les portions à moins de 5 %** si les jambes répondent.
 - Sommet 1 342 m vers 17h58.
 
 **Repères :** ≤ 107 W. **60 à 76 min** pour la montée. C'est **la seule section où l'on peut encore gagner ou perdre 20 minutes** — et la seule où l'on joue une place, si on en joue une (voir What if).
@@ -520,11 +547,11 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 
 **Plan :**
 - **Étape 1 (dès le 1er signe) — Plan B** : plus de barres, tu gardes bouillon/iso + gels (+ la purée salée en ④). Ralentir 5-10 min, petites gorgées d'eau pure, laisser l'estomac se rouvrir.
-- **Étape 2 (si les gels ne passent plus non plus) — Plan C liquide** : bouillon (froid ou tiède, ce qui passe) par gorgées toutes les 10 min + Maurten Drink Mix 160 dans la 2ᵉ flasque. ~22 g/h, + coca au ravito officiel = ~30 g/h : tu finis.
+- **Étape 2 (si les gels ne passent plus non plus) — Plan C liquide** : bouillon (froid ou tiède, celui qui passe) et iso citron par gorgées toutes les 10 min, zéro solide. 2 flasques = 22 g/h, **3 flasques si Mathieu en prépare une de plus** (le stock le permet) = 33 g/h, + le coca du ravito officiel. À 30 g/h tu finis.
 - Ça « clapote » → stop boisson 10 min, puis petites gorgées d'eau pure.
 - Mal de ventre bas (intestin) : ralentir, marcher 5 min, boire de l'eau pure ; un arrêt sanitaire est un arrêt autorisé.
 
-**Mathieu :** Au ravito suivant : thermos de bouillon + Maurten Drink Mix à la place des solides. Tu lui dis : « 30 g/h en liquide, tu finis ». Tu ne lui proposes pas de solide « pour essayer ».
+**Mathieu :** Au ravito suivant : **3 flasques énergie au lieu de 2** (stock : 12 bouillons, 6 iso) + thermos, et on retire les solides de la pochette. Tu lui dis : « 30 g/h en liquide, tu finis ». Tu ne lui proposes pas de solide « pour essayer ».
 
 ### Nausée · vomissement
 **Signal :** Nausée franche, vomissement.
@@ -734,7 +761,7 @@ Ce que ce plan suppose sans l'avoir testé, et qu'il ne faut pas prendre pour ac
 **Décision :** Action immédiate, secours si ça ne revient pas. Postes de secours aux km 12,3 · 20,4 · 25,5 · 33 · 36,9 · 46 · 58,2 · 65,3 · 71 · 76 et à l'arrivée.
 
 **Plan :**
-- **Hyponatrémie** — maux de tête + nausée **après beaucoup d'eau pure**, sans soif, **doigts gonflés** : **STOP toute boisson**. 3 gélules de sel (poche avant) ou chips/saucisson au poste, avec une seule gorgée. **Pas de flasque entière, même de bouillon** (il est moins salé que ton sang). Confusion, propos bizarres → secours.
+- **Hyponatrémie** — maux de tête + nausée **après beaucoup d'eau pure**, sans soif, **doigts gonflés** : **STOP toute boisson**. **Tu n'as pas de capsules sur toi, et ce n'est pas le geste qui compte** : l'action qui sauve, c'est d'arrêter de boire, et elle ne demande rien. Ensuite, du sel **concentré** : chips, saucisson, fromage au poste de secours ou au ravito, avalés avec **une seule gorgée** d'eau. Si tu es à un ravito, Mathieu a les capsules (3 = 507 mg). **Surtout pas une flasque entière, même de bouillon** : dilué dans 500 ml il est moins salé que ton sang et il aggrave. Confusion, propos bizarres → secours.
 - **Coup de chaleur** — tête qui tourne, **confusion, démarche qui zigzague, propos incohérents**, frissons en pleine chaleur : STOP, ombre, asperger tout le corps. **Secours immédiat si elle est confuse — on ne fait pas boire quelqu'un de confus.**
 - **Douleur thoracique, malaise, désorientation, chute sur la tête** : on arrête, on appelle, on ne « voit pas au ravito ».
 - **Jamais d'anti-inflammatoire** (ibuprofène & co) pendant la course.
