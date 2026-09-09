@@ -253,7 +253,12 @@
       }
       l2.textContent = txt + ' · ' + c.nom;
     } else {
-      l2.textContent = 'Tous les points sont saisis.';
+      var blancs = 0, k;
+      for (k = 1; k < CP.length; k++) if (!(st.reel || {})[k]) blancs++;
+      l2.textContent = blancs
+        ? 'Dernier point de la course saisi · ' + blancs + ' passage' + (blancs > 1 ? 's' : '')
+          + ' laissé' + (blancs > 1 ? 's' : '') + ' vide' + (blancs > 1 ? 's' : '')
+        : 'Tous les points sont saisis.';
     }
 
     /* barrière de Pertuson */

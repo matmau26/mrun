@@ -465,6 +465,10 @@ def sec_suivi():
           '<button type="button" class="btn ghost" id="btnReset">Effacer les saisies</button>'
           '<span class="msg" id="msg" role="status"></span>'
         '</div>'
+        '<p class="sub" style="margin-top:9px">Tu peux n\'en renseigner qu\'une partie : '
+        'chaque point se calcule tout seul, dans n\'importe quel ordre. Une case laissée '
+        'vide ne bloque rien — ni le scénario des autres points, ni la progression, '
+        'ni l\'export.</p>'
       '</div>'
       '<div class="cplist" id="su-passages">%s</div>'
       '%s'
@@ -614,7 +618,7 @@ def js_payload():
     cps = [{'km': c['km'], 'nom': strip_tags(md2html(c['nom'])), 'alt': c['alt'],
             'h': [round(x, 5) for x in c['h']],
             'sx': round(px(c['km']), 1), 'sy': round(py(alt_at(c['km'])), 1),
-            'up': int(up_dn(0, c['km'])[0]),
+            'up': int(round(up_dn(0, c['km'])[0])),
             'upR': int(up_dn(c['km'], L)[0])} for c in CP]
     pert = next(c['i'] for c in CP if abs(c['km'] - PERTUSON_KM) < 0.01)
     js = open(os.path.join(HERE, 'page.js'), encoding='utf-8').read()
