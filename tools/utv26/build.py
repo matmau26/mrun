@@ -520,6 +520,74 @@ def sec_ravitos():
                        for a, b in MATHIEU_LOGISTIQUE))
     return "".join(o)
 
+# ------------------------------------------- nutrition : combien et où
+# Les quantités ne sont PAS ressaisies : elles se comptent dans les timelines
+# des 4 portions (solides) et dans les flasques annoncées par portion
+# (boissons). Une modification du plan se répercute donc toute seule, et les
+# assertions ci-dessous cassent le build si un produit est renommé.
+PROD_ROWS = [
+    ('bouillon',    'Bouillon salé Baouw',            'Bouillon salé'),
+    ('iso',         'Iso citron-fleur de sureau Baouw', 'Iso citron'),
+    ('energie',     'Au choix : bouillon ou iso',       None),
+    ('eau',         'Eau pure',                         None),
+    ('gel',         'Gel — 3 parfums au choix',         None),
+    ('barre',       'Barre vanille-macadamia',          'Barre vanille'),
+    ('puree',       'Purée framboise-fraise-basilic',   'Purée framboise'),
+    ('puree_salee', 'Purée cari de légumes (salée)',    'Purée cari'),
+    ('caf',         'Maurten GEL 100 CAF 100',          'CAF 100'),
+]
+
+def _famille(quoi):
+    t = quoi.lower()
+    if 'CAF' in quoi or 'caféin' in t:
+        return 'caf'
+    if 'plus rien' in t:
+        return None
+    if 'salée' in t or 'cari' in t:
+        return 'puree_salee'
+    if 'purée' in t:
+        return 'puree'
+    if 'barre' in t:
+        return 'barre'
+    if 'gel' in t:
+        return 'gel'
+    raise AssertionError('prise non classée : %r' % quoi)
+
+def compte_produits():
+    """{famille: [n1, n2, n3, n4]} — quantités par portion."""
+    n = {}
+    for i, p in enumerate(NUTRITION['portions']):
+        for _, quoi in p['timeline']:            # solides
+            f = _famille(quoi)
+            if f:
+                n.setdefault(f, [0, 0, 0, 0])[i] += 1
+        flq = re.sub(r'\([^)]*\)', '', p['flasques']).replace('*', '')   # boissons
+        hit = False
+        for pat, key in ((r'(\d+)\s+bouillons?', 'bouillon'), (r'(\d+)\s+isos?', 'iso'),
+                         (r'(\d+)\s+eau', 'eau'),
+                         (r'(\d+)\s+seule\s+flasque\s+énergie', 'energie')):
+            for m in re.finditer(pat, flq):
+                n.setdefault(key, [0, 0, 0, 0])[i] += int(m.group(1))
+                hit = True
+        assert hit, 'aucune flasque reconnue dans la portion %d : %r' % (i + 1, p['flasques'])
+    noms = [r[0] for r in NUTRITION['produits']]
+    for _, _, mot in PROD_ROWS:                  # garde-fou sur les renommages
+        if mot:
+            assert any(mot in x for x in noms), 'produit introuvable : %s' % mot
+    assert sum(1 for x in noms if x.startswith('Gel ')) == 3, 'nombre de parfums de gel'
+    return n
+
+def hors_plan():
+    """Produits qui ne sont pas dans les pochettes : l'emplacement est le
+    premier segment en gras de leur note."""
+    out = []
+    for nom, _fmt, _gl, _na, _li, note in NUTRITION['produits']:
+        m = re.match(r'\s*\*\*(.+?)\*\*', note)
+        if m and 'Plan A' not in m.group(1):
+            out.append((nom, m.group(1)))
+    assert len(out) == 2, 'produits hors plan attendus : 2, trouvés %d' % len(out)
+    return out
+
 # ----------------------------------------------------------- onglet NUTRITION
 def sec_nutrition():
     dest = ['St-Nizier', 'Autrans', 'Rencurel', 'Arrivée']
@@ -534,15 +602,40 @@ def sec_nutrition():
     o.append('<div class="card" id="nut-savoir"><h3>Ce qu\'il faut savoir</h3>%s</div>'
              % "".join('<div class="pr"><b>%s</b><p>%s</p></div>' % (md2html(a), md2html(b))
                        for a, b in NUTRITION['principes']))
-    prod = []
+    n = compte_produits()
+    lignes = []
+    for cle, libelle, _ in PROD_ROWS:
+        v = n.get(cle)
+        if not v:
+            continue
+        lignes.append('<tr><td class="nm">%s</td><td class="tt">%d</td>%s</tr>'
+                      % (md2html(libelle), sum(v),
+                         "".join('<td%s>%s</td>' % ('' if x else ' class="z"', x or '·') for x in v)))
+    tot_e = sum(sum(n.get(k, [0, 0, 0, 0])) for k in ('bouillon', 'iso', 'energie'))
+    tot_eau = sum(n.get('eau', [0, 0, 0, 0]))
+    detail = []
     for nom, fmt, gl, na, li, note in NUTRITION['produits']:
-        prod.append('<li><div class="p-h"><b>%s</b><span>%s</span></div>'
-                    '<div class="p-n"><span><i>Glucides</i>%s</span><span><i>Sodium</i>%s</span>'
-                    '<span><i>Lipides</i>%s</span></div><p class="p-t">%s</p></li>'
-                    % (md2html(nom), md2html(fmt), md2html(gl), md2html(na), md2html(li), md2html(note)))
-    o.append('<div class="card" id="nut-produits"><h3>Tes produits</h3>'
-             '<p class="sub">Valeurs relevées sur les étiquettes le 09/09.</p>'
-             '<ul class="prod">%s</ul></div>' % "".join(prod))
+        detail.append('<li><div class="p-h"><b>%s</b><span>%s</span></div>'
+                      '<div class="p-n"><span><i>Glucides</i>%s</span><span><i>Sodium</i>%s</span>'
+                      '<span><i>Lipides</i>%s</span></div><p class="p-t">%s</p></li>'
+                      % (md2html(nom), md2html(fmt), md2html(gl), md2html(na),
+                         md2html(li), md2html(note)))
+    o.append('<div class="card" id="nut-produits"><h3>Combien, et où</h3>'
+             '<p class="sub">Compté sur le plan : les 4 pochettes et les flasques de chaque portion.</p>'
+             '<div class="tw"><table class="pmx"><thead><tr><th>Produit</th><th class="tt">Tot.</th>'
+             '<th class="p">①</th><th class="p">②</th><th class="p">③</th><th class="p">④</th>'
+             '</tr></thead><tbody>%s</tbody></table></div>'
+             '<p class="sub" style="margin-top:9px"><b>%d flasques énergie</b> et '
+             '<b>%d flasques d\'eau pure</b> sur la journée. '
+             'La flasque énergie de ② est au choix : bouillon ou iso.</p>'
+             '<h4>Hors pochettes</h4><table class="kv">%s</table>'
+             '<details style="margin-top:11px"><summary class="more">Valeurs des étiquettes (09/09)</summary>'
+             '<ul class="prod" style="margin-top:9px">%s</ul></details>'
+             '</div>'
+             % ("".join(lignes), tot_e, tot_eau,
+                "".join('<tr><th>%s</th><td>%s</td></tr>' % (md2html(a), md2html(b))
+                        for a, b in hors_plan()),
+                "".join(detail)))
     o.append('<div class="card" id="nut-cibles"><h3>Cibles</h3><table class="kv">%s</table></div>'
              % "".join('<tr><th>%s</th><td>%s</td></tr>' % (a, md2html(b)) for a, b in NUTRITION['cibles']))
     o.append('<div class="card" id="nut-avant"><h3>Avant le départ</h3><table class="kv">%s</table></div>'
