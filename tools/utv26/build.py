@@ -459,16 +459,21 @@ def sec_suivi():
         'Une seule lecture ne veut rien dire — c\'est la tendance sur 2-3 points qui compte. '
         'Heures des ravitos = arrêt inclus. Sauvegarde automatique sur cet appareil.</p>'
         '<div class="toolbar" style="margin-top:10px">'
-          '<button type="button" class="btn" id="btnExport">Copier le suivi (JSON)</button>'
+          '<button type="button" class="btn" id="btnTsv">Copier pour tableur</button>'
+          '<button type="button" class="btn" id="btnCsv">Fichier .csv</button>'
           '<button type="button" class="btn" id="btnPrint">Imprimer</button>'
           '<button type="button" class="btn" id="btnWake" hidden aria-pressed="false">Écran allumé</button>'
+          '<button type="button" class="btn ghost" id="btnExport">JSON</button>'
           '<button type="button" class="btn ghost" id="btnReset">Effacer les saisies</button>'
           '<span class="msg" id="msg" role="status"></span>'
         '</div>'
         '<p class="sub" style="margin-top:9px">Tu peux n\'en renseigner qu\'une partie : '
         'chaque point se calcule tout seul, dans n\'importe quel ordre. Une case laissée '
         'vide ne bloque rien — ni le scénario des autres points, ni la progression, '
-        'ni l\'export.</p>'
+        'ni l\'export.<br>« Copier pour tableur » met les 23 lignes dans le presse-papiers : '
+        'un collage dans Excel ou Google Sheets et les colonnes tombent en place. '
+        'Après une correction, tu recopies et tu recolles par-dessus — la grille fait '
+        'toujours la même taille.</p>'
       '</div>'
       '<div class="cplist" id="su-passages">%s</div>'
       '%s'
@@ -603,8 +608,14 @@ def sec_infos():
             '<b>sur cet appareil</b> (stockage local du navigateur). Rien n\'est envoyé nulle part. '
             'Elles sont liées à cette adresse et à ce navigateur : ne change pas d\'appareil '
             'en cours de course, et n\'utilise pas la navigation privée.</td></tr>'
-            '<tr><th>Récupérer</th><td>« Copier le suivi (JSON) » dans l\'onglet Suivi met tout '
-            'dans le presse-papiers. « Imprimer » sort l\'onglet affiché sur papier (depuis Suivi : le tableau des 23 points).</td></tr>'
+            '<tr><th>Récupérer</th><td><b>« Copier pour tableur »</b> met les 23 lignes '
+            '(km, D+ cumulé, point, les 5 scénarios, l\'heure réelle, le scénario calculé, '
+            'l\'écart) dans le presse-papiers, tabulées : un collage dans Excel ou Google '
+            'Sheets suffit. <b>« Fichier .csv »</b> enregistre la même grille (séparateur '
+            '« ; », UTF-8 avec BOM : Excel français l\'ouvre d\'un double-clic). '
+            '<b>« JSON »</b> pour un traitement automatique. Dans les trois cas la grille '
+            'est complète, saisie ou non : une correction se règle en recollant par-dessus. '
+            '« Imprimer » sort l\'onglet affiché sur papier.</td></tr>'
             '<tr><th>Confort</th><td>Les deux boutons en haut à droite : taille du texte et thème '
             '(auto / clair / sombre). « Écran allumé » dans l\'onglet Suivi empêche la veille '
             '(si le navigateur le permet).</td></tr>'
@@ -618,6 +629,7 @@ def js_payload():
     cps = [{'km': c['km'], 'nom': strip_tags(md2html(c['nom'])), 'alt': c['alt'],
             'h': [round(x, 5) for x in c['h']],
             'sx': round(px(c['km']), 1), 'sy': round(py(alt_at(c['km'])), 1),
+            'type': c['type'],
             'up': int(round(up_dn(0, c['km'])[0])),
             'upR': int(up_dn(c['km'], L)[0])} for c in CP]
     pert = next(c['i'] for c in CP if abs(c['km'] - PERTUSON_KM) < 0.01)

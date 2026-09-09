@@ -374,7 +374,65 @@
     if (on) w.scrollLeft = 0;
   });
 
-  /* --------------------------------------------------------- outils de suivi */
+  /* ------------------------------------------------------------- exports
+     Objectif : récupérer le suivi dans un tableur en un collage, et pouvoir
+     le refaire autant de fois qu'on veut. La grille exportée fait toujours
+     les 23 points, saisis ou non : une correction se règle en recollant
+     par-dessus, il n'y a jamais de ligne à retrouver ni à supprimer. */
+  var TYPE = { ravito: 'Ravito', barriere: 'Barrière',
+               terminus: 'Départ / Arrivée', point: 'Intermédiaire' };
+  function fmtHM(h) {                      // heures depuis 05h00 -> « 08:47 »
+    var m = Math.round((h + 5) * 60);
+    return pad(Math.floor(m / 60) % 24) + ':' + pad(((m % 60) + 60) % 60);
+  }
+  function grille() {
+    var rows = [['km', 'D+ cumulé (m)', 'Point', 'Type',
+                 'Bonne', 'Réaliste', 'Prudent', 'Dégradé', 'Annecy',
+                 'Réel', 'Scénario', 'Écart vs réaliste (min)']];
+    for (var i = 0; i < CP.length; i++) {
+      var c = CP[i], v = (st.reel || {})[i] || '', r = v ? classify(i, toH(v)) : null;
+      rows.push([
+        String(c.km.toFixed(2)).replace('.', ','), String(c.up), c.nom, TYPE[c.type] || '',
+        fmtHM(c.h[0]), fmtHM(c.h[1]), fmtHM(c.h[2]), fmtHM(c.h[3]), fmtHM(c.h[4]),
+        v, r ? r.label : '', r ? String(r.delta) : ''
+      ]);
+    }
+    if (st.notes) rows.push([], ['Notes', st.notes]);
+    return rows;
+  }
+  var flat = function (c) { return String(c == null ? '' : c).replace(/[\t\r\n]+/g, ' '); };
+  function toTSV(rows) {
+    return rows.map(function (r) { return r.map(flat).join('\t'); }).join('\n');
+  }
+  function toCSV(rows) {                   // « ; » et BOM : Excel FR ouvre direct
+    return rows.map(function (r) {
+      return r.map(function (c) { return '"' + flat(c).replace(/"/g, '""') + '"'; }).join(';');
+    }).join('\r\n');
+  }
+  function copier(txt, ok) {
+    var fail = function () { window.prompt('Copie ce texte :', txt); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { flash(ok); }, fail);
+    } else { fail(); }
+  }
+  $('#btnTsv').addEventListener('click', function () {
+    copier(toTSV(grille()), 'Copié. Collez dans une cellule du tableur.');
+  });
+  $('#btnCsv').addEventListener('click', function () {
+    var d = new Date();
+    var nom = 'UTV26-suivi-' + todayISO() + '-' + pad(d.getHours()) + pad(d.getMinutes()) + '.csv';
+    try {
+      var url = URL.createObjectURL(new Blob(['\uFEFF' + toCSV(grille())],
+                                             { type: 'text/csv;charset=utf-8' }));
+      var a = document.createElement('a');
+      a.href = url; a.download = nom;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 8000);
+      flash(nom);
+    } catch (e) {
+      copier(toCSV(grille()), 'Téléchargement impossible — copié à la place.');
+    }
+  });
   $('#btnExport').addEventListener('click', function () {
     var rows = [];
     for (var i = 0; i < CP.length; i++) {
@@ -384,16 +442,13 @@
       rows.push({ km: CP[i].km, point: CP[i].nom, reel: v,
                   scenario: r ? r.label : '', ecart_min_vs_realiste: r ? r.delta : null });
     }
-    var txt = JSON.stringify({ course: 'UTV 84K 2026', export: new Date().toISOString(),
-                               passages: rows, notes: st.notes || '' }, null, 1);
-    var done = function () { flash('Copié dans le presse-papiers.'); };
-    var fail = function () { window.prompt('Copie ce texte :', txt); };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, fail);
-    else fail();
+    copier(JSON.stringify({ course: 'UTV 84K 2026', export: new Date().toISOString(),
+                            passages: rows, notes: st.notes || '' }, null, 1),
+           'JSON copié dans le presse-papiers.');
   });
   function flash(m) {
     var el = $('#msg'); el.textContent = m;
-    setTimeout(function () { el.textContent = ''; }, 3500);
+    setTimeout(function () { el.textContent = ''; }, 4500);
   }
   /* à l'impression, tous les replis s'ouvrent puis reviennent à leur état */
   var reclose = [];
