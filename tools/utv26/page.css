@@ -162,6 +162,8 @@ section.on{display:block}
 .card h4:first-child{margin-top:0}
 .card .sub{font-size:.78rem;color:var(--ink2)}
 .card.bad{border-left:5px solid var(--m-rouge);background:var(--m-rouge-soft)}
+.card.warn{border-left:5px solid var(--m-orange);background:var(--m-jaune-soft)}
+.card.warn>summary .sum-t b{color:var(--m-orange-ink)}
 .card.tint{background:var(--surf2)}
 
 ul{margin:.35em 0 .35em 1.1em;padding:0}

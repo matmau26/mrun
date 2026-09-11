@@ -700,12 +700,16 @@ def sec_whatif():
          '<div id="wiList">']
     for w in WHATIF:
         hay = norm(" ".join([w['titre'], w['signal'], w['decision'], " ".join(w['plan']), w['mathieu']]))
-        o.append('<details class="card%s" data-s="%s">'
+        # 🟠 = fiche de décision d'avant-course : mise en évidence et dépliée,
+        # c'est la seule qu'on lit sans la chercher. 🔴 URGENCES reste en rouge.
+        vigilance = '🟠' in w['titre']
+        o.append('<details class="card%s" data-s="%s"%s>'
                  '<summary><span class="sum-t"><b>%s</b></span>%s</summary>'
                  '<p class="sig"><b>Signal :</b> %s</p><p class="dec">%s</p>'
                  '<h4>Plan</h4>%s<h4>Mathieu</h4><p>%s</p></details>'
-                 % (' bad' if 'URGENCES' in w['titre'] else '',
-                    html.escape(hay, quote=True), md2html(w['titre']), CHEV,
+                 % (' bad' if 'URGENCES' in w['titre'] else (' warn' if vigilance else ''),
+                    html.escape(hay, quote=True), ' open' if vigilance else '',
+                    md2html(w['titre']), CHEV,
                     md2html(w['signal']), md2html(w['decision']),
                     li_list(w['plan']), md2html(w['mathieu'])))
     o.append('</div><p class="empty" id="wiNone" hidden>Aucune situation ne correspond.</p>')

@@ -540,6 +540,22 @@ Actions :
 
 ## ONGLET 5 — WHAT IF
 
+### 🟠 Maladie — les symptômes de mercredi soir
+**Signal :** Depuis mercredi soir : nez pris, gorge qui gratte, mal de tête, sensation de fièvre, énergie basse, et une nuit de 5h27 (couchée à 00h28).
+
+**Décision :** **Ce qui tranche, c'est le thermomètre à 03h30 — pas la montre, pas la sensation.** ≥ 37,5 °C au réveil, avant de te lever et avant de boire : tu ne pars pas. En dessous, et sans courbatures : tu pars.
+
+**Plan :**
+- **Ce que dit le contrôle Garmin du 11/09 : rien d'alarmant.** 0 marqueur sur 6 en zone d'alerte. VFC 31 ms (intacte, haut de ta fourchette normale) · FC nuit 69 = exactement ta baseline · Δtemp +0,2 sous le seuil de 0,30 · FC repos 62 pour un seuil à 63. Et surtout : **la nuit du 09 au 10, soit 12 h après le début des symptômes, est totalement normale** (FC repos 56, VFC 31, Δtemp −0,3, 8h37 de sommeil). Sur 48 h, aucune signature de virose fébrile installée.
+- **Ce que ça ne dit pas.** La montre mesure une température de **peau**, et seulement pendant le sommeil. Une fièvre diurne, ou qui démarre aujourd'hui, ne s'y verra pas. **Le thermomètre prime sur la montre.** L'absence de signature Garmin n'exclut pas une virose — elle exclut le gabarit d'une virose fébrile installée.
+- **La nuit dernière est ambiguë, il faut le dire.** FC repos +6, FC nuit +7, respiration +1, température qui bascule de +0,5 : les quatre marqueurs bougent dans le sens qu'une infection produirait. La VFC conservée penche pour la dette de sommeil (5h27, couchée 1h30 trop tard) — **c'est un penchant, pas une preuve.**
+- **La règle du cou** — c'est elle qui décide, pas le chrono : symptômes **au-dessus du cou seulement** (nez, gorge) et **pas de fièvre** → on peut courir. **Fièvre, courbatures, frissons** → on ne court pas. Le risque visé n'est pas la performance, c'est le cœur : l'effort long pendant une infection virale aiguë est le contexte classique de la myocardite.
+- **Pas de paracétamol avant le départ pour « aller mieux ».** Ça efface le seul signal objectif qu'il te reste. Et l'ibuprofène est interdit en course de toute façon.
+- **Si tu pars sans fièvre — ce qui change dans le plan.** ① La FC reste utilisable, mais **le plafond de puissance devient la règle dure** : ≤ 120 W sur M1. Si 120 W te coûtent 10-15 bpm de plus que d'habitude, ce n'est pas une mauvaise sensation, c'est une donnée : tu passes en mode finir. ② **Tu n'augmentes pas ton débit de boisson.** Le nez bouché te fait respirer par la bouche → bouche sèche → fausse soif. Tu rinces, tu ne bois pas une flasque. Le sur-boire est le vrai danger, pas le sous-boire. ③ **Sodium inchangé** — le bouillon devient plus utile que l'iso. ④ **La barre devient optionnelle dès le départ** (11 g de lipides + 3,7 g de fibres sur un estomac de convalescence). ⑤ Petit-déjeuner : tu ne le forces pas ; si rien ne passe en solide, tu le remplaces par du liquide.
+- **En course.** Le nez et la gorge ne sont pas un motif d'arrêt : tu peux courir 84 km avec. **Ce qui arrête la course : frissons en montée, courbatures nouvelles, sensation de fièvre qui revient, ou FC qui s'emballe sans effort correspondant.** Dans ces cas tu ne négocies pas : tu rejoins le ravito ou le poste de secours suivant et tu me vois.
+
+**Mathieu :** **Ce soir** : thermomètre au coucher, **deux mesures à 5 min d'intervalle**, même site (buccal, ≥ 20 min après toute boisson chaude). **À 03h30** : même protocole, **avant qu'elle se lève et avant qu'elle boive** — c'est le meilleur moment de la journée pour détecter une fièvre, la température corporelle étant à son minimum entre 04h et 06h ; un 37,5 °C à cette heure-là veut dire quelque chose, le même chiffre le soir non. Puis lecture Garmin au réveil sur 3 marqueurs : **Δtemp ≥ +0,30 · FC nuit ≥ 75 · VFC ≤ 22** → l'infection se confirme, on ne part pas. Retour vers les valeurs du 10/09 → c'était la nuit courte. **Dans le sac** : thermomètre, et le Drink Mix 160 sorti du coffre. **À chaque ravito, une question de plus : « des frissons ? »**
+
 ### Le solide ne passe plus · mal de ventre
 **Signal :** Un gel « reste », haut-le-cœur, ballonnement, satiété écœurante.
 
