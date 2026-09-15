@@ -499,6 +499,133 @@
   line-height: 1.6;
 }
 
+/* ---------- Day card : bouton "fait" ---------- */
+.day-card__check {
+  margin-top: auto;
+  display: block;
+  cursor: pointer;
+  user-select: none;
+}
+.day-card__check input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.day-card__check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text-3);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.day-card__check-pill:hover {
+  border-color: var(--line-2);
+  color: var(--text-2);
+}
+.day-card__check-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  color: transparent;
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.day-card__check input:checked ~ .day-card__check-pill {
+  background: rgba(43, 199, 106, 0.15);
+  border-color: rgba(43, 199, 106, 0.5);
+  color: #2BC76A;
+}
+.day-card__check input:checked ~ .day-card__check-pill .day-card__check-tick {
+  background: #2BC76A;
+  border-color: #2BC76A;
+  color: #0a0a0a;
+}
+.day-card__check input:focus-visible ~ .day-card__check-pill {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.day-card.is-done {
+  opacity: 0.72;
+  background: linear-gradient(160deg, rgba(43, 199, 106, 0.10), var(--surface-2) 60%);
+  border-color: rgba(43, 199, 106, 0.32);
+}
+.day-card.is-done .day-card__title {
+  text-decoration: line-through;
+  text-decoration-color: rgba(43, 199, 106, 0.55);
+  text-decoration-thickness: 1.5px;
+  color: var(--text-2);
+}
+.day-card.is-done .day-card__body { color: var(--text-3); }
+.day-card.is-done.is-key {
+  box-shadow: none;
+  background: linear-gradient(160deg, rgba(43, 199, 106, 0.10), var(--surface-2) 60%);
+}
+
+/* ---------- Progress bar (dans le hero) ---------- */
+.progress {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.progress__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 0.88rem;
+}
+.progress__label {
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.progress__val {
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.progress__val strong {
+  color: var(--text);
+  font-weight: 900;
+  font-family: var(--font-body);
+}
+.progress__bar {
+  height: 8px;
+  background: var(--surface);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2BC76A, #FF5722);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.progress__hint {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
 /* ---------- Extra brand vars if not present in plan.css ---------- */
 :root {
   --brand: #FF5722;

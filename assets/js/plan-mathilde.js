@@ -11,12 +11,25 @@
   // ------- Utils -----------------------------------------------------------
 
   const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const create = (tag, cls, txt) => {
     const el = document.createElement(tag);
     if (cls) el.className = cls;
     if (txt != null) el.textContent = txt;
     return el;
   };
+
+  // ------- LocalStorage : séances cochées ---------------------------------
+  const LS_KEY = 'mrun.mathilde.done.v1';
+  const loadDone = () => {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {}; }
+    catch (e) { return {}; }
+  };
+  const saveDone = (obj) => {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
+    catch (e) { /* mode privé, quota — silencieux */ }
+  };
+  const DONE = loadDone();
   const fmtFrDate = (isoDate) => {
     // "2026-09-14" -> "14 sept. 2026"
     if (!isoDate) return '';
@@ -80,15 +93,28 @@
       <p class="hero__foot">Version ${D.meta.plan_version} — généré le ${fmtFrDate(D.meta.genere_le)}</p>
     `;
 
-    // Countdown
+    // Countdown + progression
     const target = toDate(c.date);
     const t = today();
     const days = Math.round((target - t) / 86400000);
     const cd = $('#countdown');
     if (cd) {
-      if (days > 0) cd.innerHTML = `<span class="countdown__num">${days}</span> jours avant la course`;
-      else if (days === 0) cd.innerHTML = `<span class="countdown__num">C'est aujourd'hui</span>`;
-      else cd.innerHTML = `<span class="countdown__num">Course passée</span>`;
+      const countdownHtml = days > 0
+        ? `<span class="countdown__num">${days}</span> jours avant la course`
+        : days === 0
+          ? `<span class="countdown__num">C'est aujourd'hui</span>`
+          : `<span class="countdown__num">Course passée</span>`;
+      cd.innerHTML = `
+        ${countdownHtml}
+        <div class="progress">
+          <div class="progress__head">
+            <span class="progress__label">Séances faites</span>
+            <span class="progress__val"><strong data-global-done>0 / 0</strong> · <span data-global-remain>0 restante</span> · <span data-global-pct>0 %</span></span>
+          </div>
+          <div class="progress__bar"><div class="progress__fill" data-global-bar style="width: 0%;"></div></div>
+          <p class="progress__hint">Coche chaque séance faite. La progression est enregistrée localement dans ce navigateur.</p>
+        </div>
+      `;
     }
   }
 
@@ -261,7 +287,17 @@
 
       const days = create('div', 'days-grid');
       (s.jours || []).forEach((j) => {
-        const day = create('article', 'day-card' + (j.cle ? ' is-key' : '') + (j.repos ? ' is-rest' : ''));
+        const key = j.date;
+        const isDone = !!DONE[key];
+        const day = create(
+          'article',
+          'day-card'
+            + (j.cle ? ' is-key' : '')
+            + (j.repos ? ' is-rest' : '')
+            + (isDone ? ' is-done' : '')
+        );
+        day.dataset.dayKey = key;
+        day.dataset.weekId = s.id;
         day.innerHTML = `
           <header>
             <span class="day-card__day">${j.jour}</span>
@@ -270,13 +306,68 @@
           </header>
           <h4 class="day-card__title"><span class="day-card__icon">${typeIcon(j.type)}</span>${j.titre || ''}</h4>
           ${j.contenu ? '<p class="day-card__body">' + escapeHtml(j.contenu) + '</p>' : ''}
+          <label class="day-card__check">
+            <input type="checkbox" data-day-check ${isDone ? 'checked' : ''} aria-label="Marquer cette séance comme faite" />
+            <span class="day-card__check-pill">
+              <span class="day-card__check-tick" aria-hidden="true">✓</span>
+              <span class="day-card__check-label">${isDone ? 'Fait' : 'Marquer comme fait'}</span>
+            </span>
+          </label>
         `;
         days.appendChild(day);
       });
       sec.appendChild(days);
 
+      // Compteur de séances faites dans cette semaine
+      const stats = sec.querySelector('.week-block__stats');
+      if (stats) {
+        const cnt = create('div');
+        cnt.innerHTML = '<b data-week-done="' + s.id + '">0</b><span>faites</span>';
+        stats.appendChild(cnt);
+      }
+
       wrap.appendChild(sec);
     });
+
+    // Écouteur global sur les checkboxes
+    wrap.addEventListener('change', (e) => {
+      const cb = e.target.closest('[data-day-check]');
+      if (!cb) return;
+      const card = cb.closest('.day-card');
+      if (!card) return;
+      const key = card.dataset.dayKey;
+      if (cb.checked) DONE[key] = true;
+      else delete DONE[key];
+      saveDone(DONE);
+      card.classList.toggle('is-done', cb.checked);
+      const label = card.querySelector('.day-card__check-label');
+      if (label) label.textContent = cb.checked ? 'Fait' : 'Marquer comme fait';
+      refreshCounts();
+    });
+  }
+
+  // ------- Compteurs de séances faites ------------------------------------
+  function refreshCounts() {
+    // Par semaine : "X/Y faites"
+    D.semaines.forEach((s) => {
+      const total = (s.jours || []).length;
+      const done = (s.jours || []).filter((j) => DONE[j.date]).length;
+      const el = document.querySelector('[data-week-done="' + s.id + '"]');
+      if (el) el.textContent = done + '/' + total;
+    });
+    // Global : X faites · Y restantes + barre de progression
+    const total = D.semaines.reduce((n, s) => n + (s.jours || []).length, 0);
+    const done = D.semaines.reduce((n, s) => n + (s.jours || []).filter((j) => DONE[j.date]).length, 0);
+    const remain = Math.max(0, total - done);
+    const globalEl = document.querySelector('[data-global-done]');
+    if (globalEl) globalEl.textContent = done + ' / ' + total;
+    const remainEl = document.querySelector('[data-global-remain]');
+    if (remainEl) remainEl.textContent = remain + ' restante' + (remain > 1 ? 's' : '');
+    const pctEl = document.querySelector('[data-global-pct]');
+    const pct = total ? Math.round(done * 100 / total) : 0;
+    if (pctEl) pctEl.textContent = pct + ' %';
+    const bar = document.querySelector('[data-global-bar]');
+    if (bar) bar.style.width = pct + '%';
   }
 
   function escapeHtml(s) {
@@ -376,6 +467,7 @@
     renderCalendar();
     renderTests();
     renderRules();
+    refreshCounts();
 
     // Generated on
     const gen = $('#generated-on');
