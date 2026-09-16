@@ -52,46 +52,87 @@
   letter-spacing: -0.03em;
 }
 
-/* ---------- Barre d'onglets ---------- */
+/* ---------- Barre d'onglets — sticky sous le topbar ---------- */
 .tabs-bar {
   position: sticky;
-  top: 0;
-  z-index: 30;
-  background: var(--bg, #0a0a0a);
+  top: 62px;                          /* pile sous le .topbar (min-height 62px) */
+  z-index: 40;
+  background: rgba(8, 8, 11, 0.88);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid var(--line);
   margin-top: 22px;
 }
 .tabs-bar__inner {
   display: flex;
-  gap: 4px;
+  gap: 8px;
+  padding: 10px 0;
   overflow-x: auto;
   scrollbar-width: none;
 }
 .tabs-bar__inner::-webkit-scrollbar { display: none; }
+
 .tab {
   appearance: none;
   background: transparent;
-  border: 0;
+  border: 1px solid transparent;
   cursor: pointer;
-  color: var(--text-3);
+  color: var(--text-2);
   font-family: inherit;
-  font-size: 0.98rem;
+  font-size: 0.94rem;
   font-weight: 700;
-  padding: 16px 22px 14px;
-  position: relative;
-  transition: color 0.2s ease;
+  padding: 9px 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
   white-space: nowrap;
   letter-spacing: -0.01em;
+  line-height: 1;
 }
-.tab:hover { color: var(--text-2); }
-.tab.is-active { color: var(--text); }
-.tab.is-active::after {
-  content: "";
-  position: absolute;
-  left: 22px; right: 22px; bottom: -1px;
-  height: 3px;
+.tab:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--line-2);
+}
+.tab:active { transform: scale(0.97); }
+.tab__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+.tab:hover .tab__icon { opacity: 1; }
+
+/* État actif : pilule colorée par onglet */
+.tab[data-tab="plan"].is-active {
   background: var(--brand);
-  border-radius: 3px 3px 0 0;
+  border-color: var(--brand);
+  color: #0a0a0a;
+  box-shadow: 0 6px 18px rgba(255, 87, 34, 0.35);
+}
+.tab[data-tab="reperes"].is-active {
+  background: #E91E9B;
+  border-color: #E91E9B;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(233, 30, 155, 0.35);
+}
+.tab[data-tab="regles"].is-active {
+  background: #2BC76A;
+  border-color: #2BC76A;
+  color: #0a0a0a;
+  box-shadow: 0 6px 18px rgba(43, 199, 106, 0.35);
+}
+.tab.is-active .tab__icon { opacity: 1; }
+
+/* Mobile : garder icônes + labels, mais plus compacts */
+@media (max-width: 520px) {
+  .tabs-bar { top: 58px; }
+  .tabs-bar__inner { gap: 6px; padding: 8px 0; }
+  .tab { padding: 8px 14px; font-size: 0.88rem; gap: 7px; }
+  .tab__icon { width: 16px; height: 16px; }
 }
 
 /* Panneaux d'onglet */
