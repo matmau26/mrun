@@ -321,6 +321,36 @@
     // Refresh callback exposé pour le module suivi.
     // Re-lit DONE depuis le localStorage pour rester synchro avec les
     // écritures faites depuis la modale.
+    // Réapplique l'état « fait » à TOUTES les cartes déjà rendues.
+    // Appelé par le module suivi après une relecture de la feuille, pour que
+    // la progression suive d'un navigateur à l'autre.
+    window.mathildeApplyDone = () => {
+      try {
+        const fresh = JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {};
+        Object.keys(DONE).forEach((k) => { if (!(k in fresh)) delete DONE[k]; });
+        Object.keys(fresh).forEach((k) => { DONE[k] = fresh[k]; });
+      } catch (e) { /* ignore */ }
+
+      document.querySelectorAll('.day-card[data-day-key]').forEach((card) => {
+        const key = card.dataset.dayKey;
+        const cb = card.querySelector('[data-day-check]');
+        if (!cb) return;                       // repos : pas de coche
+        const isDone = !!DONE[key];
+        card.classList.toggle('is-done', isDone);
+        cb.checked = isDone;
+        const label = card.querySelector('.day-card__check-label');
+        if (label) label.textContent = isDone ? 'Fait' : 'Marquer comme fait';
+        const pill = card.querySelector('.day-card__check-pill');
+        if (pill) pill.classList.toggle('is-saved', isDone);
+      });
+
+      D.semaines.forEach((s) => {
+        const doable = s.jours.filter((j) => !j.repos);
+        updateRing(s.id, doable.filter((j) => DONE[j.date]).length, doable.length);
+      });
+      refreshGlobal();
+    };
+
     window.mathildeRefresh = (weekId) => {
       try {
         const fresh = JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {};

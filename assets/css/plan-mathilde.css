@@ -1724,3 +1724,14 @@ body.has-modal-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .sync-badge.is-pending i { animation: none; }
 }
+
+/* État transitoire du badge pendant la relecture de la feuille */
+.sync-badge.is-syncing {
+  background: rgba(57, 135, 229, 0.12);
+  border: 1px solid rgba(57, 135, 229, 0.32);
+  color: #7db4ff;
+}
+.sync-badge.is-syncing i {
+  background: #7db4ff;
+  animation: syncPulse 1s ease-in-out infinite;
+}

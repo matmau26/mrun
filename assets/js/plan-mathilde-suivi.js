@@ -90,6 +90,65 @@
     });
   }
 
+  // ---- Lecture de l'état distant : la feuille fait foi ------------------
+  function fetchRemoteState() {
+    const url = WEBHOOK_URL
+      + '?token=' + encodeURIComponent(WEBHOOK_TOKEN)
+      + '&_=' + Date.now();          // casse le cache navigateur
+    return fetch(url, { method: 'GET', redirect: 'follow' })
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then((data) => {
+        if (!data || data.ok === false) throw new Error((data && data.error) || 'refus serveur');
+        return data.suivi || {};
+      });
+  }
+
+  // Fusionne l'état distant dans le stockage local.
+  // Règle : la feuille gagne si l'entrée locale est absente ou plus ancienne.
+  function mergeRemoteIntoLocal(remote) {
+    const local = loadSuivi();
+    let merged = 0;
+    Object.keys(remote).forEach((dayKey) => {
+      const r = remote[dayKey];
+      const l = local[dayKey];
+      const rTime = Date.parse(r.saved_at || '') || 0;
+      const lTime = l ? (Date.parse(l.saved_at || '') || 0) : -1;
+      if (rTime > lTime) { local[dayKey] = r; merged++; }
+    });
+    saveSuivi(local);
+
+    // Toute séance présente dans la feuille est marquée comme faite
+    let done = {};
+    try { done = JSON.parse(localStorage.getItem('mrun.mathilde.done.v1') || '{}') || {}; }
+    catch (e) { done = {}; }
+    Object.keys(remote).forEach((dayKey) => { done[dayKey] = true; });
+    try { localStorage.setItem('mrun.mathilde.done.v1', JSON.stringify(done)); }
+    catch (e) { /* silencieux */ }
+
+    return merged;
+  }
+
+  // Cycle complet : on pousse d'abord ce qui attend, puis on relit la feuille.
+  function syncWithSheet() {
+    setSyncBadgeState('syncing');
+    return flushQueue()
+      .then(fetchRemoteState)
+      .then((remote) => {
+        mergeRemoteIntoLocal(remote);
+        if (typeof window.mathildeApplyDone === 'function') window.mathildeApplyDone();
+        updateSyncBadge();
+        return Object.keys(remote).length;
+      })
+      .catch(() => { updateSyncBadge(); return -1; });
+  }
+
+  function setSyncBadgeState(state) {
+    const el = document.getElementById('sync-badge');
+    if (!el || state !== 'syncing') return;
+    el.className = 'sync-badge is-syncing';
+    el.innerHTML = '<i></i>Synchronisation…';
+  }
+
   // Petit indicateur global (injecté dans le pied de page)
   function updateSyncBadge() {
     const n = loadQueue().length;
@@ -707,6 +766,8 @@
     // Synchronisation
     pending: () => loadQueue().length,
     flush: flushQueue,
+    pull: fetchRemoteState,
+    sync: syncWithSheet,
     // Renvoie TOUT l'historique local vers la feuille (réparation manuelle)
     resync: function () {
       const all = loadSuivi();
@@ -717,10 +778,15 @@
     }
   };
 
-  // Au chargement : vide la file d'attente si le réseau est revenu.
+  // Au chargement : on pousse la file d'attente puis on relit la feuille,
+  // pour que l'état « fait » suive d'un appareil à l'autre.
   document.addEventListener('DOMContentLoaded', () => {
     updateSyncBadge();
-    flushQueue();
+    syncWithSheet();
   });
-  window.addEventListener('online', flushQueue);
+  // Retour de connexion, ou retour sur l'onglet après un moment ailleurs
+  window.addEventListener('online', syncWithSheet);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') syncWithSheet();
+  });
 })();
