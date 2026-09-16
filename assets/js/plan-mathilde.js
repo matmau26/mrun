@@ -448,6 +448,338 @@
     tabs.forEach((t) => t.addEventListener('click', () => activate(t.dataset.tab)));
   }
 
+  // ==========================================================================
+  // COMPARATIF 2025 vs 2026
+  // ==========================================================================
+  const C = window.PLAN_MATHILDE_COMP;
+
+  const CONF_COLORS = {
+    vert: '#2BC76A', orange: '#FF9F1C', rouge: '#E63946', gris: '#94a3b8'
+  };
+
+  function renderComparatifVerdict() {
+    const wrap = $('#comp-verdict');
+    if (!wrap || !C) return;
+    const v = C.verdict;
+    let html = `
+      <div class="verdict">
+        <span class="verdict__tag">Verdict</span>
+        <h2 class="verdict__title">${escapeHtml(v.titre)}</h2>
+        <p class="verdict__resume">${escapeHtml(v.resume)}</p>
+        <div class="verdict__grid">`;
+    (v.confiance || []).forEach((c) => {
+      const color = CONF_COLORS[c.couleur] || '#94a3b8';
+      html += `
+          <div class="conf-card" style="--conf-color: ${color};">
+            <div class="conf-card__head">
+              <span class="conf-card__dot"></span>
+              <span class="conf-card__axe">${escapeHtml(c.axe)}</span>
+              <span class="conf-card__niveau">${escapeHtml(c.niveau).replace('_', ' ')}</span>
+            </div>
+            <p class="conf-card__text">${escapeHtml(c.texte)}</p>
+          </div>`;
+    });
+    html += `</div></div>`;
+    wrap.innerHTML = html;
+  }
+
+  function renderComparatifSynthese() {
+    const wrap = $('#comp-synthese');
+    if (!wrap || !C) return;
+    C.synthese.forEach((s) => {
+      const isBetterHigher = ['seances', 'specifiques'].includes(s.cle);
+      const isImprovement = isBetterHigher ? s.ecart_pct > 0 : s.ecart_pct < 0;
+      const isFlat = Math.abs(s.ecart_pct) < 2;
+      const arrow = s.ecart_pct > 0 ? '↑' : (s.ecart_pct < 0 ? '↓' : '·');
+      const cls = isFlat ? 'is-flat' : (isImprovement ? 'is-up' : 'is-alert');
+      const fmtVal = (v) => {
+        if (s.unite === 'h') {
+          const h = Math.floor(v);
+          const m = Math.round((v - h) * 60);
+          return h + ' h ' + String(m).padStart(2, '0');
+        }
+        if (s.unite === 'm') return v.toLocaleString('fr-FR').replace(/,/g, ' ') + ' m';
+        if (s.unite === 'km') return v.toLocaleString('fr-FR').replace(/,/g, ' ') + ' km';
+        return String(v);
+      };
+      const card = create('article', 'kpi ' + cls);
+      card.innerHTML = `
+        <span class="kpi__label">${escapeHtml(s.libelle)}</span>
+        <div class="kpi__cmp">
+          <div class="kpi__col">
+            <span class="kpi__year">Plan 2026</span>
+            <span class="kpi__val">${fmtVal(s.valeur_2026)}</span>
+          </div>
+          <div class="kpi__col kpi__col--alt">
+            <span class="kpi__year">2025 réel</span>
+            <span class="kpi__val">${fmtVal(s.valeur_2025)}</span>
+          </div>
+        </div>
+        <div class="kpi__delta"><span class="kpi__arrow">${arrow}</span>${Math.abs(s.ecart_pct).toFixed(1)} %</div>
+        ${s.reserve ? '<p class="kpi__note">' + escapeHtml(s.reserve) + '</p>' : ''}
+      `;
+      wrap.appendChild(card);
+    });
+  }
+
+  // ------- Graphique SVG générique ---------------------------------------
+  function chartWrapper(metric) {
+    const w = create('article', 'chart-card');
+    const head = create('header', 'chart-card__head');
+    head.innerHTML = `
+      <h3>${escapeHtml(metric.libelle)}</h3>
+      <div class="chart-legend">
+        <span><i style="background:${C.series[1].couleur_claire};"></i>Plan 2026 v2</span>
+        <span><i style="background:${C.series[0].couleur_claire};"></i>Prépa 2025 réelle</span>
+      </div>
+    `;
+    w.appendChild(head);
+    return w;
+  }
+
+  function chartCanvas(metric, weeks) {
+    const W = 800, H = 260, padL = 44, padR = 16, padT = 20, padB = 34;
+    const innerW = W - padL - padR, innerH = H - padT - padB;
+    const n = weeks.length;
+    const xStep = innerW / (n - 1);
+    const xBar = innerW / n;
+    const yMax = metric.axe_max;
+    const yFor = (v) => padT + innerH - (v == null ? 0 : v) / yMax * innerH;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('class', 'chart-svg');
+    svg.setAttribute('preserveAspectRatio', 'none');
+
+    // ------- Bande sûre (ACWR) ou bande de référence (été 2026) --------
+    if (metric.cle === 'acwr' && metric.bande_sure) {
+      const y1 = yFor(metric.bande_sure.max);
+      const y2 = yFor(metric.bande_sure.min);
+      const band = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      band.setAttribute('x', padL);
+      band.setAttribute('y', y1);
+      band.setAttribute('width', innerW);
+      band.setAttribute('height', y2 - y1);
+      band.setAttribute('class', 'chart-band');
+      svg.appendChild(band);
+    }
+    if (metric.cle === 'km' && C.reference_ete_2026 && C.reference_ete_2026.affichage_bande) {
+      const b = C.reference_ete_2026.affichage_bande;
+      const y1 = yFor(b.max), y2 = yFor(b.min);
+      const band = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      band.setAttribute('x', padL); band.setAttribute('y', y1);
+      band.setAttribute('width', innerW); band.setAttribute('height', y2 - y1);
+      band.setAttribute('class', 'chart-band chart-band--info');
+      svg.appendChild(band);
+    }
+
+    // ------- Grid + labels y --------
+    (metric.graduations || []).forEach((g) => {
+      const y = yFor(g);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', padL); line.setAttribute('x2', padL + innerW);
+      line.setAttribute('y1', y); line.setAttribute('y2', y);
+      line.setAttribute('class', 'chart-grid');
+      svg.appendChild(line);
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', padL - 8); t.setAttribute('y', y + 4);
+      t.setAttribute('class', 'chart-tick');
+      t.setAttribute('text-anchor', 'end');
+      t.textContent = g;
+      svg.appendChild(t);
+    });
+
+    // ------- Labels x --------
+    weeks.forEach((w, i) => {
+      const x = padL + i * xStep;
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', x); t.setAttribute('y', H - 12);
+      t.setAttribute('class', 'chart-xlabel'); t.setAttribute('text-anchor', 'middle');
+      t.textContent = w.id;
+      svg.appendChild(t);
+    });
+
+    // ------- Séries --------
+    const val = (w, s) => w[metric.cle] ? w[metric.cle][s] : null;
+
+    const drawLine = (color, seriesKey, dashed = false) => {
+      const pts = [];
+      weeks.forEach((w, i) => {
+        const v = val(w, seriesKey);
+        if (v == null) return;
+        const x = padL + i * xStep;
+        pts.push({ x, y: yFor(v), v, week: w });
+      });
+      if (pts.length < 2) return;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p.x + ' ' + p.y).join(' ');
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'chart-line' + (dashed ? ' chart-line--dashed' : ''));
+      path.setAttribute('stroke', color);
+      svg.appendChild(path);
+      pts.forEach((p) => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', 3.5);
+        c.setAttribute('fill', color); c.setAttribute('class', 'chart-dot');
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = p.week.id + ' — ' + formatChartValue(metric, p.v);
+        c.appendChild(title);
+        svg.appendChild(c);
+      });
+    };
+
+    const drawBars = (colorA, colorB) => {
+      // Two grouped bars per week
+      const barW = xBar * 0.35;
+      weeks.forEach((w, i) => {
+        const xCenter = padL + i * xStep;
+        const vA = val(w, 'y2026'), vB = val(w, 'y2025');
+        if (vA != null) {
+          const yA = yFor(vA), hA = padT + innerH - yA;
+          const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          r.setAttribute('x', xCenter - barW - 1); r.setAttribute('y', yA);
+          r.setAttribute('width', barW); r.setAttribute('height', hA);
+          r.setAttribute('fill', colorA); r.setAttribute('class', 'chart-bar');
+          const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          t.textContent = w.id + ' · Plan 2026 : ' + formatChartValue(metric, vA);
+          r.appendChild(t);
+          svg.appendChild(r);
+        }
+        if (vB != null) {
+          const yB = yFor(vB), hB = padT + innerH - yB;
+          const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          r.setAttribute('x', xCenter + 1); r.setAttribute('y', yB);
+          r.setAttribute('width', barW); r.setAttribute('height', hB);
+          r.setAttribute('fill', colorB); r.setAttribute('class', 'chart-bar');
+          const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          t.textContent = w.id + ' · 2025 réel : ' + formatChartValue(metric, vB);
+          r.appendChild(t);
+          svg.appendChild(r);
+        }
+      });
+    };
+
+    const drawStacked = () => {
+      // Stacked bars: total séances = specifiques + footings/SL
+      const barW = xBar * 0.35;
+      const colA = C.series[1].couleur_claire;
+      const colB = C.series[0].couleur_claire;
+      const colASpec = '#0a4c8a';
+      const colBSpec = '#a53d16';
+      weeks.forEach((w, i) => {
+        const xC = padL + i * xStep;
+        const draw = (xOff, total, spec, base, specColor) => {
+          if (total == null) return;
+          const other = total - (spec || 0);
+          const yTop = yFor(total);
+          const hTot = padT + innerH - yTop;
+          const yMid = yFor(other);
+          const hOther = padT + innerH - yMid;
+          // Base (footings/SL)
+          const r1 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          r1.setAttribute('x', xOff); r1.setAttribute('y', yMid);
+          r1.setAttribute('width', barW); r1.setAttribute('height', hOther);
+          r1.setAttribute('fill', base); r1.setAttribute('class', 'chart-bar');
+          svg.appendChild(r1);
+          // Top (spécifiques)
+          if (spec > 0) {
+            const r2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            r2.setAttribute('x', xOff); r2.setAttribute('y', yTop);
+            r2.setAttribute('width', barW); r2.setAttribute('height', hMid(spec, yTop, padT, innerH, yMax));
+            r2.setAttribute('fill', specColor); r2.setAttribute('class', 'chart-bar');
+            const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            t.textContent = w.id + ' — ' + total + ' séances dont ' + spec + ' spécifiques';
+            r2.appendChild(t);
+            svg.appendChild(r2);
+          }
+        };
+        draw(xC - barW - 1, val(w, 'y2026'), w.specifiques ? w.specifiques.y2026 : 0, colA, colASpec);
+        draw(xC + 1, val(w, 'y2025'), w.specifiques ? w.specifiques.y2025 : 0, colB, colBSpec);
+      });
+    };
+
+    function hMid(spec, yTop, padT, innerH, yMax) {
+      return spec / yMax * innerH;
+    }
+
+    const colB = C.series[0].couleur_claire;
+    const colA = C.series[1].couleur_claire;
+
+    if (metric.graphique === 'courbe') {
+      drawLine(colB, 'y2025', true);
+      drawLine(colA, 'y2026', false);
+    } else if (metric.graphique === 'barres') {
+      drawBars(colA, colB);
+    } else if (metric.graphique === 'barres_empilees') {
+      drawStacked();
+    }
+
+    return svg;
+  }
+
+  function formatChartValue(metric, v) {
+    if (metric.cle === 'duree') {
+      const h = Math.floor(v); const m = Math.round((v - h) * 60);
+      return h + ' h ' + String(m).padStart(2, '0');
+    }
+    if (metric.cle === 'acwr') return v.toFixed(2);
+    return v + (metric.unite ? ' ' + metric.unite : '');
+  }
+
+  function renderComparatifCharts() {
+    const wrap = $('#comp-charts');
+    if (!wrap || !C) return;
+    C.metriques.forEach((m) => {
+      const card = chartWrapper(m);
+      card.appendChild(chartCanvas(m, C.semaines));
+      if (m.note) {
+        const p = create('p', 'chart-note');
+        p.textContent = m.note;
+        card.appendChild(p);
+      }
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderComparatifRisque() {
+    if (!C || !C.risque) return;
+    const constat = $('#comp-risque-constat');
+    if (constat) constat.textContent = C.risque.constat || '';
+    const wrap = $('#comp-risque');
+    if (wrap) {
+      (C.risque.mitigations || []).forEach((r) => {
+        const card = create('article', 'rule-card');
+        card.innerHTML = `
+          <span class="rule-card__num">${String(r.rang).padStart(2, '0')}</span>
+          <div>
+            <h4>${escapeHtml(r.titre)}</h4>
+            <p>${escapeHtml(r.detail)}</p>
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
+    }
+    const marge = $('#comp-marge');
+    if (marge && C.risque.marge_supplementaire) {
+      marge.innerHTML = '<strong>Marge disponible.</strong> ' + escapeHtml(C.risque.marge_supplementaire);
+    }
+  }
+
+  function renderComparatifSources() {
+    const wrap = $('#comp-sources');
+    if (!wrap || !C || !C.sources) return;
+    const list = create('ul', 'src-list');
+    C.sources.forEach((s) => {
+      const li = create('li');
+      li.innerHTML = `
+        <strong>${escapeHtml(s.donnee)}</strong>
+        <span>${escapeHtml(s.source)}</span>
+        <em>Fiabilité : ${escapeHtml(s.fiabilite)}</em>
+      `;
+      list.appendChild(li);
+    });
+    wrap.appendChild(list);
+  }
+
   // ------- Init ------------------------------------------------------------
   document.addEventListener('DOMContentLoaded', () => {
     initTabs();
@@ -460,6 +792,13 @@
     renderTests();
     renderRules();
     refreshGlobal();
+
+    // Nouvel onglet Comparatif
+    renderComparatifVerdict();
+    renderComparatifSynthese();
+    renderComparatifCharts();
+    renderComparatifRisque();
+    renderComparatifSources();
 
     const gen = $('#generated-on');
     if (gen) gen.textContent = fmtFrDate(D.meta.genere_le);

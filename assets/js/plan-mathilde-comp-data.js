@@ -1,0 +1,225 @@
+window.PLAN_MATHILDE_COMP = {
+  "meta": {
+    "schema_version": "1.0",
+    "titre": "Comparaison prépa SaintéSprint 2025 réelle / plan 2026 v2",
+    "genere_le": "2026-09-16",
+    "athlete": "Mathilde",
+    "course": "Asics SaintéSprint 24 km",
+    "perimetre": "11 semaines ISO (S38 à S48), identiques d'une année sur l'autre",
+    "unites": { "distance": "km", "duree": "heures décimales", "denivele": "mètres", "seances": "nombre" },
+    "perimetre_activites": "Course à pied uniquement. Muscu, vélo et randonnée exclus de km, duree et denivele ; exclus aussi du comptage de séances.",
+    "semaine_de_course": "La course elle-même est exclue de S48 des deux côtés, pour que la semaine d'affûtage soit comparable.",
+    "source_2025": "Export RGPD Garmin du 14/09/2026, 651 activités, agrégation par semaine ISO",
+    "source_2026": "Plan 2026-11_SainteSprint24K_Plan_v2.json, volumes recalculés en sommant le contenu des séances",
+    "fichiers_lies": ["2026-11_SainteSprint24K_Plan_v2.json"],
+    "confidentiel": true
+  },
+
+  "verdict": {
+    "titre": "Le volume n'est pas le sujet",
+    "resume": "Le bloc totalise 425 km contre 429 km réellement courus sur les onze mêmes semaines en 2025, avec un pic à 53 km contre 53,2 km. Il demande 9 % de temps en moins et 56 % de dénivelé en moins. Le seul paramètre qui dépasse ce qu'elle a déjà fait, c'est la densité d'intensité : 10 séances spécifiques en 2025, 16 dans le plan, et surtout deux par semaine au lieu d'une à partir du 6 octobre.",
+    "confiance": [
+      { "axe": "Volume hebdomadaire", "niveau": "eleve", "couleur": "vert", "texte": "425 km sur le bloc contre 429 en 2025, pic à 93 % de sa moyenne des huit semaines d'été. Aucun terrain inconnu." },
+      { "axe": "Nombre de séances", "niveau": "eleve", "couleur": "vert", "texte": "5 séances de course + 1 muscu par semaine, exactement ce qu'elle fait depuis juillet 2026." },
+      { "axe": "Densité d'intensité", "niveau": "moyen", "couleur": "orange", "texte": "Deux séances spécifiques par semaine pendant sept semaines : elle ne l'a jamais fait dans les 2,5 ans de données disponibles." },
+      { "axe": "Périoste tibial", "niveau": "non_modelisable", "couleur": "rouge", "texte": "Drapeau levé début septembre, résolu au 15/09. Variable de terrain, non prédictible par les données." }
+    ]
+  },
+
+  "synthese": [
+    { "cle": "km", "libelle": "Kilomètres du bloc", "valeur_2026": 425, "valeur_2025": 429.0, "unite": "km", "ecart_pct": -0.9, "format": "425 km" },
+    { "cle": "duree", "libelle": "Temps de course", "valeur_2026": 39.98, "valeur_2025": 43.82, "unite": "h", "ecart_pct": -8.8, "format": "40 h 00" },
+    { "cle": "denivele", "libelle": "Dénivelé positif", "valeur_2026": 4250, "valeur_2025": 9585, "unite": "m", "ecart_pct": -55.7, "format": "4 250 m", "reserve": "2025 mesuré à la montre (altimètre non fiable) ; 2026 estimé d'après le contenu des séances." },
+    { "cle": "seances", "libelle": "Séances de course", "valeur_2026": 48, "valeur_2025": 42, "unite": "séances", "ecart_pct": 14.3, "format": "48" },
+    { "cle": "specifiques", "libelle": "Séances spécifiques", "valeur_2026": 16, "valeur_2025": 10, "unite": "séances", "ecart_pct": 60.0, "format": "16" }
+  ],
+
+  "metriques": [
+    { "cle": "km", "libelle": "Kilomètres par semaine", "unite": "km", "graphique": "courbe", "axe_max": 80, "graduations": [0, 20, 40, 60, 80] },
+    { "cle": "duree", "libelle": "Temps de course par semaine", "unite": "h", "graphique": "courbe", "axe_max": 7, "graduations": [0, 2, 4, 6], "note": "Course à pied seule, muscu et vélo exclus. Le plan est plus court à kilométrage égal : il se court plus vite, sur du plat." },
+    { "cle": "denivele", "libelle": "Dénivelé positif par semaine", "unite": "m", "graphique": "barres", "axe_max": 2400, "graduations": [0, 600, 1200, 1800, 2400], "note": "2025 mesuré à la montre, dont l'altimètre est déclaré non fiable : la tendance est exploitable, pas les valeurs absolues. 2026 est une estimation d'après le contenu des séances, le plan ne prescrit pas de dénivelé." },
+    { "cle": "seances", "libelle": "Séances de course par semaine, dont spécifiques", "unite": "séances", "graphique": "barres_empilees", "axe_max": 6, "graduations": [0, 2, 4, 6], "segments": ["specifiques", "footings_sl"], "note": "Séance spécifique = seuil, VMA, côtes, allure course, test ou course. Le reste : footings et sorties longues." },
+    { "cle": "acwr", "libelle": "Ratio de charge aiguë sur chronique", "unite": "ratio", "graphique": "courbe", "axe_max": 1.6, "graduations": [0, 0.4, 0.8, 1.2, 1.6], "bande_sure": { "min": 0.8, "max": 1.3 } }
+  ],
+
+  "series": [
+    { "cle": "2025", "libelle": "Prépa 2025 réelle", "couleur_claire": "#eb6834", "couleur_sombre": "#d95926", "nature": "mesuré" },
+    { "cle": "2026", "libelle": "Plan 2026 v2", "couleur_claire": "#2a78d6", "couleur_sombre": "#3987e5", "nature": "prescrit" }
+  ],
+
+  "semaines": [
+    {
+      "id": "S38", "libelle": "15–21 sept", "phase_2026": "RECUP",
+      "dates_2025": { "debut": "2025-09-15", "fin": "2025-09-21" },
+      "dates_2026": { "debut": "2026-09-14", "fin": "2026-09-20" },
+      "km": { "y2025": 46.6, "y2026": 0 },
+      "duree": { "y2025": 4.81, "y2026": 0 },
+      "denivele": { "y2025": 1017, "y2026": 0 },
+      "seances": { "y2025": 4, "y2026": 0 },
+      "specifiques": { "y2025": 1, "y2026": 0 },
+      "acwr": { "y2025": 0.91, "y2026": null }
+    },
+    {
+      "id": "S39", "libelle": "22–28 sept", "phase_2026": "REPRISE",
+      "dates_2025": { "debut": "2025-09-22", "fin": "2025-09-28" },
+      "dates_2026": { "debut": "2026-09-21", "fin": "2026-09-27" },
+      "km": { "y2025": 53.2, "y2026": 27 },
+      "duree": { "y2025": 5.67, "y2026": 2.58 },
+      "denivele": { "y2025": 1481, "y2026": 150 },
+      "seances": { "y2025": 5, "y2026": 4 },
+      "specifiques": { "y2025": 1, "y2026": 0 },
+      "acwr": { "y2025": 1.07, "y2026": 0.70 }
+    },
+    {
+      "id": "S40", "libelle": "29 sept–5 oct", "phase_2026": "REATHLETISATION",
+      "dates_2025": { "debut": "2025-09-29", "fin": "2025-10-05" },
+      "dates_2026": { "debut": "2026-09-28", "fin": "2026-10-04" },
+      "km": { "y2025": 40.8, "y2026": 36 },
+      "duree": { "y2025": 4.02, "y2026": 3.50 },
+      "denivele": { "y2025": 801, "y2026": 600 },
+      "seances": { "y2025": 4, "y2026": 5 },
+      "specifiques": { "y2025": 1, "y2026": 1 },
+      "acwr": { "y2025": 0.81, "y2026": 0.92 }
+    },
+    {
+      "id": "S41", "libelle": "6–12 oct", "phase_2026": "PREMIER ETALON",
+      "dates_2025": { "debut": "2025-10-06", "fin": "2025-10-12" },
+      "dates_2026": { "debut": "2026-10-05", "fin": "2026-10-11" },
+      "km": { "y2025": 37.6, "y2026": 35 },
+      "duree": { "y2025": 3.40, "y2026": 3.08 },
+      "denivele": { "y2025": 551, "y2026": 550 },
+      "seances": { "y2025": 4, "y2026": 5 },
+      "specifiques": { "y2025": 1, "y2026": 2 },
+      "acwr": { "y2025": 0.84, "y2026": 1.43 }
+    },
+    {
+      "id": "S42", "libelle": "13–19 oct", "phase_2026": "DEVELOPPEMENT",
+      "dates_2025": { "debut": "2025-10-13", "fin": "2025-10-19" },
+      "dates_2026": { "debut": "2026-10-12", "fin": "2026-10-18" },
+      "km": { "y2025": 51.9, "y2026": 52 },
+      "duree": { "y2025": 6.22, "y2026": 4.93 },
+      "denivele": { "y2025": 2238, "y2026": 800 },
+      "seances": { "y2025": 4, "y2026": 5 },
+      "specifiques": { "y2025": 1, "y2026": 2 },
+      "acwr": { "y2025": 1.13, "y2026": 1.39 }
+    },
+    {
+      "id": "S43", "libelle": "20–26 oct", "phase_2026": "DEVELOPPEMENT + CALIBRATION",
+      "dates_2025": { "debut": "2025-10-20", "fin": "2025-10-26" },
+      "dates_2026": { "debut": "2026-10-19", "fin": "2026-10-25" },
+      "km": { "y2025": 19.9, "y2026": 52 },
+      "duree": { "y2025": 2.34, "y2026": 4.90 },
+      "denivele": { "y2025": 448, "y2026": 600 },
+      "seances": { "y2025": 2, "y2026": 5 },
+      "specifiques": { "y2025": 0, "y2026": 2 },
+      "acwr": { "y2025": 0.53, "y2026": 1.19 }
+    },
+    {
+      "id": "S44", "libelle": "27 oct–2 nov", "phase_2026": "PIC_VOLUME + SPECIFIQUE",
+      "dates_2025": { "debut": "2025-10-27", "fin": "2025-11-02" },
+      "dates_2026": { "debut": "2026-10-26", "fin": "2026-11-01" },
+      "km": { "y2025": 38.1, "y2026": 53 },
+      "duree": { "y2025": 3.73, "y2026": 5.00 },
+      "denivele": { "y2025": 648, "y2026": 450 },
+      "seances": { "y2025": 4, "y2026": 5 },
+      "specifiques": { "y2025": 1, "y2026": 2 },
+      "acwr": { "y2025": 1.03, "y2026": 1.10 }
+    },
+    {
+      "id": "S45", "libelle": "3–9 nov", "phase_2026": "SPECIFIQUE + NUIT",
+      "dates_2025": { "debut": "2025-11-03", "fin": "2025-11-09" },
+      "dates_2026": { "debut": "2026-11-02", "fin": "2026-11-08" },
+      "km": { "y2025": 45.1, "y2026": 52 },
+      "duree": { "y2025": 4.49, "y2026": 4.92 },
+      "denivele": { "y2025": 929, "y2026": 500 },
+      "seances": { "y2025": 4, "y2026": 5 },
+      "specifiques": { "y2025": 1, "y2026": 2 },
+      "acwr": { "y2025": 1.16, "y2026": 1.00 }
+    },
+    {
+      "id": "S46", "libelle": "10–16 nov", "phase_2026": "PIC_INTENSITE + TEST",
+      "dates_2025": { "debut": "2025-11-10", "fin": "2025-11-16" },
+      "dates_2026": { "debut": "2026-11-09", "fin": "2026-11-15" },
+      "km": { "y2025": 46.7, "y2026": 53 },
+      "duree": { "y2025": 4.40, "y2026": 5.00 },
+      "denivele": { "y2025": 622, "y2026": 250 },
+      "seances": { "y2025": 5, "y2026": 5 },
+      "specifiques": { "y2025": 1, "y2026": 2 },
+      "acwr": { "y2025": 1.25, "y2026": 1.01 }
+    },
+    {
+      "id": "S47", "libelle": "17–23 nov", "phase_2026": "REDUCTION",
+      "dates_2025": { "debut": "2025-11-17", "fin": "2025-11-23" },
+      "dates_2026": { "debut": "2026-11-16", "fin": "2026-11-22" },
+      "km": { "y2025": 31.2, "y2026": 42 },
+      "duree": { "y2025": 3.09, "y2026": 3.90 },
+      "denivele": { "y2025": 725, "y2026": 250 },
+      "seances": { "y2025": 3, "y2026": 5 },
+      "specifiques": { "y2025": 1, "y2026": 2 },
+      "acwr": { "y2025": 0.77, "y2026": 0.84 }
+    },
+    {
+      "id": "S48", "libelle": "24–29 nov", "phase_2026": "AFFUTAGE",
+      "dates_2025": { "debut": "2025-11-24", "fin": "2025-11-30" },
+      "dates_2026": { "debut": "2026-11-23", "fin": "2026-11-29" },
+      "km": { "y2025": 17.9, "y2026": 23 },
+      "duree": { "y2025": 1.65, "y2026": 2.17 },
+      "denivele": { "y2025": 125, "y2026": 100 },
+      "seances": { "y2025": 3, "y2026": 4 },
+      "specifiques": { "y2025": 1, "y2026": 1 },
+      "acwr": { "y2025": 1.03, "y2026": 0.54 },
+      "remarque": "Course exclue des deux côtés. En 2025 la SaintéSprint ajoutait 24,6 km / 2h11 / 466 m."
+    }
+  ],
+
+  "totaux": {
+    "km": { "y2025": 429.0, "y2026": 425 },
+    "duree": { "y2025": 43.82, "y2026": 39.98 },
+    "denivele": { "y2025": 9585, "y2026": 4250 },
+    "seances": { "y2025": 42, "y2026": 48 },
+    "specifiques": { "y2025": 10, "y2026": 16 }
+  },
+
+  "reference_ete_2026": {
+    "libelle": "Été 2026 réellement couru",
+    "periode": "2026-06-15 au 2026-09-06, 12 semaines avant l'ultra",
+    "km_min": 13.3,
+    "km_q1": 37,
+    "km_mediane": 52,
+    "km_q3": 65,
+    "km_max": 72.5,
+    "moyenne_8_dernieres_semaines": 56.7,
+    "usage": "Bande de référence à afficher derrière la courbe des kilomètres. Le pic du plan (53 km) représente 93 % de la moyenne des huit dernières semaines avant l'ultra.",
+    "affichage_bande": { "min": 37, "max": 65 }
+  },
+
+  "acwr": {
+    "definition": "Kilométrage de la semaine divisé par la moyenne des quatre dernières semaines, semaine courante incluse.",
+    "bande_sure": { "min": 0.8, "max": 1.3 },
+    "pic_2025": 1.25,
+    "pic_2026": 1.43,
+    "avertissement": "Les deux pics du plan, 1,43 en S41 et 1,39 en S42, sont un artefact : le dénominateur inclut la semaine à zéro qui suit le 85 km, donc toute reprise après une coupure totale produit mécaniquement un ratio élevé. Le repère utile est absolu — 52 à 53 km en octobre contre 49 à 72 km par semaine en juillet-août. Le ratio lui-même est un indicateur contesté dans la littérature : à lire comme un signal, pas comme un seuil."
+  },
+
+  "risque": {
+    "constat": "Ni le volume ni le nombre de séances ne sortent de son territoire : le plan est plus court et nettement moins vertical que sa préparation 2025. Ce qui monte, c'est la densité d'intensité — d'une séance spécifique par semaine à deux — et la nature du travail : moins de terre souple, plus de plat rapide sur surface dure, avec un drapeau périoste levé début septembre et résolu au 15/09.",
+    "mitigations": [
+      { "rang": 1, "titre": "VMA et seuil sur chemin roulant ou piste", "detail": "Jamais sur bitume, tant que le drapeau tibial n'est pas oublié depuis deux mois." },
+      { "rang": 2, "titre": "Mollets excentriques à chaque muscu", "detail": "3×15 par jambe. Non négociable, c'est la seule prévention documentée ici." },
+      { "rang": 3, "titre": "Douleur tibiale au repos = arrêt immédiat de l'intensité", "detail": "On garde le volume en Z2, on supprime les séances rapides, jamais l'inverse." },
+      { "rang": 4, "titre": "Point de contrôle au 2 novembre", "detail": "Si 3 marqueurs sur 4 sont en alerte, S45 tombe à 40 km avec une seule séance spécifique et la VMA nocturne devient un footing à la frontale." },
+      { "rang": 5, "titre": "Jamais de troisième séance dure", "detail": "Même si le test du 24 octobre est excellent. C'est la règle la plus souvent violée et la plus coûteuse." },
+      { "rang": 6, "titre": "Un footing remplaçable par du VTT", "detail": "En S42 à S44 si les jambes tirent. Elle en fait déjà régulièrement, la charge passe sans l'impact." }
+    ],
+    "marge_supplementaire": "La modification la plus rentable, si une marge est souhaitée : repasser S43 ou S46 à une seule séance spécifique. Coût faible, retire la moitié du risque décrit ci-dessus."
+  },
+
+  "sources": [
+    { "donnee": "Volumes, durées, dénivelés et séances 2025", "source": "Export RGPD Garmin du 14/09/2026, DI-Connect-Fitness/summarizedActivities, agrégation par semaine ISO des activités sportType RUNNING", "fiabilite": "Élevée en distance, durée et comptage ; nulle en dénivelé absolu (altimètre barométrique défaillant)" },
+    { "donnee": "Classement des séances spécifiques 2025", "source": "Nom de séance contenant seuil, vitesse, intensité, côtes ou VMA dans l'export", "fiabilite": "Élevée — les séances de sa préparation 2025 étaient nommées par son plan" },
+    { "donnee": "Volumes et séances 2026", "source": "Plan v2 du 16/09/2026, recalculés en sommant le contenu des séances (EF 5:45/km, SL 6:00/km, qualité 5:10/km moyenne)", "fiabilite": "Prescriptif, pas mesuré" },
+    { "donnee": "Dénivelé 2026", "source": "Estimation d'après le contenu des séances — le plan ne prescrit pas de dénivelé", "fiabilite": "Estimative" },
+    { "donnee": "Référence été 2026", "source": "12 semaines du 15/06 au 06/09/2026, même agrégation", "fiabilite": "Élevée" }
+  ]
+}
+;
