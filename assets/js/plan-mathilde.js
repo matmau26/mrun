@@ -183,6 +183,94 @@
     wrap.appendChild(dl);
   }
 
+  // ------- Frise du bloc : longueur, phases, où l'on en est ---------------
+  // Les onze semaines sont regroupées en quatre macro-phases, plus lisibles
+  // d'un coup d'œil que les intitulés détaillés de chaque semaine.
+  const MACRO_PHASES = [
+    { nom: 'Reprise',       ids: ['S38', 'S39', 'S40'] },
+    { nom: 'Développement', ids: ['S41', 'S42', 'S43'] },
+    { nom: 'Spécifique',    ids: ['S44', 'S45', 'S46'] },
+    { nom: 'Affûtage',      ids: ['S47', 'S48'] }
+  ];
+
+  function renderPlanTimeline() {
+    const wrap = $('#plan-timeline');
+    if (!wrap) return;
+    const weeks = D.semaines;
+    const n = weeks.length;
+    const t = today();
+    const c = D.course || {};
+
+    const currentIdx = weeks.findIndex(isCurrentWeek);
+    const doneWeeks = weeks.filter((s) => today() > toDate(s.fin)).length;
+    const days = Math.round((toDate(c.date) - t) / 86400000);
+
+    const titre = currentIdx >= 0
+      ? 'Plan SainteSprint — semaine ' + (currentIdx + 1) + ' sur ' + n
+      : (t < toDate(weeks[0].debut)
+          ? 'Plan SainteSprint — ' + n + ' semaines, départ le ' + fmtFrDate(weeks[0].debut)
+          : 'Plan SainteSprint — ' + n + ' semaines, terminé');
+
+    const head = create('div', 'ptl__head');
+    head.innerHTML = `
+      <div class="ptl__head-text">
+        <h3 class="ptl__title">${escapeHtml(titre)}</h3>
+        <p class="ptl__sub">Mathilde · ${escapeHtml(c.nom || '')}${c.distance_km ? ' ' + c.distance_km + ' km' : ''}, ${fmtFrDate(c.date)}${c.heure_depart ? ' · départ ' + escapeHtml(c.heure_depart) : ''}</p>
+      </div>
+      ${days > 0 ? '<span class="ptl__badge">J−' + days + '</span>' : ''}
+    `;
+    wrap.appendChild(head);
+    wrap.appendChild(create('div', 'ptl__rule'));
+
+    // Piste : un segment par semaine
+    const track = create('div', 'ptl__track');
+    track.style.gridTemplateColumns = 'repeat(' + n + ', 1fr)';
+    weeks.forEach((s, i) => {
+      const past = today() > toDate(s.fin);
+      const now = isCurrentWeek(s);
+      const seg = create('button', 'ptl__seg' + (now ? ' is-now' : past ? ' is-past' : ''));
+      seg.type = 'button';
+      seg.title = s.id + ' · ' + s.libelle_dates + ' · ' + s.phase
+        + (s.km_cible ? ' · ' + s.km_cible + ' km' : '');
+      seg.setAttribute('aria-label', 'Aller à la semaine ' + s.id);
+      // Un clic ouvre la semaine correspondante dans l'accordéon
+      seg.addEventListener('click', () => {
+        const target = document.querySelector('.week-acc[data-week-id="' + s.id + '"]');
+        if (!target) return;
+        target.open = true;
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      track.appendChild(seg);
+    });
+    wrap.appendChild(track);
+
+    // Libellés de phase, alignés sur les mêmes colonnes que la piste
+    const labels = create('div', 'ptl__labels');
+    labels.style.gridTemplateColumns = 'repeat(' + n + ', 1fr)';
+    let col = 1;
+    MACRO_PHASES.forEach((ph) => {
+      const span = ph.ids.filter((id) => weeks.some((s) => s.id === id)).length;
+      if (!span) return;
+      const el = create('span', 'ptl__label', ph.nom);
+      el.style.gridColumn = col + ' / ' + (col + span);
+      // La phase en cours ressort
+      if (currentIdx >= 0 && ph.ids.includes(weeks[currentIdx].id)) {
+        el.classList.add('is-now');
+      }
+      labels.appendChild(el);
+      col += span;
+    });
+    wrap.appendChild(labels);
+
+    // Récapitulatif chiffré
+    const foot = create('p', 'ptl__foot');
+    const kmTotal = weeks.reduce((a, s) => a + (s.km_cible || 0), 0);
+    foot.innerHTML = '<strong>' + doneWeeks + '</strong> semaine' + (doneWeeks > 1 ? 's' : '')
+      + ' terminée' + (doneWeeks > 1 ? 's' : '') + ' sur ' + n
+      + ' · <strong>' + kmTotal + ' km</strong> prévus sur le bloc';
+    wrap.appendChild(foot);
+  }
+
   // ------- Plan accordéon (aperçu + détail fusionnés) ---------------------
   function renderPlanAccordion() {
     const wrap = $('#plan-accordion');
@@ -969,6 +1057,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     renderHero();
+    renderPlanTimeline();
     renderCourseInfo();
     renderPlanAccordion();
     renderTableauPilotage();

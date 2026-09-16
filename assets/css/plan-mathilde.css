@@ -1892,3 +1892,123 @@ body.has-modal-open { overflow: hidden; }
   .radio-list--inline .radio { padding: 9px 8px; font-size: 0.82rem; justify-content: center; }
   .radio-list--inline .radio input { display: none; }   /* la pilule fait office d'état */
 }
+
+/* ================================================================
+   Frise du bloc — longueur, phases, semaine en cours
+   Piste et libellés partagent la même grille de N colonnes, ce qui
+   garantit qu'une étiquette de phase tombe bien sous ses semaines.
+   ================================================================ */
+.ptl {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+}
+
+.ptl__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ptl__head-text { min-width: 0; }
+.ptl__title {
+  margin: 0 0 4px;
+  font-family: var(--font-body);
+  font-weight: 900;
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  letter-spacing: -0.025em;
+  color: var(--text);
+  line-height: 1.2;
+}
+.ptl__sub {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+.ptl__badge {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #0a0a0a;
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ptl__rule {
+  height: 1px;
+  background: var(--line-2);
+  margin: 16px 0 14px;
+}
+
+/* Piste */
+.ptl__track {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 9px;
+}
+.ptl__seg {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  height: 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);   /* à venir */
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.12s ease;
+  min-width: 0;
+}
+.ptl__seg:hover { transform: scaleY(1.35); }
+.ptl__seg.is-past { background: rgba(255, 255, 255, 0.28); }
+.ptl__seg.is-now {
+  background: var(--brand);
+  box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.22);
+}
+.ptl__seg:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+/* Libellés de phase */
+.ptl__labels {
+  display: grid;
+  gap: 5px;
+}
+.ptl__label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.ptl__label.is-now { color: var(--brand); }
+
+.ptl__foot {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  font-size: 0.82rem;
+  color: var(--text-3);
+}
+.ptl__foot strong { color: var(--text-2); font-weight: 800; }
+
+@media (max-width: 560px) {
+  .ptl { padding: 14px 14px 13px; }
+  .ptl__head { flex-direction: column; gap: 10px; }
+  .ptl__badge { align-self: flex-start; padding: 5px 12px; font-size: 0.8rem; }
+  .ptl__sub { font-size: 0.8rem; }
+  .ptl__track { gap: 3px; }
+  .ptl__seg { height: 9px; }
+  .ptl__labels { gap: 3px; }
+  .ptl__label { font-size: 0.58rem; letter-spacing: 0.05em; }
+  .ptl__foot { font-size: 0.76rem; }
+}
