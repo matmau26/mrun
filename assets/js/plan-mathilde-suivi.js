@@ -143,7 +143,7 @@
         <form class="suivi-modal__form"></form>
         <footer class="suivi-modal__foot">
           <button type="button" class="btn btn--ghost" data-close>Sortir sans enregistrer</button>
-          <button type="submit" class="btn btn--primary" data-submit>
+          <button type="button" class="btn btn--primary" data-submit>
             <span class="btn__long">Enregistrer et marquer fait</span>
             <span class="btn__short">Enregistrer</span>
           </button>
@@ -152,12 +152,20 @@
     `;
     document.body.appendChild(modalEl);
 
+    // closest() et non matches() : les boutons contiennent des <span>/<svg>,
+    // e.target est l'enfant cliqué, pas le bouton porteur de l'attribut.
     modalEl.addEventListener('click', (e) => {
-      if (e.target.matches('[data-close]')) closeModal();
-      if (e.target.matches('[data-submit]')) submitForm();
+      if (e.target.closest('[data-close]')) { closeModal(); return; }
+      if (e.target.closest('[data-submit]')) { e.preventDefault(); submitForm(); }
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !modalEl.hidden) closeModal();
+    });
+    // La touche Entrée dans un champ ne doit jamais recharger la page :
+    // on intercepte la soumission native et on passe par submitForm().
+    modalEl.querySelector('.suivi-modal__form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitForm();
     });
     return modalEl;
   }
