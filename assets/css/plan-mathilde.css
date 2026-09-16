@@ -1553,3 +1553,131 @@ body.has-modal-open { overflow: hidden; }
   .pstat__value { flex: 1; }
   .pstat__note { display: block; flex-basis: 100%; margin-left: 62px; }
 }
+
+/* ================================================================
+   Pilot cards v2 : icône + titre plus fort + badge RPE + heights uniformes
+   ================================================================ */
+
+/* ---- Header remanié : icon + title + RPE badge ---- */
+.pilot-card__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.pilot-card__icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--line-2);
+  display: grid;
+  place-items: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.pilot-card__title strong {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 900;
+  font-size: 1.15rem;
+  color: var(--text);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+.pilot-card__title small {
+  display: block;
+  color: var(--text-3);
+  font-size: 0.78rem;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* Badge RPE bien mis en avant, coloré selon intensité (border-left row-color) */
+.pilot-card__rpe {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: rgba(255, 87, 34, 0.10);
+  border: 1px solid rgba(255, 87, 34, 0.35);
+  color: var(--brand);
+  font-family: var(--font-body);
+  line-height: 1;
+  min-width: 56px;
+}
+.pilot-card__rpe em {
+  font-style: normal;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.pilot-card__rpe b {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-top: 2px;
+}
+.pilot-card__rpe small {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  margin-top: 3px;
+  color: var(--brand);
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+/* ---- Zones passées SOUS les stats en pilules pleines ---- */
+.pilot-card__zones {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0 0;
+}
+
+/* ---- Stats : normaliser la hauteur (notes toujours réservées) ---- */
+.pstat {
+  min-height: 78px;
+  justify-content: flex-start;
+}
+.pstat__note {
+  min-height: 1em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pstat__note:empty { min-height: 1em; }
+
+/* ---- Responsive : refined ---- */
+@media (max-width: 700px) {
+  .pilot-card__head {
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+  }
+  .pilot-card__icon { width: 34px; height: 34px; font-size: 1.2rem; }
+  .pilot-card__title strong { font-size: 1.05rem; }
+  .pilot-card__title small { font-size: 0.72rem; }
+  .pilot-card__rpe {
+    padding: 5px 10px;
+    min-width: 50px;
+  }
+  .pilot-card__rpe b { font-size: 1.2rem; }
+  .pilot-card__rpe small { font-size: 0.6rem; }
+  .pstat { min-height: 74px; }
+}
+
+@media (max-width: 420px) {
+  /* En très petit, empile chaque stat en une ligne — pas de min-height nécessaire */
+  .pstat { min-height: 0; }
+  .pstat__note {
+    display: block;
+    -webkit-line-clamp: none;
+  }
+}

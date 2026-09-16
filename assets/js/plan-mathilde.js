@@ -376,40 +376,64 @@
       + ' · <strong>Valides jusqu\'au :</strong> ' + fmtFrDate(T.valides_jusqu_au);
     wrap.appendChild(meta);
 
-    // Rendu en cartes (adaptables mobile ↔ desktop) plutôt qu'un tableau
+    // Icônes + RPE (Borg CR10) associés à chaque intention.
+    // Le RPE est un ordre de grandeur pédagogique aligné sur les repères
+    // verbaux de l'échelle utilisée dans le formulaire de suivi.
+    const INTENT_ICON = {
+      ef: '🏃',
+      endurance_active: '💨',
+      allure_course: '🎯',
+      seuil: '🔥',
+      allure_10k: '⏱️',
+      allure_5k: '⚡',
+      vma_courte: '🚀'
+    };
+    const INTENT_RPE = {
+      ef: 3, endurance_active: 5, allure_course: 6,
+      seuil: 7, allure_10k: 8, allure_5k: 9, vma_courte: 10
+    };
+    const RPE_LABEL = { 3:'Facile', 5:'Un peu dur', 6:'Dur', 7:'Très dur', 8:'Très très dur', 9:'Presque max', 10:'Maximal' };
+
+    // Rendu en cartes (adaptables mobile ↔ desktop)
     const list = create('div', 'pilot-list');
     (T.lignes || []).forEach((l) => {
       const c = colorFor(l.intensite || 1);
+      const icon = INTENT_ICON[l.cle] || '·';
+      const rpe = INTENT_RPE[l.cle];
+      const rpeLabel = rpe ? (RPE_LABEL[rpe] || '') : '';
       const card = create('article', 'pilot-card');
       card.style.setProperty('--row-color', c);
       card.innerHTML = `
         <header class="pilot-card__head">
-          <span class="pilot-card__intensity" title="Intensité ${l.intensite || 1}/5"></span>
+          <span class="pilot-card__icon" aria-hidden="true">${icon}</span>
           <div class="pilot-card__title">
             <strong>${escapeHtml(l.intention)}</strong>
             ${l.sous_titre ? '<small>' + escapeHtml(l.sous_titre) + '</small>' : ''}
           </div>
-          <div class="pilot-card__zones">
-            <span class="pilot-zone-tag pilot-zone-tag--fc"><em>FC</em>${escapeHtml(l.zone_fc || '—')}</span>
-            <span class="pilot-zone-tag pilot-zone-tag--stryd"><em>Stryd</em>${escapeHtml(l.zone_stryd || '—')}</span>
-          </div>
+          ${rpe ? `<span class="pilot-card__rpe" title="RPE ${rpe}/10 — ${escapeHtml(rpeLabel)}">
+            <em>RPE</em><b>${rpe}</b><small>${escapeHtml(rpeLabel)}</small>
+          </span>` : ''}
         </header>
         <div class="pilot-card__stats">
           <div class="pstat pstat--allure">
             <span class="pstat__label">Allure /km</span>
             <span class="pstat__value">${escapeHtml(l.allure || '—')}</span>
-            ${l.allure_note ? '<span class="pstat__note">' + escapeHtml(l.allure_note) + '</span>' : ''}
+            <span class="pstat__note">${escapeHtml(l.allure_note || '')}</span>
           </div>
           <div class="pstat pstat--fc">
             <span class="pstat__label">FC</span>
             <span class="pstat__value">${escapeHtml(l.fc || '—')}</span>
-            ${l.fc_note ? '<span class="pstat__note">' + escapeHtml(l.fc_note) + '</span>' : ''}
+            <span class="pstat__note">${escapeHtml(l.fc_note || '')}</span>
           </div>
           <div class="pstat pstat--watts">
             <span class="pstat__label">Watts</span>
             <span class="pstat__value">${escapeHtml(l.watts || '—')}</span>
-            ${l.pct_cp ? '<span class="pstat__note">' + escapeHtml(l.pct_cp) + '</span>' : ''}
+            <span class="pstat__note">${escapeHtml(l.pct_cp || '')}</span>
           </div>
+        </div>
+        <div class="pilot-card__zones">
+          <span class="pilot-zone-tag pilot-zone-tag--fc"><em>FC</em>${escapeHtml(l.zone_fc || '—')}</span>
+          <span class="pilot-zone-tag pilot-zone-tag--stryd"><em>Stryd</em>${escapeHtml(l.zone_stryd || '—')}</span>
         </div>
         <footer class="pilot-card__seances">
           <span class="pilot-card__seances-label">Séances</span>
