@@ -187,12 +187,13 @@
         <legend>L'effort</legend>
         <div class="field">
           <span class="field__label">Effort perçu (RPE 1–10) *</span>
+          <p class="scale-help">Échelle de Borg (CR10) — <em>À noter au moins 20 minutes après la fin de la séance : « globalement, à quel point la séance a-t-elle été dure ? »</em></p>
           <div class="rpe-scale" data-rpe-scale>
             ${S.echelles.rpe.ancrages.map(a => `
-              <button type="button" class="rpe-btn" data-rpe="${a.valeur}">${a.valeur}</button>
+              <button type="button" class="rpe-btn" data-rpe="${a.valeur}" title="${a.libelle} — ${a.repere}">${a.valeur}</button>
             `).join('')}
           </div>
-          <p class="rpe-hint" data-rpe-hint>Cliquer pour choisir. Repère verbal affiché ici.</p>
+          <p class="rpe-hint" data-rpe-hint>Cliquer pour choisir — le repère verbal s'affiche ici.</p>
           <input type="hidden" name="rpe" required value="${p ? p.rpe || '' : ''}">
         </div>
         <div class="fset__row">
@@ -203,6 +204,9 @@
                 <button type="button" class="s5-btn" data-val="${a.valeur}" title="${a.libelle}">${a.valeur}</button>
               `).join('')}
             </div>
+            <p class="scale-hint" data-scale5-hint="jambes_5">
+              ${S.echelles.ressenti_5.ancrages.map(a => `<span>${a.valeur} <em>${escapeHtml(a.libelle)}</em></span>`).join(' · ')}
+            </p>
             <input type="hidden" name="jambes_5" required value="${p ? p.jambes_5 || '' : ''}">
           </div>
           <div class="field">
@@ -212,6 +216,9 @@
                 <button type="button" class="s5-btn" data-val="${a.valeur}" title="${a.libelle}">${a.valeur}</button>
               `).join('')}
             </div>
+            <p class="scale-hint" data-scale5-hint="forme_5">
+              ${S.echelles.ressenti_5.ancrages.map(a => `<span>${a.valeur} <em>${escapeHtml(a.libelle)}</em></span>`).join(' · ')}
+            </p>
             <input type="hidden" name="forme_5" required value="${p ? p.forme_5 || '' : ''}">
           </div>
         </div>
@@ -236,9 +243,15 @@
     if (!scale) return;
     const btns = scale.querySelectorAll('.s5-btn');
     const input = form.querySelector(`input[name="${name}"]`);
+    const hint = form.querySelector(`[data-scale5-hint="${name}"]`);
     const setActive = (v) => {
       btns.forEach(b => b.classList.toggle('is-active', +b.dataset.val === +v));
       input.value = v;
+      const a = S.echelles.ressenti_5.ancrages.find(x => x.valeur === +v);
+      if (hint && a) {
+        hint.classList.add('is-selected');
+        hint.innerHTML = `<strong>${v}/5 — ${escapeHtml(a.libelle)}</strong>`;
+      }
     };
     btns.forEach(b => b.addEventListener('click', () => setActive(+b.dataset.val)));
     if (p && p[name]) setActive(p[name]);

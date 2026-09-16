@@ -1077,3 +1077,43 @@ body.has-modal-open { overflow: hidden; }
   border-color: rgba(43, 199, 106, 0.6);
   color: #2BC76A;
 }
+
+/* -- Aides visuelles échelles (Jambes/Forme + RPE) -- */
+.scale-help {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+.scale-help em { color: var(--text-2); font-style: normal; }
+
+.scale-hint {
+  margin: 6px 0 0;
+  padding: 6px 10px;
+  background: var(--surface-2);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  color: var(--text-3);
+  line-height: 1.5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.scale-hint span {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.scale-hint em {
+  color: var(--text-2);
+  font-style: normal;
+}
+.scale-hint.is-selected {
+  background: rgba(255, 87, 34, 0.12);
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+.scale-hint.is-selected strong {
+  color: var(--text);
+  font-weight: 800;
+}
