@@ -10,35 +10,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/plan.css?v=1.0" />
-  <link rel="stylesheet" href="assets/css/plan-mathilde.css?v=1.0" />
+  <link rel="stylesheet" href="assets/css/plan-mathilde.css?v=2.0" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='50' fill='%230a0a0a'/%3E%3Ctext x='50' y='66' font-family='Inter' font-size='52' font-weight='900' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E" />
 </head>
 <body class="page-plan">
 
   <!-- ==========================================================
-       Barre supérieure + navigation par sections
+       Barre supérieure
        ========================================================== -->
   <header class="topbar">
     <div class="wrap topbar__inner">
       <a class="mark" href="#top">Mrun <small>Plan privé · Mathilde</small></a>
-
-      <nav class="nav" id="nav" aria-label="Sections de la page">
-        <button class="nav__toggle" type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-list">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-          Sections
-        </button>
-        <ul class="nav__list" id="nav-list">
-          <li><a href="#overview">Aperçu</a></li>
-          <li><a href="#references">Repères</a></li>
-          <li><a href="#calendar-section">Calendrier</a></li>
-          <li><a href="#tests-section">Tests</a></li>
-          <li><a href="#rules-section">Règles</a></li>
-        </ul>
-      </nav>
     </div>
   </header>
 
-  <main id="top"></main>
+  <main id="top">
 
   <!-- ==========================================================
        Hero
@@ -53,89 +39,95 @@
   </section>
 
   <!-- ==========================================================
-       Aperçu — 11 semaines résumées
+       Barre d'onglets
        ========================================================== -->
-  <section id="overview" class="section section--tight">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Aperçu — 11 semaines</h2>
-        <p>La phase du bloc, les dates, le focus, le volume cible. Un clic ouvre la semaine dans le calendrier détaillé plus bas.</p>
-      </div>
-      <div id="overview-grid" class="overview-grid"></div>
+  <div class="tabs-bar" role="tablist" aria-label="Sections du plan">
+    <div class="wrap tabs-bar__inner">
+      <button class="tab is-active" role="tab" aria-selected="true" aria-controls="tab-plan" data-tab="plan">Plan</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-reperes" data-tab="reperes">Repères</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-regles" data-tab="regles">Règles</button>
     </div>
+  </div>
+
+  <!-- ==========================================================
+       Onglet 1 — PLAN (Course + calendrier accordéon)
+       ========================================================== -->
+  <section id="tab-plan" class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-plan-btn">
+
+    <!-- La course -->
+    <section class="section section--tight">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>La course</h2>
+        </div>
+        <div id="course-info"></div>
+      </div>
+    </section>
+
+    <!-- Aperçu + calendrier fusionnés (accordéon) -->
+    <section class="section section--tight">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Le plan — 11 semaines</h2>
+          <p>Cliquez sur une semaine pour déplier son détail jour par jour.</p>
+        </div>
+        <div id="plan-accordion" class="plan-accordion"></div>
+      </div>
+    </section>
+
   </section>
 
   <!-- ==========================================================
-       Course info
+       Onglet 2 — REPÈRES (physio + tests)
        ========================================================== -->
-  <section class="section section--tight">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>La course</h2>
+  <section id="tab-reperes" class="tab-panel" role="tabpanel" aria-labelledby="tab-reperes-btn" hidden>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Repères physiologiques</h2>
+          <p>LTHR estimé <strong>185</strong>, à confirmer par la FC moyenne des 20 dernières minutes du 10 km du 14/11. Les zones ci-dessous font foi — celles affichées par la montre sont mal calibrées et doivent être reparamétrées dans Garmin Connect.</p>
+        </div>
+
+        <h3 class="ref-h3">Zones de fréquence cardiaque</h3>
+        <div id="zones-fc"></div>
+
+        <h3 class="ref-h3">Allures étalonnées</h3>
+        <div id="allures"></div>
+
+        <h3 class="ref-h3">Zones de puissance</h3>
+        <div id="zones-power"></div>
       </div>
-      <div id="course-info"></div>
-    </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Tests et points de calibration</h2>
+          <p>Trois rendez-vous instrumentés pour ajuster les allures et vérifier le LTHR.</p>
+        </div>
+        <div id="tests" class="tests-grid"></div>
+      </div>
+    </section>
+
   </section>
 
   <!-- ==========================================================
-       Références — Zones FC / Allures / Puissance
+       Onglet 3 — RÈGLES
        ========================================================== -->
-  <section id="references" class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Repères physiologiques</h2>
-        <p>LTHR estimé <strong>185</strong>, à confirmer par la FC moyenne des 20 dernières minutes du 10 km du 14/11. Les zones ci-dessous font foi — celles affichées par la montre sont mal calibrées et doivent être reparamétrées dans Garmin Connect.</p>
+  <section id="tab-regles" class="tab-panel" role="tabpanel" aria-labelledby="tab-regles-btn" hidden>
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Règles opérationnelles</h2>
+          <p>Les principes qui gouvernent les décisions sur le bloc — dans quel ordre décider quoi.</p>
+        </div>
+        <div id="rules" class="rules-grid"></div>
       </div>
-
-      <h3 style="margin: 22px 0 12px;">Zones de fréquence cardiaque</h3>
-      <div id="zones-fc"></div>
-
-      <h3 style="margin: 32px 0 12px;">Allures étalonnées</h3>
-      <div id="allures"></div>
-
-      <h3 style="margin: 32px 0 12px;">Zones de puissance</h3>
-      <div id="zones-power"></div>
-    </div>
+    </section>
   </section>
 
-  <!-- ==========================================================
-       Calendrier détaillé — 11 semaines × 7 jours
-       ========================================================== -->
-  <section id="calendar-section" class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Calendrier détaillé</h2>
-        <p>Chaque semaine, jour par jour. Les séances marquées « clé » structurent le bloc — elles ne se déplacent pas.</p>
-      </div>
-      <div id="calendar"></div>
-    </div>
-  </section>
-
-  <!-- ==========================================================
-       Tests clés
-       ========================================================== -->
-  <section id="tests-section" class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Tests et points de calibration</h2>
-        <p>Trois rendez-vous instrumentés pour ajuster les allures et vérifier le LTHR.</p>
-      </div>
-      <div id="tests" class="tests-grid"></div>
-    </div>
-  </section>
-
-  <!-- ==========================================================
-       Règles opérationnelles
-       ========================================================== -->
-  <section id="rules-section" class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Règles opérationnelles</h2>
-        <p>Les principes qui gouvernent les décisions sur le bloc — dans quel ordre décider quoi.</p>
-      </div>
-      <div id="rules" class="rules-grid"></div>
-    </div>
-  </section>
+  </main>
 
   <!-- ==========================================================
        Pied de page
@@ -152,7 +144,7 @@
     </div>
   </footer>
 
-  <script src="assets/js/plan-mathilde-data.js?v=1.0"></script>
-  <script src="assets/js/plan-mathilde.js?v=1.0"></script>
+  <script src="assets/js/plan-mathilde-data.js?v=2.0"></script>
+  <script src="assets/js/plan-mathilde.js?v=2.0"></script>
 </body>
 </html>

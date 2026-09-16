@@ -1,6 +1,8 @@
 /* ================================================================
-   Plan Mathilde — SainteSprint 24 km — Renderer
-   Consomme window.PLAN_MATHILDE_SS (défini par plan-mathilde-data.js)
+   Plan Mathilde — SainteSprint 24 km — Renderer v2
+   Consomme window.PLAN_MATHILDE_SS
+   Organisation : 3 onglets (Plan / Repères / Règles)
+   Plan = fiche course + accordéon 11 semaines avec détail dépliable
    ================================================================ */
 (function () {
   'use strict';
@@ -9,29 +11,14 @@
   if (!D) return;
 
   // ------- Utils -----------------------------------------------------------
-
   const $ = (sel, root = document) => root.querySelector(sel);
-  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const create = (tag, cls, txt) => {
     const el = document.createElement(tag);
     if (cls) el.className = cls;
     if (txt != null) el.textContent = txt;
     return el;
   };
-
-  // ------- LocalStorage : séances cochées ---------------------------------
-  const LS_KEY = 'mrun.mathilde.done.v1';
-  const loadDone = () => {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {}; }
-    catch (e) { return {}; }
-  };
-  const saveDone = (obj) => {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
-    catch (e) { /* mode privé, quota — silencieux */ }
-  };
-  const DONE = loadDone();
   const fmtFrDate = (isoDate) => {
-    // "2026-09-14" -> "14 sept. 2026"
     if (!isoDate) return '';
     const dt = new Date(isoDate + 'T12:00:00');
     return dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -41,6 +28,21 @@
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   };
   const toDate = (iso) => new Date(iso + 'T00:00:00');
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+
+  // ------- LocalStorage : séances cochées ---------------------------------
+  const LS_KEY = 'mrun.mathilde.done.v1';
+  const loadDone = () => {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {}; }
+    catch (e) { return {}; }
+  };
+  const saveDone = (obj) => {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
+    catch (e) { /* silencieux */ }
+  };
+  const DONE = loadDone();
 
   // ------- Phase → couleur -------------------------------------------------
   const PHASE_COLORS = {
@@ -54,25 +56,67 @@
   const phaseColor = (p) => PHASE_COLORS[p] || PHASE_COLORS['FOND'];
 
   const TYPE_ICON = {
-    'repos': '·',
-    'marche': '🚶',
-    'velo': '🚴',
-    'foncier': '🏃',
-    'ef': '🏃',
-    'sortie_longue': '🏔️',
-    'seuil': '⚡',
-    'cotes': '⛰️',
-    'seance_specifique': '🎯',
-    'test': '📊',
-    'course': '🏁',
-    'renforcement': '🏋️',
+    'repos': '·', 'marche': '🚶', 'velo': '🚴', 'foncier': '🏃', 'ef': '🏃',
+    'sortie_longue': '🏔️', 'seuil': '⚡', 'cotes': '⛰️',
+    'seance_specifique': '🎯', 'test': '📊', 'course': '🏁', 'renforcement': '🏋️',
   };
   const typeIcon = (t) => TYPE_ICON[t] || '·';
 
-  // ------- Hero card -------------------------------------------------------
+  const isCurrentWeek = (s) => {
+    const t = today();
+    return t >= toDate(s.debut) && t <= toDate(s.fin);
+  };
+  const isPastWeek = (s) => today() > toDate(s.fin);
+
+  // ------- Anneau de progression SVG --------------------------------------
+  // Retourne un <span.ring> autonome, à insérer dans un header.
+  function progressRing(done, total, weekId) {
+    const size = 44;
+    const stroke = 5;
+    const r = (size - stroke) / 2;
+    const c = 2 * Math.PI * r;
+    const pct = total ? done / total : 0;
+    const dash = pct * c;
+    const ring = create('span', 'ring');
+    ring.setAttribute('title', done + ' / ' + total + ' séances faites');
+    ring.innerHTML = `
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="${stroke}"/>
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none"
+          stroke="url(#ring-grad-${weekId})" stroke-width="${stroke}"
+          stroke-linecap="round"
+          stroke-dasharray="${dash} ${c}"
+          transform="rotate(-90 ${size/2} ${size/2})"
+          data-ring-dash="${weekId}"/>
+        <defs>
+          <linearGradient id="ring-grad-${weekId}" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#2BC76A"/>
+            <stop offset="100%" stop-color="#FF5722"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="ring__num" data-ring-num="${weekId}">${done}/${total}</span>
+    `;
+    ring.dataset.ringWeek = weekId;
+    ring.dataset.ringTotal = total;
+    ring.dataset.ringCircum = c.toFixed(3);
+    return ring;
+  }
+
+  function updateRing(weekId, done, total) {
+    const ring = document.querySelector('[data-ring-week="' + weekId + '"]');
+    if (!ring) return;
+    const c = parseFloat(ring.dataset.ringCircum || 0);
+    const dash = total ? (done / total) * c : 0;
+    const path = document.querySelector('[data-ring-dash="' + weekId + '"]');
+    if (path) path.setAttribute('stroke-dasharray', dash.toFixed(2) + ' ' + c.toFixed(2));
+    const num = document.querySelector('[data-ring-num="' + weekId + '"]');
+    if (num) num.textContent = done + '/' + total;
+  }
+
+  // ------- Hero ------------------------------------------------------------
   function renderHero() {
     const el = $('#hero-content');
-    const a = D.athlete || {};
     const c = D.course || {};
 
     el.innerHTML = `
@@ -93,7 +137,6 @@
       <p class="hero__foot">Version ${D.meta.plan_version} — généré le ${fmtFrDate(D.meta.genere_le)}</p>
     `;
 
-    // Countdown + progression
     const target = toDate(c.date);
     const t = today();
     const days = Math.round((target - t) / 86400000);
@@ -118,53 +161,170 @@
     }
   }
 
-  // ------- Overview timeline (11 semaines) ---------------------------------
-  function renderOverview() {
-    const wrap = $('#overview-grid');
+  // ------- Fiche course ---------------------------------------------------
+  // (SANS l'alerte heure_depart_alerte)
+  function renderCourseInfo() {
+    const wrap = $('#course-info');
+    if (!wrap || !D.course) return;
+    const c = D.course;
+    const rows = [
+      ['Nom', c.nom],
+      ['Date', fmtFrDate(c.date) + (c.heure_depart ? ' · ' + c.heure_depart : '')],
+      ['Distance', c.distance_km ? c.distance_km + ' km' : null],
+      ['Départ', c.depart_lieu],
+      ['Arrivée', c.arrivee_lieu],
+      ['Profil', c.profil],
+    ].filter((r) => r[1]);
+    const dl = create('dl', 'course-info__list');
+    rows.forEach(([k, v]) => {
+      dl.appendChild(create('dt', null, k));
+      dl.appendChild(create('dd', null, v));
+    });
+    wrap.appendChild(dl);
+  }
+
+  // ------- Plan accordéon (aperçu + détail fusionnés) ---------------------
+  function renderPlanAccordion() {
+    const wrap = $('#plan-accordion');
+    if (!wrap) return;
+
     D.semaines.forEach((s) => {
-      const c = phaseColor(s.phase);
+      const color = phaseColor(s.phase);
       const isNow = isCurrentWeek(s);
-      const card = create('article', 'ov-card' + (isNow ? ' is-now' : ''));
-      card.style.setProperty('--phase-bd', c.bd);
-      card.style.setProperty('--phase-bg', c.bg);
-      card.style.setProperty('--phase-text', c.text);
-      card.innerHTML = `
-        <header>
-          <span class="ov-card__id">${s.id}</span>
-          <span class="ov-card__phase">${s.phase}</span>
-        </header>
-        <p class="ov-card__dates">${s.libelle_dates}</p>
-        <p class="ov-card__focus">${s.focus || ''}</p>
-        <footer>
-          <span>${s.duree_cible || '—'}</span>
-          ${s.km_cible ? '<span>' + s.km_cible + ' km</span>' : ''}
-          <span>${s.nb_seances} séances</span>
-        </footer>
+      const isPast = isPastWeek(s);
+      const doableJours = (s.jours || []).filter((j) => !j.repos);
+      const doneCount = doableJours.filter((j) => DONE[j.date]).length;
+      const totalCount = doableJours.length;
+
+      const details = document.createElement('details');
+      details.className = 'week-acc'
+        + (isNow ? ' is-now' : '')
+        + (isPast ? ' is-past' : '');
+      details.style.setProperty('--phase-bd', color.bd);
+      details.style.setProperty('--phase-bg', color.bg);
+      details.style.setProperty('--phase-text', color.text);
+      details.dataset.weekId = s.id;
+      if (isNow) details.open = true;
+
+      // ---- SUMMARY (visible fermé) ----
+      const summary = document.createElement('summary');
+      summary.className = 'week-acc__summary';
+      summary.innerHTML = `
+        <div class="week-acc__id">
+          <span class="week-acc__code">${s.id}</span>
+          <span class="week-acc__phase">${s.phase}</span>
+          ${isNow ? '<span class="week-acc__badge">En cours</span>' : ''}
+        </div>
+        <div class="week-acc__meta">
+          <h3>${s.libelle_dates}</h3>
+          ${s.focus ? '<p class="week-acc__focus">' + escapeHtml(s.focus) + '</p>' : ''}
+        </div>
+        <div class="week-acc__stats">
+          <div><b>${s.duree_cible || '—'}</b><span>durée</span></div>
+          <div><b>${s.km_cible ? s.km_cible + ' km' : '—'}</b><span>volume</span></div>
+          <div><b>${s.nb_seances}</b><span>séances</span></div>
+        </div>
+        <div class="week-acc__ring" data-week-ring="${s.id}"></div>
+        <svg class="week-acc__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       `;
-      card.addEventListener('click', () => {
-        const target = document.getElementById('week-' + s.id);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Insère l'anneau
+      const ringSlot = summary.querySelector('[data-week-ring]');
+      if (ringSlot) ringSlot.appendChild(progressRing(doneCount, totalCount, s.id));
+
+      details.appendChild(summary);
+
+      // ---- DÉTAIL (visible ouvert) ----
+      const body = document.createElement('div');
+      body.className = 'week-acc__body';
+      if (s.point_cle) {
+        body.innerHTML = '<p class="week-acc__key"><strong>Point clé :</strong> ' + escapeHtml(s.point_cle) + '</p>';
+      }
+      const days = document.createElement('div');
+      days.className = 'days-grid';
+      (s.jours || []).forEach((j) => {
+        const key = j.date;
+        const isDone = !!DONE[key];
+        const canCheck = !j.repos; // Pas de checkbox sur repos
+        const day = document.createElement('article');
+        day.className = 'day-card'
+          + (j.cle ? ' is-key' : '')
+          + (j.repos ? ' is-rest' : '')
+          + (isDone && canCheck ? ' is-done' : '');
+        day.dataset.dayKey = key;
+        day.dataset.weekId = s.id;
+        day.innerHTML = `
+          <header>
+            <span class="day-card__day">${j.jour}</span>
+            <span class="day-card__date">${fmtFrDate(j.date).replace(/ ?\d{4}$/, '')}</span>
+            ${j.cle ? '<span class="day-card__flag">clé</span>' : ''}
+          </header>
+          <h4 class="day-card__title"><span class="day-card__icon">${typeIcon(j.type)}</span>${escapeHtml(j.titre || '')}</h4>
+          ${j.contenu ? '<p class="day-card__body">' + escapeHtml(j.contenu) + '</p>' : ''}
+          ${canCheck ? `
+            <label class="day-card__check">
+              <input type="checkbox" data-day-check ${isDone ? 'checked' : ''} aria-label="Marquer cette séance comme faite" />
+              <span class="day-card__check-pill">
+                <span class="day-card__check-tick" aria-hidden="true">✓</span>
+                <span class="day-card__check-label">${isDone ? 'Fait' : 'Marquer comme fait'}</span>
+              </span>
+            </label>
+          ` : ''}
+        `;
+        days.appendChild(day);
       });
-      wrap.appendChild(card);
+      body.appendChild(days);
+      details.appendChild(body);
+
+      wrap.appendChild(details);
+    });
+
+    // Écouteur global pour les checkboxes
+    wrap.addEventListener('change', (e) => {
+      const cb = e.target.closest('[data-day-check]');
+      if (!cb) return;
+      const card = cb.closest('.day-card');
+      if (!card) return;
+      const key = card.dataset.dayKey;
+      const weekId = card.dataset.weekId;
+      if (cb.checked) DONE[key] = true;
+      else delete DONE[key];
+      saveDone(DONE);
+      card.classList.toggle('is-done', cb.checked);
+      const label = card.querySelector('.day-card__check-label');
+      if (label) label.textContent = cb.checked ? 'Fait' : 'Marquer comme fait';
+      // Met à jour ring de la semaine + compteurs globaux
+      const s = D.semaines.find((x) => x.id === weekId);
+      if (s) {
+        const doable = s.jours.filter((j) => !j.repos);
+        const done = doable.filter((j) => DONE[j.date]).length;
+        updateRing(weekId, done, doable.length);
+      }
+      refreshGlobal();
     });
   }
 
-  function isCurrentWeek(s) {
-    const t = today();
-    return t >= toDate(s.debut) && t <= toDate(s.fin);
+  // ------- Compteur global ------------------------------------------------
+  function refreshGlobal() {
+    const total = D.semaines.reduce((n, s) => n + s.jours.filter((j) => !j.repos).length, 0);
+    const done = D.semaines.reduce((n, s) => n + s.jours.filter((j) => !j.repos && DONE[j.date]).length, 0);
+    const remain = Math.max(0, total - done);
+    const pct = total ? Math.round(done * 100 / total) : 0;
+    const setTxt = (sel, txt) => { const el = document.querySelector(sel); if (el) el.textContent = txt; };
+    setTxt('[data-global-done]', done + ' / ' + total);
+    setTxt('[data-global-remain]', remain + ' restante' + (remain > 1 ? 's' : ''));
+    setTxt('[data-global-pct]', pct + ' %');
+    const bar = document.querySelector('[data-global-bar]');
+    if (bar) bar.style.width = pct + '%';
   }
 
   // ------- Zones FC --------------------------------------------------------
   function renderZonesFC() {
     const wrap = $('#zones-fc');
     if (!wrap || !D.zones_fc) return;
-
     const alert = create('p', 'note-alert');
-    alert.innerHTML = `<strong>⚠︎ À reparamétrer dans Garmin Connect.</strong> ${D.zones_fc.alerte || ''}`;
+    alert.innerHTML = '<strong>⚠︎ À reparamétrer dans Garmin Connect.</strong> ' + escapeHtml(D.zones_fc.alerte || '');
     wrap.appendChild(alert);
-
-    const meta = create('p', 'note-meta', D.zones_fc.base || '');
-    wrap.appendChild(meta);
+    if (D.zones_fc.base) wrap.appendChild(create('p', 'note-meta', D.zones_fc.base));
 
     const list = create('div', 'zones-list');
     D.zones_fc.liste.forEach((z) => {
@@ -175,203 +335,59 @@
           <span class="zone-item__name">${z.nom}</span>
           <span class="zone-item__range">${z.bpm}</span>
         </div>
-        <p class="zone-item__usage">${z.usage || ''}</p>
+        <p class="zone-item__usage">${escapeHtml(z.usage || '')}</p>
       `;
       list.appendChild(row);
     });
     wrap.appendChild(list);
   }
 
-  // ------- Allures ---------------------------------------------------------
+  // ------- Allures (SANS l'alerte v1) -------------------------------------
   function renderAllures() {
     const wrap = $('#allures');
     if (!wrap || !D.allures) return;
-
     const meta = create('p', 'note-meta');
-    meta.innerHTML = `<strong>Statut :</strong> ${D.allures.statut || ''} · <strong>Valides jusqu'au :</strong> ${fmtFrDate(D.allures.valides_jusqu_au)}`;
+    meta.innerHTML = '<strong>Statut :</strong> ' + escapeHtml(D.allures.statut || '')
+      + ' · <strong>Valides jusqu\'au :</strong> ' + fmtFrDate(D.allures.valides_jusqu_au);
     wrap.appendChild(meta);
 
     const table = create('table', 'ptable');
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>Allure</th>
-          <th>Rythme /km</th>
-          <th>FC</th>
-          <th>Utilisation</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    `;
+    table.innerHTML = '<thead><tr><th>Allure</th><th>Rythme /km</th><th>FC</th><th>Utilisation</th></tr></thead><tbody></tbody>';
     const tb = table.querySelector('tbody');
     D.allures.liste.forEach((a) => {
       const tr = create('tr');
       tr.innerHTML = `
-        <td><strong>${a.nom}</strong></td>
-        <td>${a.allure_plat || a.allure || '—'}</td>
-        <td>${a.fc || '—'}</td>
-        <td>${a.seances || a.usage || '—'}</td>
+        <td><strong>${escapeHtml(a.nom)}</strong></td>
+        <td>${escapeHtml(a.allure_plat || a.allure || '—')}</td>
+        <td>${escapeHtml(a.fc || '—')}</td>
+        <td>${escapeHtml(a.seances || a.usage || '—')}</td>
       `;
       tb.appendChild(tr);
     });
     wrap.appendChild(table);
-
-    if (D.allures.alerte) {
-      const note = create('p', 'note-alert');
-      note.textContent = D.allures.alerte;
-      wrap.appendChild(note);
-    }
   }
 
-  // ------- Zones Puissance -------------------------------------------------
+  // ------- Zones Puissance ------------------------------------------------
   function renderZonesPower() {
     const wrap = $('#zones-power');
     if (!wrap || !D.zones_puissance) return;
-
-    if (D.zones_puissance.base) {
-      const meta = create('p', 'note-meta', D.zones_puissance.base);
-      wrap.appendChild(meta);
-    }
+    if (D.zones_puissance.base) wrap.appendChild(create('p', 'note-meta', D.zones_puissance.base));
     const list = D.zones_puissance.liste || [];
     if (list.length === 0) return;
-
     const table = create('table', 'ptable');
     table.innerHTML = '<thead><tr><th>Zone</th><th>Nom</th><th>%CP</th><th>Watts</th></tr></thead><tbody></tbody>';
     const tb = table.querySelector('tbody');
     list.forEach((z) => {
       const tr = create('tr');
       tr.innerHTML = `
-        <td><strong>${z.zone || ''}</strong></td>
-        <td>${z.nom || ''}</td>
-        <td>${z.pct_cp || z.pct || '—'}</td>
-        <td>${z.watts || z.puissance || '—'}</td>
+        <td><strong>${escapeHtml(z.zone || '')}</strong></td>
+        <td>${escapeHtml(z.nom || '')}</td>
+        <td>${escapeHtml(z.pct_cp || z.pct || '—')}</td>
+        <td>${escapeHtml(z.watts || z.puissance || '—')}</td>
       `;
       tb.appendChild(tr);
     });
     wrap.appendChild(table);
-  }
-
-  // ------- Calendrier détaillé ---------------------------------------------
-  function renderCalendar() {
-    const wrap = $('#calendar');
-    D.semaines.forEach((s) => {
-      const c = phaseColor(s.phase);
-      const isNow = isCurrentWeek(s);
-      const isPast = today() > toDate(s.fin);
-
-      const sec = create('section', 'week-block' + (isNow ? ' is-now' : '') + (isPast ? ' is-past' : ''));
-      sec.id = 'week-' + s.id;
-      sec.style.setProperty('--phase-bd', c.bd);
-      sec.style.setProperty('--phase-bg', c.bg);
-      sec.style.setProperty('--phase-text', c.text);
-
-      const head = create('header', 'week-block__head');
-      head.innerHTML = `
-        <div class="week-block__id">
-          <span class="week-block__code">${s.id}</span>
-          <span class="week-block__phase">${s.phase}</span>
-          ${isNow ? '<span class="week-block__badge">En cours</span>' : ''}
-        </div>
-        <div class="week-block__meta">
-          <h3>${s.libelle_dates}</h3>
-          ${s.focus ? '<p class="week-block__focus">' + s.focus + '</p>' : ''}
-          ${s.point_cle ? '<p class="week-block__key"><strong>Point clé :</strong> ' + s.point_cle + '</p>' : ''}
-        </div>
-        <div class="week-block__stats">
-          <div><b>${s.duree_cible || '—'}</b><span>durée</span></div>
-          <div><b>${s.km_cible ? s.km_cible + ' km' : '—'}</b><span>volume</span></div>
-          <div><b>${s.nb_seances}</b><span>séances</span></div>
-        </div>
-      `;
-      sec.appendChild(head);
-
-      const days = create('div', 'days-grid');
-      (s.jours || []).forEach((j) => {
-        const key = j.date;
-        const isDone = !!DONE[key];
-        const day = create(
-          'article',
-          'day-card'
-            + (j.cle ? ' is-key' : '')
-            + (j.repos ? ' is-rest' : '')
-            + (isDone ? ' is-done' : '')
-        );
-        day.dataset.dayKey = key;
-        day.dataset.weekId = s.id;
-        day.innerHTML = `
-          <header>
-            <span class="day-card__day">${j.jour}</span>
-            <span class="day-card__date">${fmtFrDate(j.date).replace(/ ?\d{4}$/, '')}</span>
-            ${j.cle ? '<span class="day-card__flag">clé</span>' : ''}
-          </header>
-          <h4 class="day-card__title"><span class="day-card__icon">${typeIcon(j.type)}</span>${j.titre || ''}</h4>
-          ${j.contenu ? '<p class="day-card__body">' + escapeHtml(j.contenu) + '</p>' : ''}
-          <label class="day-card__check">
-            <input type="checkbox" data-day-check ${isDone ? 'checked' : ''} aria-label="Marquer cette séance comme faite" />
-            <span class="day-card__check-pill">
-              <span class="day-card__check-tick" aria-hidden="true">✓</span>
-              <span class="day-card__check-label">${isDone ? 'Fait' : 'Marquer comme fait'}</span>
-            </span>
-          </label>
-        `;
-        days.appendChild(day);
-      });
-      sec.appendChild(days);
-
-      // Compteur de séances faites dans cette semaine
-      const stats = sec.querySelector('.week-block__stats');
-      if (stats) {
-        const cnt = create('div');
-        cnt.innerHTML = '<b data-week-done="' + s.id + '">0</b><span>faites</span>';
-        stats.appendChild(cnt);
-      }
-
-      wrap.appendChild(sec);
-    });
-
-    // Écouteur global sur les checkboxes
-    wrap.addEventListener('change', (e) => {
-      const cb = e.target.closest('[data-day-check]');
-      if (!cb) return;
-      const card = cb.closest('.day-card');
-      if (!card) return;
-      const key = card.dataset.dayKey;
-      if (cb.checked) DONE[key] = true;
-      else delete DONE[key];
-      saveDone(DONE);
-      card.classList.toggle('is-done', cb.checked);
-      const label = card.querySelector('.day-card__check-label');
-      if (label) label.textContent = cb.checked ? 'Fait' : 'Marquer comme fait';
-      refreshCounts();
-    });
-  }
-
-  // ------- Compteurs de séances faites ------------------------------------
-  function refreshCounts() {
-    // Par semaine : "X/Y faites"
-    D.semaines.forEach((s) => {
-      const total = (s.jours || []).length;
-      const done = (s.jours || []).filter((j) => DONE[j.date]).length;
-      const el = document.querySelector('[data-week-done="' + s.id + '"]');
-      if (el) el.textContent = done + '/' + total;
-    });
-    // Global : X faites · Y restantes + barre de progression
-    const total = D.semaines.reduce((n, s) => n + (s.jours || []).length, 0);
-    const done = D.semaines.reduce((n, s) => n + (s.jours || []).filter((j) => DONE[j.date]).length, 0);
-    const remain = Math.max(0, total - done);
-    const globalEl = document.querySelector('[data-global-done]');
-    if (globalEl) globalEl.textContent = done + ' / ' + total;
-    const remainEl = document.querySelector('[data-global-remain]');
-    if (remainEl) remainEl.textContent = remain + ' restante' + (remain > 1 ? 's' : '');
-    const pctEl = document.querySelector('[data-global-pct]');
-    const pct = total ? Math.round(done * 100 / total) : 0;
-    if (pctEl) pctEl.textContent = pct + ' %';
-    const bar = document.querySelector('[data-global-bar]');
-    if (bar) bar.style.width = pct + '%';
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   // ------- Tests -----------------------------------------------------------
@@ -385,7 +401,7 @@
           <span class="test-card__date">${fmtFrDate(t.date)}</span>
           ${t.cle ? '<span class="test-card__key">test clé</span>' : ''}
         </header>
-        <h3>${t.nom}</h3>
+        <h3>${escapeHtml(t.nom)}</h3>
         ${t.protocole ? '<p><strong>Protocole.</strong> ' + escapeHtml(t.protocole) + '</p>' : ''}
         ${t.exploitation ? '<p><strong>Exploitation.</strong> ' + escapeHtml(t.exploitation) + '</p>' : ''}
       `;
@@ -402,7 +418,7 @@
       card.innerHTML = `
         <span class="rule-card__num">${String(i + 1).padStart(2, '0')}</span>
         <div>
-          <h4>${r.titre}</h4>
+          <h4>${escapeHtml(r.titre)}</h4>
           <p>${escapeHtml(r.detail)}</p>
         </div>
       `;
@@ -410,66 +426,41 @@
     });
   }
 
-  // ------- Diagnostic / Course info ---------------------------------------
-  function renderCourseInfo() {
-    const wrap = $('#course-info');
-    if (!wrap || !D.course) return;
-    const c = D.course;
-    const rows = [
-      ['Nom', c.nom],
-      ['Date', fmtFrDate(c.date) + (c.heure_depart ? ' · ' + c.heure_depart : '')],
-      ['Distance', c.distance_km ? c.distance_km + ' km' : null],
-      ['Départ', c.depart_lieu],
-      ['Arrivée', c.arrivee_lieu],
-      ['Profil', c.profil],
-    ].filter((r) => r[1]);
-    const dl = create('dl', 'course-info__list');
-    rows.forEach(([k, v]) => {
-      const dt = create('dt', null, k);
-      const dd = create('dd', null, v);
-      dl.append(dt, dd);
-    });
-    wrap.appendChild(dl);
-
-    if (c.heure_depart_alerte) {
-      const alert = create('p', 'note-alert');
-      alert.innerHTML = '⚠︎ ' + escapeHtml(c.heure_depart_alerte);
-      wrap.appendChild(alert);
-    }
-  }
-
-  // ------- Nav toggle (mobile) --------------------------------------------
-  function initNav() {
-    const btn = document.getElementById('nav-toggle');
-    const list = document.getElementById('nav-list');
-    if (!btn || !list) return;
-    btn.addEventListener('click', () => {
-      const open = list.classList.toggle('is-open');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    list.addEventListener('click', (e) => {
-      if (e.target.matches('a')) {
-        list.classList.remove('is-open');
-        btn.setAttribute('aria-expanded', 'false');
-      }
-    });
+  // ------- Tabs ------------------------------------------------------------
+  function initTabs() {
+    const tabs = Array.from(document.querySelectorAll('.tab[data-tab]'));
+    const panels = Array.from(document.querySelectorAll('.tab-panel'));
+    const activate = (name) => {
+      tabs.forEach((t) => {
+        const on = t.dataset.tab === name;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      panels.forEach((p) => {
+        const on = p.id === 'tab-' + name;
+        p.classList.toggle('is-active', on);
+        p.hidden = !on;
+      });
+      // scroll to top of the panel area
+      const bar = document.querySelector('.tabs-bar');
+      if (bar) window.scrollTo({ top: window.scrollY + bar.getBoundingClientRect().top - 60, behavior: 'smooth' });
+    };
+    tabs.forEach((t) => t.addEventListener('click', () => activate(t.dataset.tab)));
   }
 
   // ------- Init ------------------------------------------------------------
   document.addEventListener('DOMContentLoaded', () => {
-    initNav();
+    initTabs();
     renderHero();
-    renderOverview();
     renderCourseInfo();
+    renderPlanAccordion();
     renderZonesFC();
     renderAllures();
     renderZonesPower();
-    renderCalendar();
     renderTests();
     renderRules();
-    refreshCounts();
+    refreshGlobal();
 
-    // Generated on
     const gen = $('#generated-on');
     if (gen) gen.textContent = fmtFrDate(D.meta.genere_le);
   });
