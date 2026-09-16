@@ -5,7 +5,7 @@
    Google, passent directement au réseau sans jamais être mis en cache.
    ================================================================ */
 
-const CACHE = 'mrun-mathilde-v7';
+const CACHE = 'mrun-mathilde-v8';
 
 // Ressources mises en cache à l'installation. Les query strings ?v= sont
 // conservées : changer une version invalide naturellement l'entrée.
@@ -18,7 +18,7 @@ const SHELL = [
   '/assets/js/plan-mathilde-reperes-data.js?v=2.0',
   '/assets/js/plan-mathilde-suivi-data.js?v=1.0',
   '/assets/js/plan-mathilde-suivi.js?v=4.0',
-  '/assets/js/plan-mathilde.js?v=5.0',
+  '/assets/js/plan-mathilde.js?v=5.1',
   '/public/icons/icon-192-v2.png',
   '/public/icons/apple-touch-icon-v2.png'
 ];

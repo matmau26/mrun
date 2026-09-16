@@ -310,7 +310,7 @@
         <div class="week-acc__stats">
           <div><b>${s.duree_cible || '—'}</b><span>durée</span></div>
           <div><b>${s.km_cible ? s.km_cible + ' km' : '—'}</b><span>volume</span></div>
-          <div><b>${s.nb_seances}</b><span>séances</span></div>
+          <div><b>${totalCount}</b><span>séances</span></div>
         </div>
         <div class="week-acc__ring" data-week-ring="${s.id}"></div>
         <svg class="week-acc__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
