@@ -139,10 +139,6 @@
             <input type="date" name="date" value="${day.date}" readonly required>
           </label>
           <label class="field">
-            <span class="field__label">Séance prévue</span>
-            <input type="text" name="seance_label" value="${escapeHtml(day.titre || '')}" readonly>
-          </label>
-          <label class="field">
             <span class="field__label">Durée réelle (minutes) *</span>
             <input type="number" name="duree_min" min="1" max="600" step="1"
                    value="${p ? p.duree_min || '' : ''}" required>
