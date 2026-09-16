@@ -143,6 +143,18 @@
             <input type="number" name="duree_min" min="1" max="600" step="1"
                    value="${p ? p.duree_min || '' : ''}" required>
           </label>
+          <label class="field">
+            <span class="field__label">Km réels</span>
+            <input type="number" name="km_reels" min="0" max="200" step="0.1"
+                   placeholder="ex. 12,4"
+                   value="${p && p.km_reels != null ? p.km_reels : ''}">
+          </label>
+          <label class="field">
+            <span class="field__label">Dénivelé réel (m D+)</span>
+            <input type="number" name="denivele_reel" min="0" max="5000" step="1"
+                   placeholder="ex. 250"
+                   value="${p && p.denivele_reel != null ? p.denivele_reel : ''}">
+          </label>
           <label class="field field--full">
             <span class="field__label">Séance réalisée *</span>
             <select name="execution" required>
@@ -431,6 +443,18 @@
       execution: form.querySelector('select[name="execution"]').value,
       motif_ecart: form.querySelector('input[name="motif_ecart"]').value.trim() || null,
       duree_min: parseInt(form.querySelector('input[name="duree_min"]').value, 10) || null,
+      km_reels: (() => {
+        const raw = form.querySelector('input[name="km_reels"]').value.replace(',', '.').trim();
+        if (!raw) return null;
+        const v = parseFloat(raw);
+        return isNaN(v) ? null : v;
+      })(),
+      denivele_reel: (() => {
+        const raw = form.querySelector('input[name="denivele_reel"]').value.trim();
+        if (!raw) return null;
+        const v = parseInt(raw, 10);
+        return isNaN(v) ? null : v;
+      })(),
       rpe: parseInt(form.querySelector('input[name="rpe"]').value, 10) || null,
       jambes_5: parseInt(form.querySelector('input[name="jambes_5"]').value, 10) || null,
       forme_5: parseInt(form.querySelector('input[name="forme_5"]').value, 10) || null,
