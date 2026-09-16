@@ -91,16 +91,66 @@
   }
 
   // ---- Lecture de l'état distant : la feuille fait foi ------------------
-  function fetchRemoteState() {
+  // Apps Script ne renvoie pas toujours d'en-têtes CORS exploitables en
+  // lecture. On tente donc fetch(), et on retombe sur JSONP — une balise
+  // <script> n'étant pas soumise au CORS, elle passe systématiquement.
+
+  function readViaFetch() {
     const url = WEBHOOK_URL
       + '?token=' + encodeURIComponent(WEBHOOK_TOKEN)
-      + '&_=' + Date.now();          // casse le cache navigateur
+      + '&_=' + Date.now();
     return fetch(url, { method: 'GET', redirect: 'follow' })
       .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then((data) => {
         if (!data || data.ok === false) throw new Error((data && data.error) || 'refus serveur');
         return data.suivi || {};
       });
+  }
+
+  function readViaJsonp() {
+    return new Promise((resolve, reject) => {
+      const cbName = '__mrunSuiviCb' + Date.now() + Math.floor(Math.random() * 1000);
+      const script = document.createElement('script');
+      let settled = false;
+
+      const cleanup = () => {
+        clearTimeout(timer);
+        try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      };
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true; cleanup();
+        reject(new Error('JSONP : délai dépassé'));
+      }, 15000);
+
+      window[cbName] = (data) => {
+        if (settled) return;
+        settled = true; cleanup();
+        if (!data || data.ok === false) {
+          reject(new Error((data && data.error) || 'refus serveur'));
+        } else {
+          resolve(data.suivi || {});
+        }
+      };
+      script.onerror = () => {
+        if (settled) return;
+        settled = true; cleanup();
+        reject(new Error('JSONP : chargement impossible'));
+      };
+      script.src = WEBHOOK_URL
+        + '?token=' + encodeURIComponent(WEBHOOK_TOKEN)
+        + '&callback=' + cbName
+        + '&_=' + Date.now();
+      document.head.appendChild(script);
+    });
+  }
+
+  function fetchRemoteState() {
+    return readViaFetch().catch((e) => {
+      console.warn('[Mrun] Lecture directe impossible (' + e.message + '), bascule en JSONP.');
+      return readViaJsonp();
+    });
   }
 
   // Fusionne l'état distant dans le stockage local.
@@ -134,12 +184,22 @@
     return flushQueue()
       .then(fetchRemoteState)
       .then((remote) => {
-        mergeRemoteIntoLocal(remote);
-        if (typeof window.mathildeApplyDone === 'function') window.mathildeApplyDone();
+        const n = Object.keys(remote).length;
+        const merged = mergeRemoteIntoLocal(remote);
+        if (typeof window.mathildeApplyDone === 'function') {
+          window.mathildeApplyDone();
+        } else {
+          console.warn('[Mrun] mathildeApplyDone absent : le rendu n\'a pas encore eu lieu.');
+        }
         updateSyncBadge();
-        return Object.keys(remote).length;
+        console.info('[Mrun] Synchro OK — ' + n + ' séance(s) dans la feuille, ' + merged + ' reprise(s) localement.');
+        return n;
       })
-      .catch(() => { updateSyncBadge(); return -1; });
+      .catch((e) => {
+        updateSyncBadge();
+        console.error('[Mrun] Synchro échouée :', e && e.message ? e.message : e);
+        return -1;
+      });
   }
 
   function setSyncBadgeState(state) {
