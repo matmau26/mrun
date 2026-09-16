@@ -1828,3 +1828,67 @@ body.has-modal-open { overflow: hidden; }
     height: 30px;
   }
 }
+
+/* ================================================================
+   Modale de suivi — en-tête toujours visible
+   L'en-tête était en position:sticky alors qu'il est hors de la zone
+   qui défile : inutile, et source de la bande morte en haut. On repasse
+   sur une colonne flex stricte — en-tête figé, formulaire élastique,
+   pied figé — avec les marges de sécurité iOS.
+   ================================================================ */
+.suivi-modal__head {
+  position: static;
+  flex: 0 0 auto;
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+}
+.suivi-modal__head::after { content: none; }   /* le dégradé n'a plus lieu d'être */
+
+.suivi-modal__form { flex: 1 1 auto; -webkit-overflow-scrolling: touch; }
+.suivi-modal__foot {
+  flex: 0 0 auto;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Ordre de lecture : quand · quoi · consigne */
+.suivi-modal__dates {
+  order: -1;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin: 0 0 3px;
+}
+.suivi-modal__head h3 {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.suivi-modal__plan {
+  margin: 6px 0 0;
+  padding: 8px 11px;
+  background: var(--surface-2);
+  border-left: 2px solid var(--line-2);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.suivi-modal__plan[hidden] { display: none; }
+
+@media (max-width: 640px) {
+  /* dvh : tient compte de la barre d'adresse mobile, contrairement à vh */
+  .suivi-modal__card { height: 100dvh; max-height: 100dvh; }
+  .suivi-modal__head { padding-left: 14px; padding-right: 14px; }
+  .suivi-modal__head h3 { font-size: 1.05rem; }
+  .suivi-modal__plan { font-size: 0.78rem; padding: 7px 10px; }
+}
+
+/* Pilules de terrain : compactes, deux à trois par ligne sur mobile */
+.radio-list--inline { grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); }
+@media (max-width: 520px) {
+  .radio-list--inline { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 5px; }
+  .radio-list--inline .radio { padding: 9px 8px; font-size: 0.82rem; justify-content: center; }
+  .radio-list--inline .radio input { display: none; }   /* la pilule fait office d'état */
+}

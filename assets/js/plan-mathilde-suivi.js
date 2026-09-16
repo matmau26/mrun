@@ -13,6 +13,18 @@
   const LS_QUEUE = 'mrun.mathilde.sync_queue.v1'; // [ payload, … ] en attente d'envoi
   const QUAL_TYPES = ['seuil', 'cotes', 'seance_specifique', 'test', 'course'];
 
+  // Terrain : demandé sur toutes les séances, pas seulement les séances de
+  // qualité. C'est l'impact qui compte pour la règle du périoste tibial,
+  // et un footing sur bitume compte autant qu'un seuil.
+  const SURFACES = [
+    { v: 'bitume',            l: 'Bitume' },
+    { v: 'piste',             l: "Piste d'athlé" },
+    { v: 'chemin_blanc',      l: 'Chemin blanc' },
+    { v: 'trail',             l: 'Trail' },
+    { v: 'trail_technique',   l: 'Trail très technique' },
+    { v: 'tapis',             l: 'Tapis' }
+  ];
+
   // ---- Synchronisation Google Sheets (Apps Script Web App) ---------------
   // Le token est visible côté client : la page est non listée et noindex,
   // c'est le compromis assumé. Le script côté Google refuse tout POST sans
@@ -280,6 +292,12 @@
     if (txt != null) el.textContent = txt;
     return el;
   };
+  const frDate = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso + 'T12:00:00');
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  };
 
   // -------- Modal shell -----------------------------------------------------
   let modalEl = null;
@@ -297,9 +315,9 @@
             <span>Sortir</span>
           </button>
           <div class="suivi-modal__head-body">
-            <div class="suivi-modal__eyebrow">Suivi post-séance</div>
-            <h3 id="suivi-title"></h3>
             <p class="suivi-modal__dates"></p>
+            <h3 id="suivi-title"></h3>
+            <p class="suivi-modal__plan"></p>
           </div>
         </header>
         <div class="suivi-modal__alerts" hidden></div>
@@ -342,8 +360,12 @@
     currentDay = day; currentWeek = week; currentCard = cardEl;
     modalEl.querySelector('#suivi-title').textContent = day.titre || 'Séance';
     modalEl.querySelector('.suivi-modal__dates').textContent =
-      (day.jour ? day.jour.charAt(0).toUpperCase() + day.jour.slice(1) + ' — ' : '')
-      + day.date + ' · ' + week.id;
+      (day.jour ? day.jour.charAt(0).toUpperCase() + day.jour.slice(1) + ' ' : '')
+      + frDate(day.date) + ' · ' + week.id + (day.cle ? ' · séance clé' : '');
+    // Rappel du contenu prévu : on valide en ayant la consigne sous les yeux
+    const plan = modalEl.querySelector('.suivi-modal__plan');
+    plan.textContent = day.contenu || '';
+    plan.hidden = !day.contenu;
     modalEl.querySelector('.suivi-modal__alerts').hidden = true;
     modalEl.querySelector('.suivi-modal__alerts').innerHTML = '';
     renderForm(day, week);
@@ -383,11 +405,11 @@
 
     // Hooks
     wireExecutionMotif(form);
+    wireRadioPills(form);          // terrain + réserve, où qu'ils soient
     wireRpeButtons(form, p);
     wireScale5(form, 'jambes_5', p);
     wireScale5(form, 'forme_5', p);
     wireDouleurs(form, p);
-    if (hasQuality) wireQualite(form, p);
   }
 
   // ---- Section "La séance" ----
@@ -433,6 +455,19 @@
             <span class="field__label">Pourquoi ? *</span>
             <input type="text" name="motif_ecart" maxlength="200" value="${escapeHtml(p ? p.motif_ecart : '')}">
           </label>
+          <div class="field field--full">
+            <span class="field__label">Terrain *</span>
+            <div class="radio-list radio-list--inline" data-radio="surface">
+              ${SURFACES.map((s) => {
+                const on = (p && p.surface) === s.v;
+                return `
+                <label class="radio ${on ? 'is-active' : ''}">
+                  <input type="radio" name="surface" value="${s.v}" ${on ? 'checked' : ''} required>
+                  <span>${escapeHtml(s.l)}</span>
+                </label>`;
+              }).join('')}
+            </div>
+          </div>
         </div>
       </fieldset>
     `;
@@ -655,21 +690,12 @@
             `).join('')}
           </div>
         </div>
-        <div class="field">
-          <span class="field__label">Surface *</span>
-          <div class="radio-list radio-list--inline" data-radio="surface">
-            ${['piste','chemin roulant','bitume','sentier technique','tapis'].map(v => `
-              <label class="radio ${q.surface === v ? 'is-active' : ''}">
-                <input type="radio" name="surface" value="${v}" ${q.surface === v ? 'checked' : (v === 'chemin roulant' && !q.surface ? 'checked' : '')} required>
-                <span>${escapeHtml(v)}</span>
-              </label>
-            `).join('')}
-          </div>
-        </div>
       </fieldset>
     `;
   }
-  function wireQualite(form) {
+  // Met en surbrillance la pilule cochée, pour toutes les listes radio
+  // du formulaire (terrain dans « La séance », réserve dans « Qualité »).
+  function wireRadioPills(form) {
     form.querySelectorAll('[data-radio] .radio input').forEach(input => {
       input.addEventListener('change', () => {
         const list = input.closest('[data-radio]');
@@ -737,9 +763,9 @@
     if (!sub.rpe) missing.push('RPE');
     if (!sub.jambes_5) missing.push('Jambes');
     if (!sub.forme_5) missing.push('Forme');
-    if (QUAL_TYPES.includes(currentDay.type)) {
-      if (sub.reserve == null) missing.push('Répétitions en réserve');
-      if (!sub.surface) missing.push('Surface');
+    if (!sub.surface) missing.push('Terrain');
+    if (QUAL_TYPES.includes(currentDay.type) && sub.reserve == null) {
+      missing.push('Répétitions en réserve');
     }
     if (missing.length) {
       showAlerts([{ niveau: 'critique', message: 'Champs manquants : ' + missing.join(', ') }]);
