@@ -1681,3 +1681,46 @@ body.has-modal-open { overflow: hidden; }
     -webkit-line-clamp: none;
   }
 }
+
+/* ================================================================
+   Badge de synchronisation (pied de page)
+   ================================================================ */
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 11px 4px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+.sync-badge i {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sync-badge.is-ok {
+  background: rgba(43, 199, 106, 0.12);
+  border: 1px solid rgba(43, 199, 106, 0.3);
+  color: #2BC76A;
+}
+.sync-badge.is-ok i { background: #2BC76A; }
+.sync-badge.is-pending {
+  background: rgba(255, 159, 28, 0.13);
+  border: 1px solid rgba(255, 159, 28, 0.35);
+  color: #FF9F1C;
+  cursor: help;
+}
+.sync-badge.is-pending i {
+  background: #FF9F1C;
+  animation: syncPulse 1.6s ease-in-out infinite;
+}
+@keyframes syncPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sync-badge.is-pending i { animation: none; }
+}

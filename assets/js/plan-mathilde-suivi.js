@@ -10,7 +10,15 @@
   if (!S) return;
 
   const LS_SUIVI = 'mrun.mathilde.suivi.v1';   // { dayKey: { saved_at, submission } }
+  const LS_QUEUE = 'mrun.mathilde.sync_queue.v1'; // [ payload, … ] en attente d'envoi
   const QUAL_TYPES = ['seuil', 'cotes', 'seance_specifique', 'test', 'course'];
+
+  // ---- Synchronisation Google Sheets (Apps Script Web App) ---------------
+  // Le token est visible côté client : la page est non listée et noindex,
+  // c'est le compromis assumé. Le script côté Google refuse tout POST sans
+  // ce token, et fait un upsert sur seance_id (les renvois ne dupliquent pas).
+  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzowuIuEazUNSsU_hd3cCGpoxRIl0nQ7yeA30fz6yQeAKw7G2KsWXD2yhfYZ5AA8Qit0A/exec';
+  const WEBHOOK_TOKEN = 'c3622bb6-124b-40f2-8ef5-32c973a941fc';
 
   const loadSuivi = () => {
     try { return JSON.parse(localStorage.getItem(LS_SUIVI) || '{}') || {}; }
@@ -24,6 +32,85 @@
   const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
+
+  // ======================================================================
+  // Couche réseau : envoi vers la feuille + file d'attente de réessai
+  // ======================================================================
+  const loadQueue = () => {
+    try { return JSON.parse(localStorage.getItem(LS_QUEUE) || '[]') || []; }
+    catch (e) { return []; }
+  };
+  const saveQueue = (arr) => {
+    try { localStorage.setItem(LS_QUEUE, JSON.stringify(arr)); } catch (e) { /* silencieux */ }
+  };
+  const keyOf = (payload) => (payload && payload.submission && payload.submission.seance_id) || '';
+
+  function enqueue(payload) {
+    const k = keyOf(payload);
+    const q = loadQueue().filter((p) => keyOf(p) !== k);  // une seule entrée par séance
+    q.push(payload);
+    saveQueue(q);
+    updateSyncBadge();
+  }
+  function dequeue(payload) {
+    const k = keyOf(payload);
+    saveQueue(loadQueue().filter((p) => keyOf(p) !== k));
+    updateSyncBadge();
+  }
+
+  // Content-Type text/plain : évite le préflight CORS, qu'Apps Script ne sait
+  // pas traiter. Le script lit quand même e.postData.contents.
+  function postToSheet(payload) {
+    return fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: 'follow'
+    }).then((res) => {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json().catch(() => ({ ok: true }));
+    }).then((data) => {
+      if (data && data.ok === false) throw new Error(data.error || 'refus serveur');
+      return true;
+    });
+  }
+
+  // Renvoie tout ce qui est en attente. Appelé au chargement de la page.
+  function flushQueue() {
+    const q = loadQueue();
+    if (!q.length) return Promise.resolve({ sent: 0, failed: 0 });
+    let sent = 0, failed = 0;
+    return q.reduce((chain, payload) => chain.then(() =>
+      postToSheet(payload)
+        .then(() => { dequeue(payload); sent++; })
+        .catch(() => { failed++; })
+    ), Promise.resolve()).then(() => {
+      updateSyncBadge();
+      return { sent, failed };
+    });
+  }
+
+  // Petit indicateur global (injecté dans le pied de page)
+  function updateSyncBadge() {
+    const n = loadQueue().length;
+    let el = document.getElementById('sync-badge');
+    if (!el) {
+      const foot = document.querySelector('.site-foot__inner');
+      if (!foot) return;
+      el = document.createElement('span');
+      el.id = 'sync-badge';
+      el.className = 'sync-badge';
+      foot.appendChild(el);
+    }
+    if (n === 0) {
+      el.className = 'sync-badge is-ok';
+      el.innerHTML = '<i></i>Suivi synchronisé';
+    } else {
+      el.className = 'sync-badge is-pending';
+      el.innerHTML = '<i></i>' + n + ' séance' + (n > 1 ? 's' : '') + ' en attente de synchro';
+      el.title = 'Réessai automatique au prochain chargement de la page.';
+    }
+  }
   const create = (tag, cls, txt) => {
     const el = document.createElement(tag);
     if (cls) el.className = cls;
@@ -522,13 +609,28 @@
 
     // Alertes règles
     const alertes = evalAlertes(sub, currentDay.type);
-    if (alertes.length) {
-      showAlerts(alertes);
-      setTimeout(closeModal, 3200);
-    } else {
-      showAlerts([{ niveau: 'ok', message: 'Séance enregistrée.' }]);
-      setTimeout(closeModal, 900);
-    }
+
+    // Envoi vers la feuille de suivi. La sauvegarde locale étant déjà faite,
+    // un échec réseau ne perd rien : la soumission part en file de réessai.
+    const payload = {
+      token: WEBHOOK_TOKEN,
+      saved_at: store[currentDay.date].saved_at,
+      submission: sub
+    };
+    showAlerts(alertes.concat([{ niveau: 'info', message: '⟳ Envoi vers la feuille de suivi…' }]));
+
+    postToSheet(payload).then(() => {
+      dequeue(payload);
+      showAlerts(alertes.concat([{ niveau: 'ok', message: '✓ Séance enregistrée et synchronisée.' }]));
+      setTimeout(closeModal, alertes.length ? 3400 : 1100);
+    }).catch(() => {
+      enqueue(payload);
+      showAlerts(alertes.concat([{
+        niveau: 'alerte',
+        message: 'Séance enregistrée sur cet appareil. La synchronisation a échoué — elle sera retentée automatiquement au prochain chargement de la page.'
+      }]));
+      setTimeout(closeModal, 3800);
+    });
   }
 
   function collectDouleurs(form) {
@@ -593,6 +695,24 @@
     open: openModal,
     hasSubmission: (dayKey) => !!loadSuivi()[dayKey],
     getSubmission: (dayKey) => loadSuivi()[dayKey] || null,
-    getAll: loadSuivi
+    getAll: loadSuivi,
+    // Synchronisation
+    pending: () => loadQueue().length,
+    flush: flushQueue,
+    // Renvoie TOUT l'historique local vers la feuille (réparation manuelle)
+    resync: function () {
+      const all = loadSuivi();
+      Object.keys(all).forEach((dayKey) => {
+        enqueue({ token: WEBHOOK_TOKEN, saved_at: all[dayKey].saved_at, submission: all[dayKey].submission });
+      });
+      return flushQueue();
+    }
   };
+
+  // Au chargement : vide la file d'attente si le réseau est revenu.
+  document.addEventListener('DOMContentLoaded', () => {
+    updateSyncBadge();
+    flushQueue();
+  });
+  window.addEventListener('online', flushQueue);
 })();
