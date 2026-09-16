@@ -1735,3 +1735,96 @@ body.has-modal-open { overflow: hidden; }
   background: #7db4ff;
   animation: syncPulse 1s ease-in-out infinite;
 }
+
+/* ================================================================
+   Modale de suivi — verrouillage horizontal
+   Les enfants de grille valent min-width:auto par défaut : un <select>
+   au contenu long ("Cuisse / quadriceps") refuse alors de rétrécir et
+   fait déborder toute la modale vers la droite. On force min-width:0
+   partout où c'est nécessaire, et overflow-x:hidden en filet de sécurité.
+   ================================================================ */
+.suivi-modal__card {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.suivi-modal__form {
+  overflow-x: hidden;
+  overscroll-behavior: contain;   /* le scroll ne fuit pas vers la page */
+}
+.suivi-modal__form,
+.fset,
+.fset__grid,
+.fset__row,
+.field,
+.douleurs,
+.douleur-row,
+.douleur-row__head,
+.douleur-row__moments,
+.douleur-moment,
+.rpe-scale,
+.scale5,
+.scale4,
+.radio-list {
+  min-width: 0;
+}
+.field input,
+.field select,
+.field textarea,
+.douleur-row__head select,
+.douleur-row__evo select {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+/* Les boutons d'échelle n'ont que des chiffres : ils peuvent rétrécir. */
+.rpe-btn,
+.s5-btn,
+.s4-btn {
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+}
+/* Un mot trop long ne doit jamais élargir la modale. */
+.pstat__note,
+.fset__hint,
+.scale-hint,
+.rpe-hint,
+.day-card__body {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Bloc douleurs : compact sur mobile ---------- */
+@media (max-width: 520px) {
+  /* Label à gauche, échelle à droite, sur une seule ligne par moment */
+  .douleur-row__moments {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+  .douleur-moment {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  .douleur-moment__label {
+    flex: 0 0 66px;
+    font-size: 0.64rem;
+    line-height: 1.2;
+  }
+  .douleur-moment .scale4 {
+    flex: 1 1 auto;
+  }
+  /* Zone et côté partagent la ligne, la croix reste compacte */
+  .douleur-row__head {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+    gap: 6px;
+  }
+  .douleur-row__head select {
+    font-size: 15px;
+    padding: 8px 6px;
+  }
+  .douleur-row__remove {
+    width: 30px;
+    height: 30px;
+  }
+}
