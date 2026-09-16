@@ -42,20 +42,24 @@
       <div class="suivi-modal__backdrop" data-close></div>
       <div class="suivi-modal__card" role="dialog" aria-modal="true" aria-labelledby="suivi-title">
         <header class="suivi-modal__head">
-          <div>
+          <button type="button" class="suivi-modal__close" data-close aria-label="Sortir sans enregistrer">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span>Sortir</span>
+          </button>
+          <div class="suivi-modal__head-body">
             <div class="suivi-modal__eyebrow">Suivi post-séance</div>
             <h3 id="suivi-title"></h3>
             <p class="suivi-modal__dates"></p>
           </div>
-          <button type="button" class="suivi-modal__close" data-close aria-label="Fermer">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
         </header>
         <div class="suivi-modal__alerts" hidden></div>
         <form class="suivi-modal__form"></form>
         <footer class="suivi-modal__foot">
-          <button type="button" class="btn btn--ghost" data-close>Annuler</button>
-          <button type="submit" class="btn btn--primary" data-submit>Enregistrer et marquer fait</button>
+          <button type="button" class="btn btn--ghost" data-close>Sortir sans enregistrer</button>
+          <button type="submit" class="btn btn--primary" data-submit>
+            <span class="btn__long">Enregistrer et marquer fait</span>
+            <span class="btn__short">Enregistrer</span>
+          </button>
         </footer>
       </div>
     `;

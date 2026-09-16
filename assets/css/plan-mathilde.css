@@ -788,32 +788,58 @@ body.has-modal-open { overflow: hidden; }
 }
 
 .suivi-modal__head {
-  display: flex; align-items: flex-start; gap: 16px;
-  padding: 18px 22px 14px;
+  display: flex; align-items: flex-start;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 18px 12px;
   border-bottom: 1px solid var(--line);
   flex-shrink: 0;
+  background: rgba(20, 20, 26, 0.98);
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
-.suivi-modal__head > div { flex: 1; min-width: 0; }
+.suivi-modal__head-body { min-width: 0; width: 100%; }
 .suivi-modal__eyebrow {
-  font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em;
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--brand);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .suivi-modal__head h3 {
-  margin: 0 0 2px; font-size: 1.15rem; font-weight: 800;
+  margin: 0 0 2px; font-size: 1.05rem; font-weight: 800;
   color: var(--text); letter-spacing: -0.01em; line-height: 1.25;
 }
 .suivi-modal__dates {
-  margin: 0; font-size: 0.85rem; color: var(--text-3);
+  margin: 0; font-size: 0.8rem; color: var(--text-3);
 }
 .suivi-modal__close {
-  background: transparent; border: 1px solid var(--line); color: var(--text-2);
-  width: 34px; height: 34px; border-radius: 8px;
-  display: grid; place-items: center; cursor: pointer;
+  align-self: flex-start;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  color: var(--text-2);
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s ease, color 0.15s ease;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-height: 36px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
-.suivi-modal__close:hover { background: var(--surface-2); color: var(--text); }
+.suivi-modal__close:hover, .suivi-modal__close:focus-visible {
+  background: rgba(230, 57, 70, 0.13);
+  color: #ff8b93;
+  border-color: rgba(230, 57, 70, 0.4);
+  outline: none;
+}
+.suivi-modal__close svg { flex-shrink: 0; }
+.btn__short { display: none; }
+@media (max-width: 480px) {
+  .btn__long { display: none; }
+  .btn__short { display: inline; }
+}
 
 .suivi-modal__alerts { padding: 12px 22px 0; flex-shrink: 0; }
 .suivi-modal__alerts .alert {
@@ -1116,4 +1142,105 @@ body.has-modal-open { overflow: hidden; }
 .scale-hint.is-selected strong {
   color: var(--text);
   font-weight: 800;
+}
+
+/* ================================================================
+   Suivi modale — améliorations mobile
+   ================================================================ */
+@media (max-width: 640px) {
+  /* Card plus proche du plein écran, radius plus doux */
+  .suivi-modal { align-items: stretch; }
+  .suivi-modal__card {
+    max-height: 100vh;
+    border-radius: 0;
+    border: 0;
+  }
+
+  /* Form : espacement resserré */
+  .suivi-modal__form {
+    padding: 14px 14px 18px;
+    gap: 10px;
+  }
+  .suivi-modal__foot {
+    padding: 10px 14px;
+    gap: 8px;
+    position: sticky;
+    bottom: 0;
+    background: rgba(15, 15, 20, 0.98);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  .suivi-modal__foot .btn { flex: 1; padding: 12px 12px; min-height: 44px; font-size: 0.95rem; }
+  .suivi-modal__foot .btn--ghost { flex: 0 0 auto; }
+
+  /* Fieldsets plus compacts */
+  .fset { padding: 10px 12px 12px; }
+  .fset > legend { padding: 1px 8px; font-size: 0.72rem; }
+  .fset__grid, .fset__row { gap: 8px; }
+  .fset__hint { margin-bottom: 8px; font-size: 0.75rem; }
+
+  /* Inputs 16px minimum pour empêcher le zoom iOS */
+  .field input[type="text"],
+  .field input[type="number"],
+  .field input[type="date"],
+  .field select,
+  .field textarea {
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+  .field__label { font-size: 0.75rem; }
+
+  /* Échelle RPE : boutons plus larges verticalement, wrap sur 2 lignes si nécessaire */
+  .rpe-scale {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+  .rpe-btn {
+    padding: 12px 0;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+  .rpe-hint {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+
+  /* Scale 1-5 : boutons plus grands */
+  .s5-btn { padding: 12px 0; font-size: 0.95rem; min-height: 44px; }
+  .scale-hint { font-size: 0.7rem; padding: 5px 8px; }
+
+  /* Douleurs : chaque bloc mieux séparé */
+  .douleur-row { padding: 10px; }
+  .douleur-row__head {
+    grid-template-columns: 1fr 1fr auto;
+    gap: 6px;
+  }
+  .douleur-row__head select {
+    font-size: 16px;
+    padding: 8px 10px;
+  }
+  .douleur-row__moments { gap: 6px; }
+  .douleur-moment__label { font-size: 0.65rem; }
+  .s4-btn { padding: 8px 0; font-size: 0.88rem; min-height: 36px; }
+
+  /* Radio list */
+  .radio {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    min-height: 42px;
+  }
+
+  /* Alertes */
+  .suivi-modal__alerts { padding: 10px 14px 0; }
+  .suivi-modal__alerts .alert { font-size: 0.85rem; padding: 9px 12px; }
+}
+
+/* Fade sous l'en-tête sticky pour indiquer le scroll */
+.suivi-modal__head::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -12px;
+  height: 12px;
+  background: linear-gradient(180deg, rgba(20,20,26,0.9), rgba(20,20,26,0));
+  pointer-events: none;
 }
