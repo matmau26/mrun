@@ -187,7 +187,6 @@
         <legend>L'effort</legend>
         <div class="field">
           <span class="field__label">Effort perçu (RPE 1–10) *</span>
-          <p class="scale-help">Échelle de Borg (CR10) — <em>À noter au moins 20 minutes après la fin de la séance : « globalement, à quel point la séance a-t-elle été dure ? »</em></p>
           <div class="rpe-scale" data-rpe-scale>
             ${S.echelles.rpe.ancrages.map(a => `
               <button type="button" class="rpe-btn" data-rpe="${a.valeur}" title="${a.libelle} — ${a.repere}">${a.valeur}</button>
