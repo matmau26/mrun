@@ -376,54 +376,49 @@
       + ' · <strong>Valides jusqu\'au :</strong> ' + fmtFrDate(T.valides_jusqu_au);
     wrap.appendChild(meta);
 
-    const table = create('table', 'ptable ptable--pilot');
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>Intention</th>
-          <th>Allure /km</th>
-          <th>FC</th>
-          <th>Watts</th>
-          <th class="hide-md">Zones</th>
-          <th class="hide-md">Séances</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    `;
-    const tb = table.querySelector('tbody');
+    // Rendu en cartes (adaptables mobile ↔ desktop) plutôt qu'un tableau
+    const list = create('div', 'pilot-list');
     (T.lignes || []).forEach((l) => {
       const c = colorFor(l.intensite || 1);
-      const tr = create('tr');
-      tr.style.setProperty('--row-color', c);
-      tr.innerHTML = `
-        <td class="pilot-intent">
-          <span class="pilot-swatch" style="background:${c};"></span>
-          <div>
+      const card = create('article', 'pilot-card');
+      card.style.setProperty('--row-color', c);
+      card.innerHTML = `
+        <header class="pilot-card__head">
+          <span class="pilot-card__intensity" title="Intensité ${l.intensite || 1}/5"></span>
+          <div class="pilot-card__title">
             <strong>${escapeHtml(l.intention)}</strong>
             ${l.sous_titre ? '<small>' + escapeHtml(l.sous_titre) + '</small>' : ''}
           </div>
-        </td>
-        <td>
-          <div class="pilot-primary">${escapeHtml(l.allure || '—')}</div>
-          ${l.allure_note ? '<div class="pilot-note">' + escapeHtml(l.allure_note) + '</div>' : ''}
-        </td>
-        <td>
-          <div class="pilot-primary">${escapeHtml(l.fc || '—')}</div>
-          ${l.fc_note ? '<div class="pilot-note">' + escapeHtml(l.fc_note) + '</div>' : ''}
-        </td>
-        <td>
-          <div class="pilot-primary">${escapeHtml(l.watts || '—')}</div>
-          ${l.pct_cp ? '<div class="pilot-note">' + escapeHtml(l.pct_cp) + '</div>' : ''}
-        </td>
-        <td class="hide-md">
-          <div class="pilot-zone"><em>FC</em> ${escapeHtml(l.zone_fc || '—')}</div>
-          <div class="pilot-zone"><em>Stryd</em> ${escapeHtml(l.zone_stryd || '—')}</div>
-        </td>
-        <td class="hide-md">${escapeHtml(l.seances || '—')}</td>
+          <div class="pilot-card__zones">
+            <span class="pilot-zone-tag pilot-zone-tag--fc"><em>FC</em>${escapeHtml(l.zone_fc || '—')}</span>
+            <span class="pilot-zone-tag pilot-zone-tag--stryd"><em>Stryd</em>${escapeHtml(l.zone_stryd || '—')}</span>
+          </div>
+        </header>
+        <div class="pilot-card__stats">
+          <div class="pstat pstat--allure">
+            <span class="pstat__label">Allure /km</span>
+            <span class="pstat__value">${escapeHtml(l.allure || '—')}</span>
+            ${l.allure_note ? '<span class="pstat__note">' + escapeHtml(l.allure_note) + '</span>' : ''}
+          </div>
+          <div class="pstat pstat--fc">
+            <span class="pstat__label">FC</span>
+            <span class="pstat__value">${escapeHtml(l.fc || '—')}</span>
+            ${l.fc_note ? '<span class="pstat__note">' + escapeHtml(l.fc_note) + '</span>' : ''}
+          </div>
+          <div class="pstat pstat--watts">
+            <span class="pstat__label">Watts</span>
+            <span class="pstat__value">${escapeHtml(l.watts || '—')}</span>
+            ${l.pct_cp ? '<span class="pstat__note">' + escapeHtml(l.pct_cp) + '</span>' : ''}
+          </div>
+        </div>
+        <footer class="pilot-card__seances">
+          <span class="pilot-card__seances-label">Séances</span>
+          <span class="pilot-card__seances-text">${escapeHtml(l.seances || '—')}</span>
+        </footer>
       `;
-      tb.appendChild(tr);
+      list.appendChild(card);
     });
-    wrap.appendChild(table);
+    wrap.appendChild(list);
 
     if (T.avertissement) {
       const note = create('div', 'legend-callout');
