@@ -165,13 +165,18 @@
     return m ? m[1] : key;
   }
 
+  // La feuille est la source de vérité : on reflète aussi ses suppressions.
+  // Garde-fou : on ne retire jamais une entrée encore en file d'attente,
+  // elle n'a simplement pas encore été envoyée.
   function mergeRemoteIntoLocal(remote) {
     const local = loadSuivi();
     let done = {};
     try { done = JSON.parse(localStorage.getItem('mrun.mathilde.done.v1') || '{}') || {}; }
     catch (e) { done = {}; }
 
+    const seen = Object.create(null);
     let merged = 0;
+
     Object.keys(remote).forEach((rawKey) => {
       const r = remote[rawKey];
       const dayKey = normalizeDayKey(rawKey, r && r.submission);
@@ -180,6 +185,7 @@
         return;
       }
       if (r.submission) r.submission.date = dayKey;   // recale la date interne
+      seen[dayKey] = true;
 
       const l = local[dayKey];
       const rTime = Date.parse(r.saved_at || '') || 0;
@@ -189,11 +195,30 @@
       done[dayKey] = true;   // présente dans la feuille = séance faite
     });
 
+    // Ce qui attend d'être poussé est protégé de la purge
+    const pending = Object.create(null);
+    loadQueue().forEach((p) => {
+      const k = normalizeDayKey((p.submission && p.submission.date) || '', p.submission);
+      if (k) pending[k] = true;
+    });
+
+    let removed = 0;
+    Object.keys(local).forEach((k) => {
+      if (!seen[k] && !pending[k]) {
+        delete local[k];
+        delete done[k];
+        removed++;
+      }
+    });
+
     saveSuivi(local);
     try { localStorage.setItem('mrun.mathilde.done.v1', JSON.stringify(done)); }
     catch (e) { /* silencieux */ }
 
-    return merged;
+    if (removed) {
+      console.info('[Mrun] ' + removed + ' séance(s) retirée(s) localement — supprimée(s) de la feuille.');
+    }
+    return { merged: merged, removed: removed };
   }
 
   // Cycle complet : on pousse d'abord ce qui attend, puis on relit la feuille.
@@ -203,14 +228,15 @@
       .then(fetchRemoteState)
       .then((remote) => {
         const n = Object.keys(remote).length;
-        const merged = mergeRemoteIntoLocal(remote);
+        const res = mergeRemoteIntoLocal(remote);
         if (typeof window.mathildeApplyDone === 'function') {
           window.mathildeApplyDone();
         } else {
           console.warn('[Mrun] mathildeApplyDone absent : le rendu n\'a pas encore eu lieu.');
         }
         updateSyncBadge();
-        console.info('[Mrun] Synchro OK — ' + n + ' séance(s) dans la feuille, ' + merged + ' reprise(s) localement.');
+        console.info('[Mrun] Synchro OK — ' + n + ' séance(s) dans la feuille, '
+          + res.merged + ' reprise(s), ' + res.removed + ' retirée(s).');
         return n;
       })
       .catch((e) => {
@@ -853,6 +879,18 @@
         enqueue({ token: WEBHOOK_TOKEN, saved_at: all[dayKey].saved_at, submission: all[dayKey].submission });
       });
       return flushQueue();
+    },
+    // Efface tout l'état local puis recharge depuis la feuille.
+    // À utiliser quand la feuille a été corrigée à la main.
+    reset: function () {
+      try {
+        localStorage.removeItem(LS_SUIVI);
+        localStorage.removeItem(LS_QUEUE);
+        localStorage.removeItem('mrun.mathilde.done.v1');
+      } catch (e) { /* silencieux */ }
+      if (typeof window.mathildeApplyDone === 'function') window.mathildeApplyDone();
+      console.info('[Mrun] État local effacé. Relecture de la feuille…');
+      return syncWithSheet();
     }
   };
 
