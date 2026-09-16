@@ -131,7 +131,7 @@
       <div class="hero__tags">
         <span class="tag">${D.meta.nb_semaines} semaines</span>
         <span class="tag">Début ${fmtFrDate(D.meta.debut)}</span>
-        <span class="tag">Course ${fmtFrDate(D.meta.fin)}</span>
+        <span class="tag">Course ${fmtFrDate(c.date || D.meta.fin)}</span>
         <span class="tag tag--accent">${D.meta.orientation || ''}</span>
       </div>
       <p class="hero__foot">Version ${D.meta.plan_version} — généré le ${fmtFrDate(D.meta.genere_le)}</p>
@@ -351,24 +351,134 @@
     if (bar) bar.style.width = pct + '%';
   }
 
+  // Bloc « Repères » — priorité au fichier dédié (window.PLAN_MATHILDE_REPERES),
+  // fallback sur les blocs historiques de PLAN_MATHILDE_SS.
+  const R = window.PLAN_MATHILDE_REPERES || {};
+  const zonesFcSrc = R.zones_fc || D.zones_fc;
+  const zonesPowerSrc = R.zones_puissance || D.zones_puissance;
+  const tableauPilotage = R.tableau_pilotage || null;
+
+  // ------- Tableau de pilotage (allure + FC + watts + usage fusionnés) ----
+  function renderTableauPilotage() {
+    const wrap = $('#tableau-pilotage');
+    if (!wrap || !tableauPilotage) return;
+    const T = tableauPilotage;
+    const rampe = (T.rampe && T.rampe.sombre) || ['#cde2fb', '#86b6ef', '#3987e5', '#256abf', '#184f95'];
+    const colorFor = (i) => rampe[Math.max(0, Math.min(rampe.length - 1, i - 1))];
+
+    if (T.note) {
+      const note = create('p', 'note-meta');
+      note.textContent = T.note;
+      wrap.appendChild(note);
+    }
+    const meta = create('p', 'note-meta');
+    meta.innerHTML = '<strong>Statut :</strong> ' + escapeHtml(T.statut || '')
+      + ' · <strong>Valides jusqu\'au :</strong> ' + fmtFrDate(T.valides_jusqu_au);
+    wrap.appendChild(meta);
+
+    const table = create('table', 'ptable ptable--pilot');
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Intention</th>
+          <th>Allure /km</th>
+          <th>FC</th>
+          <th>Watts</th>
+          <th class="hide-md">Zones</th>
+          <th class="hide-md">Séances</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+    const tb = table.querySelector('tbody');
+    (T.lignes || []).forEach((l) => {
+      const c = colorFor(l.intensite || 1);
+      const tr = create('tr');
+      tr.style.setProperty('--row-color', c);
+      tr.innerHTML = `
+        <td class="pilot-intent">
+          <span class="pilot-swatch" style="background:${c};"></span>
+          <div>
+            <strong>${escapeHtml(l.intention)}</strong>
+            ${l.sous_titre ? '<small>' + escapeHtml(l.sous_titre) + '</small>' : ''}
+          </div>
+        </td>
+        <td>
+          <div class="pilot-primary">${escapeHtml(l.allure || '—')}</div>
+          ${l.allure_note ? '<div class="pilot-note">' + escapeHtml(l.allure_note) + '</div>' : ''}
+        </td>
+        <td>
+          <div class="pilot-primary">${escapeHtml(l.fc || '—')}</div>
+          ${l.fc_note ? '<div class="pilot-note">' + escapeHtml(l.fc_note) + '</div>' : ''}
+        </td>
+        <td>
+          <div class="pilot-primary">${escapeHtml(l.watts || '—')}</div>
+          ${l.pct_cp ? '<div class="pilot-note">' + escapeHtml(l.pct_cp) + '</div>' : ''}
+        </td>
+        <td class="hide-md">
+          <div class="pilot-zone"><em>FC</em> ${escapeHtml(l.zone_fc || '—')}</div>
+          <div class="pilot-zone"><em>Stryd</em> ${escapeHtml(l.zone_stryd || '—')}</div>
+        </td>
+        <td class="hide-md">${escapeHtml(l.seances || '—')}</td>
+      `;
+      tb.appendChild(tr);
+    });
+    wrap.appendChild(table);
+
+    if (T.avertissement) {
+      const note = create('div', 'legend-callout');
+      note.innerHTML = '<strong>À noter.</strong> ' + escapeHtml(T.avertissement);
+      wrap.appendChild(note);
+    }
+  }
+
   // ------- Zones FC --------------------------------------------------------
   function renderZonesFC() {
     const wrap = $('#zones-fc');
-    if (!wrap || !D.zones_fc) return;
-    const alert = create('p', 'note-alert');
-    alert.innerHTML = '<strong>⚠︎ À reparamétrer dans Garmin Connect.</strong> ' + escapeHtml(D.zones_fc.alerte || '');
-    wrap.appendChild(alert);
-    if (D.zones_fc.base) wrap.appendChild(create('p', 'note-meta', D.zones_fc.base));
+    if (!wrap || !zonesFcSrc) return;
 
+    // Alerte principale
+    if (zonesFcSrc.alerte) {
+      const alert = create('p', 'note-alert');
+      alert.innerHTML = '<strong>⚠︎ À reparamétrer dans Garmin Connect.</strong> ' + escapeHtml(zonesFcSrc.alerte);
+      wrap.appendChild(alert);
+    }
+    if (zonesFcSrc.base) wrap.appendChild(create('p', 'note-meta', zonesFcSrc.base));
+
+    // Tableau « à saisir dans Garmin » si présent
+    if (Array.isArray(zonesFcSrc.a_saisir_dans_garmin) && zonesFcSrc.a_saisir_dans_garmin.length) {
+      const box = create('div', 'garmin-fix');
+      const head = create('div', 'garmin-fix__head');
+      head.innerHTML = '<span>À saisir dans Garmin Connect</span>';
+      box.appendChild(head);
+      const table = create('table', 'ptable ptable--tight');
+      table.innerHTML = '<thead><tr><th>Champ</th><th>Actuel</th><th>À mettre</th></tr></thead><tbody></tbody>';
+      const tb = table.querySelector('tbody');
+      zonesFcSrc.a_saisir_dans_garmin.forEach((r) => {
+        const tr = create('tr');
+        const changed = r.actuel != null && String(r.actuel) !== String(r.a_mettre);
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(r.champ)}</strong></td>
+          <td class="${changed ? 'garmin-fix__old' : ''}">${r.actuel != null ? escapeHtml(r.actuel) : '—'}</td>
+          <td class="${changed ? 'garmin-fix__new' : ''}"><strong>${escapeHtml(r.a_mettre)}</strong>${r.note ? '<br><small>' + escapeHtml(r.note) + '</small>' : ''}</td>
+        `;
+        tb.appendChild(tr);
+      });
+      box.appendChild(table);
+      wrap.appendChild(box);
+    }
+
+    // Zones
     const list = create('div', 'zones-list');
-    D.zones_fc.liste.forEach((z) => {
+    (zonesFcSrc.liste || []).forEach((z) => {
       const row = create('div', 'zone-item');
       row.innerHTML = `
         <div class="zone-item__head">
           <span class="zone-item__id">${z.zone}</span>
-          <span class="zone-item__name">${z.nom}</span>
-          <span class="zone-item__range">${z.bpm}</span>
+          <span class="zone-item__name">${escapeHtml(z.nom || '')}</span>
+          <span class="zone-item__range">${escapeHtml(z.bpm || '—')}</span>
         </div>
+        ${z.pct_lthr ? '<div class="zone-item__pct">' + escapeHtml(z.pct_lthr) + ' du LTHR</div>' : ''}
         <p class="zone-item__usage">${escapeHtml(z.usage || '')}</p>
       `;
       list.appendChild(row);
@@ -376,40 +486,30 @@
     wrap.appendChild(list);
   }
 
-  // ------- Allures (SANS l'alerte v1) -------------------------------------
-  function renderAllures() {
-    const wrap = $('#allures');
-    if (!wrap || !D.allures) return;
-    const meta = create('p', 'note-meta');
-    meta.innerHTML = '<strong>Statut :</strong> ' + escapeHtml(D.allures.statut || '')
-      + ' · <strong>Valides jusqu\'au :</strong> ' + fmtFrDate(D.allures.valides_jusqu_au);
-    wrap.appendChild(meta);
-
-    const table = create('table', 'ptable');
-    table.innerHTML = '<thead><tr><th>Allure</th><th>Rythme /km</th><th>FC</th><th>Utilisation</th></tr></thead><tbody></tbody>';
-    const tb = table.querySelector('tbody');
-    D.allures.liste.forEach((a) => {
-      const tr = create('tr');
-      tr.innerHTML = `
-        <td><strong>${escapeHtml(a.nom)}</strong></td>
-        <td>${escapeHtml(a.allure_plat || a.allure || '—')}</td>
-        <td>${escapeHtml(a.fc || '—')}</td>
-        <td>${escapeHtml(a.seances || a.usage || '—')}</td>
-      `;
-      tb.appendChild(tr);
-    });
-    wrap.appendChild(table);
-  }
-
-  // ------- Zones Puissance ------------------------------------------------
+  // ------- Zones Puissance (5 zones Stryd) --------------------------------
   function renderZonesPower() {
     const wrap = $('#zones-power');
-    if (!wrap || !D.zones_puissance) return;
-    if (D.zones_puissance.base) wrap.appendChild(create('p', 'note-meta', D.zones_puissance.base));
-    const list = D.zones_puissance.liste || [];
+    if (!wrap || !zonesPowerSrc) return;
+    if (zonesPowerSrc.base) wrap.appendChild(create('p', 'note-meta', zonesPowerSrc.base));
+    if (zonesPowerSrc.referentiel) {
+      const p = create('p', 'note-meta');
+      p.textContent = zonesPowerSrc.referentiel;
+      wrap.appendChild(p);
+    }
+    if (zonesPowerSrc.alerte) {
+      const p = create('p', 'note-alert');
+      p.innerHTML = '<strong>⚠︎</strong> ' + escapeHtml(zonesPowerSrc.alerte);
+      wrap.appendChild(p);
+    }
+    if (zonesPowerSrc.alerte_donnees) {
+      const p = create('p', 'note-alert');
+      p.innerHTML = '<strong>⚠︎ Données.</strong> ' + escapeHtml(zonesPowerSrc.alerte_donnees);
+      wrap.appendChild(p);
+    }
+    const list = zonesPowerSrc.liste || [];
     if (list.length === 0) return;
     const table = create('table', 'ptable');
-    table.innerHTML = '<thead><tr><th>Zone</th><th>Nom</th><th>%CP</th><th>Watts</th></tr></thead><tbody></tbody>';
+    table.innerHTML = '<thead><tr><th>Zone</th><th>Nom</th><th>%CP</th><th>Watts</th><th class="hide-sm">W/kg</th><th class="hide-sm">Usage</th></tr></thead><tbody></tbody>';
     const tb = table.querySelector('tbody');
     list.forEach((z) => {
       const tr = create('tr');
@@ -418,6 +518,8 @@
         <td>${escapeHtml(z.nom || '')}</td>
         <td>${escapeHtml(z.pct_cp || z.pct || '—')}</td>
         <td>${escapeHtml(z.watts || z.puissance || '—')}</td>
+        <td class="hide-sm">${escapeHtml(z.w_kg || '—')}</td>
+        <td class="hide-sm">${escapeHtml(z.usage || '—')}</td>
       `;
       tb.appendChild(tr);
     });
@@ -820,8 +922,8 @@
     renderHero();
     renderCourseInfo();
     renderPlanAccordion();
+    renderTableauPilotage();
     renderZonesFC();
-    renderAllures();
     renderZonesPower();
     renderTests();
     renderRules();

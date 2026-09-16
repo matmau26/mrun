@@ -1244,3 +1244,136 @@ body.has-modal-open { overflow: hidden; }
   background: linear-gradient(180deg, rgba(20,20,26,0.9), rgba(20,20,26,0));
   pointer-events: none;
 }
+
+/* ================================================================
+   Repères — Tableau de pilotage + Garmin fix + zones enrichies
+   ================================================================ */
+
+/* ---- Tableau de pilotage ---- */
+.ptable--pilot {
+  font-size: 0.9rem;
+}
+.ptable--pilot td { vertical-align: top; padding: 12px 14px; }
+.ptable--pilot tr { position: relative; border-left: 4px solid transparent; }
+.ptable--pilot tbody tr { border-left-color: var(--row-color, transparent); }
+.pilot-intent {
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.pilot-swatch {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
+}
+.pilot-intent strong {
+  display: block;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.pilot-intent small {
+  display: block;
+  font-weight: 500;
+  color: var(--text-3);
+  font-size: 0.78rem;
+  margin-top: 2px;
+}
+.pilot-primary {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.pilot-note {
+  color: var(--text-3);
+  font-size: 0.76rem;
+  font-style: italic;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.pilot-zone {
+  color: var(--text-2);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.pilot-zone em {
+  color: var(--text-3);
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  margin-right: 4px;
+}
+.hide-md { display: table-cell; }
+.hide-sm { display: table-cell; }
+@media (max-width: 900px) {
+  .hide-md { display: none; }
+}
+@media (max-width: 640px) {
+  .hide-sm { display: none; }
+  .ptable--pilot td { padding: 10px 10px; font-size: 0.82rem; }
+  .pilot-intent { gap: 6px; }
+  .pilot-swatch { width: 8px; height: 8px; margin-top: 4px; }
+}
+
+.legend-callout {
+  margin: 14px 0 4px;
+  padding: 12px 16px;
+  background: rgba(57, 135, 229, 0.10);
+  border-left: 3px solid #3987e5;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+.legend-callout strong { color: var(--text); }
+
+/* ---- Garmin fix table (dans Zones FC) ---- */
+.garmin-fix {
+  margin: 14px 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.garmin-fix__head {
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.garmin-fix .ptable {
+  border: 0; border-radius: 0;
+  margin: 0;
+  font-size: 0.88rem;
+}
+.garmin-fix .ptable thead th {
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.72rem;
+}
+.garmin-fix__old {
+  color: var(--text-3);
+  text-decoration: line-through;
+  text-decoration-color: rgba(230, 57, 70, 0.5);
+}
+.garmin-fix__new { color: #2BC76A; }
+.garmin-fix__new small { color: var(--text-3); font-weight: normal; }
+
+/* Tight variant of the table used in the Garmin fix */
+.ptable--tight td { padding: 8px 14px; }
+
+/* Extra info in zone-item : % LTHR */
+.zone-item__pct {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  margin: 2px 0 6px;
+  letter-spacing: 0.02em;
+}
