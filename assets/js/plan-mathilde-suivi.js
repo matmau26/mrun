@@ -155,23 +155,41 @@
 
   // Fusionne l'état distant dans le stockage local.
   // Règle : la feuille gagne si l'entrée locale est absente ou plus ancienne.
+  // Google Sheets peut reformater la colonne date ("Wed Sep 16" au lieu de
+  // "2026-09-16"). Le seance_id, lui, est une chaîne que nous construisons
+  // ("S38-2026-09-16") : la date qu'il contient est toujours fiable.
+  function normalizeDayKey(key, submission) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(key)) return key;
+    const src = (submission && submission.seance_id) || key || '';
+    const m = String(src).match(/(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : key;
+  }
+
   function mergeRemoteIntoLocal(remote) {
     const local = loadSuivi();
+    let done = {};
+    try { done = JSON.parse(localStorage.getItem('mrun.mathilde.done.v1') || '{}') || {}; }
+    catch (e) { done = {}; }
+
     let merged = 0;
-    Object.keys(remote).forEach((dayKey) => {
-      const r = remote[dayKey];
+    Object.keys(remote).forEach((rawKey) => {
+      const r = remote[rawKey];
+      const dayKey = normalizeDayKey(rawKey, r && r.submission);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dayKey)) {
+        console.warn('[Mrun] Entrée distante ignorée, date illisible :', rawKey);
+        return;
+      }
+      if (r.submission) r.submission.date = dayKey;   // recale la date interne
+
       const l = local[dayKey];
       const rTime = Date.parse(r.saved_at || '') || 0;
       const lTime = l ? (Date.parse(l.saved_at || '') || 0) : -1;
       if (rTime > lTime) { local[dayKey] = r; merged++; }
-    });
-    saveSuivi(local);
 
-    // Toute séance présente dans la feuille est marquée comme faite
-    let done = {};
-    try { done = JSON.parse(localStorage.getItem('mrun.mathilde.done.v1') || '{}') || {}; }
-    catch (e) { done = {}; }
-    Object.keys(remote).forEach((dayKey) => { done[dayKey] = true; });
+      done[dayKey] = true;   // présente dans la feuille = séance faite
+    });
+
+    saveSuivi(local);
     try { localStorage.setItem('mrun.mathilde.done.v1', JSON.stringify(done)); }
     catch (e) { /* silencieux */ }
 
