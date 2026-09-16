@@ -278,21 +278,55 @@
       wrap.appendChild(details);
     });
 
-    // Écouteur global pour les checkboxes
-    wrap.addEventListener('change', (e) => {
+    // Ouvre la modale de suivi au lieu du toggle direct.
+    const openSuiviFrom = (card) => {
+      const weekId = card.dataset.weekId;
+      const dayKey = card.dataset.dayKey;
+      const s = D.semaines.find((x) => x.id === weekId);
+      if (!s) return;
+      const day = (s.jours || []).find((j) => j.date === dayKey);
+      if (!day || day.repos) return;
+      if (window.mathildeSuivi && typeof window.mathildeSuivi.open === 'function') {
+        window.mathildeSuivi.open(day, s, card);
+      } else {
+        // Fallback toggle
+        const cb = card.querySelector('[data-day-check]');
+        if (cb) {
+          cb.checked = !cb.checked;
+          if (cb.checked) DONE[dayKey] = true; else delete DONE[dayKey];
+          saveDone(DONE);
+          card.classList.toggle('is-done', cb.checked);
+          refreshGlobal();
+        }
+      }
+    };
+    wrap.addEventListener('click', (e) => {
+      const label = e.target.closest('label.day-card__check');
+      if (!label) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const card = label.closest('.day-card');
+      if (card) openSuiviFrom(card);
+    });
+    // Clavier : Espace/Entrée sur la checkbox invisible
+    wrap.addEventListener('keydown', (e) => {
+      if (e.key !== ' ' && e.key !== 'Enter') return;
       const cb = e.target.closest('[data-day-check]');
       if (!cb) return;
+      e.preventDefault();
       const card = cb.closest('.day-card');
-      if (!card) return;
-      const key = card.dataset.dayKey;
-      const weekId = card.dataset.weekId;
-      if (cb.checked) DONE[key] = true;
-      else delete DONE[key];
-      saveDone(DONE);
-      card.classList.toggle('is-done', cb.checked);
-      const label = card.querySelector('.day-card__check-label');
-      if (label) label.textContent = cb.checked ? 'Fait' : 'Marquer comme fait';
-      // Met à jour ring de la semaine + compteurs globaux
+      if (card) openSuiviFrom(card);
+    });
+
+    // Refresh callback exposé pour le module suivi.
+    // Re-lit DONE depuis le localStorage pour rester synchro avec les
+    // écritures faites depuis la modale.
+    window.mathildeRefresh = (weekId) => {
+      try {
+        const fresh = JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {};
+        Object.keys(DONE).forEach((k) => { if (!(k in fresh)) delete DONE[k]; });
+        Object.keys(fresh).forEach((k) => { DONE[k] = fresh[k]; });
+      } catch (e) { /* ignore */ }
       const s = D.semaines.find((x) => x.id === weekId);
       if (s) {
         const doable = s.jours.filter((j) => !j.repos);
@@ -300,7 +334,7 @@
         updateRing(weekId, done, doable.length);
       }
       refreshGlobal();
-    });
+    };
   }
 
   // ------- Compteur global ------------------------------------------------

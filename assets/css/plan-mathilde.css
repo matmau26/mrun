@@ -748,3 +748,332 @@
 .src-list strong { color: var(--text); }
 .src-list span { color: var(--text-2); }
 .src-list em { color: var(--text-3); font-style: normal; font-size: 0.78rem; }
+
+/* ================================================================
+   Suivi post-séance — modale + formulaire
+   ================================================================ */
+body.has-modal-open { overflow: hidden; }
+
+.suivi-modal {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.suivi-modal[hidden] { display: none; }
+.suivi-modal__backdrop {
+  position: absolute; inset: 0;
+  background: rgba(3, 3, 6, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.suivi-modal__card {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  max-height: 100vh;
+  background: #14141a;
+  border-top: 1px solid var(--line);
+  border-radius: 20px 20px 0 0;
+  display: flex; flex-direction: column;
+  animation: slideUp 0.25s ease;
+  overflow: hidden;
+}
+@media (min-width: 720px) {
+  .suivi-modal { align-items: center; padding: 24px; }
+  .suivi-modal__card { border-radius: 20px; max-height: calc(100vh - 48px); border: 1px solid var(--line); }
+}
+
+.suivi-modal__head {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.suivi-modal__head > div { flex: 1; min-width: 0; }
+.suivi-modal__eyebrow {
+  font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brand);
+  margin-bottom: 4px;
+}
+.suivi-modal__head h3 {
+  margin: 0 0 2px; font-size: 1.15rem; font-weight: 800;
+  color: var(--text); letter-spacing: -0.01em; line-height: 1.25;
+}
+.suivi-modal__dates {
+  margin: 0; font-size: 0.85rem; color: var(--text-3);
+}
+.suivi-modal__close {
+  background: transparent; border: 1px solid var(--line); color: var(--text-2);
+  width: 34px; height: 34px; border-radius: 8px;
+  display: grid; place-items: center; cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.suivi-modal__close:hover { background: var(--surface-2); color: var(--text); }
+
+.suivi-modal__alerts { padding: 12px 22px 0; flex-shrink: 0; }
+.suivi-modal__alerts .alert {
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.alert--critique { background: rgba(230, 57, 70, 0.18); color: #ff9098; border-left: 3px solid #E63946; }
+.alert--alerte { background: rgba(255, 159, 28, 0.18); color: #ffcb7a; border-left: 3px solid #FF9F1C; }
+.alert--info { background: rgba(57, 135, 229, 0.15); color: #93c1f5; border-left: 3px solid #3987e5; }
+.alert--ok { background: rgba(43, 199, 106, 0.15); color: #7ee0a7; border-left: 3px solid #2BC76A; }
+
+.suivi-modal__form {
+  padding: 18px 22px 22px;
+  overflow-y: auto;
+  flex: 1;
+  display: grid;
+  gap: 14px;
+}
+.suivi-modal__foot {
+  padding: 12px 22px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: flex-end; gap: 10px;
+  background: rgba(0,0,0,0.35);
+  flex-shrink: 0;
+}
+.suivi-modal__foot .btn { min-height: 40px; }
+
+/* -- Boutons génériques (si pas déjà définis) -- */
+.suivi-modal .btn {
+  appearance: none; cursor: pointer;
+  padding: 9px 18px; border-radius: 10px;
+  font-family: inherit; font-size: 0.9rem; font-weight: 700;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.suivi-modal .btn--primary {
+  background: var(--brand); color: #0a0a0a; border-color: var(--brand);
+}
+.suivi-modal .btn--primary:hover { background: #ff7a4d; }
+.suivi-modal .btn--ghost {
+  background: transparent; color: var(--text-2); border-color: var(--line-2);
+}
+.suivi-modal .btn--ghost:hover { color: var(--text); background: var(--surface-2); }
+.suivi-modal .btn--sm { padding: 6px 12px; font-size: 0.82rem; }
+
+/* -- Fieldset -- */
+.fset {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px 16px;
+  margin: 0;
+  background: var(--surface);
+}
+.fset > legend {
+  padding: 2px 10px;
+  font-size: 0.78rem; font-weight: 800; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--brand);
+  background: #14141a;
+}
+.fset__hint {
+  margin: 0 0 12px; font-size: 0.8rem; color: var(--text-3); line-height: 1.5;
+}
+.fset__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.fset__grid .field--full { grid-column: 1 / -1; }
+.fset__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 10px;
+}
+@media (max-width: 520px) {
+  .fset__grid, .fset__row { grid-template-columns: 1fr; }
+}
+
+/* -- Fields de base -- */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field__label {
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--text-2); letter-spacing: -0.005em;
+}
+.field__hint {
+  font-size: 0.75rem; color: var(--text-3);
+  line-height: 1.5;
+}
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="date"],
+.field select,
+.field textarea {
+  appearance: none;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.92rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+  background: #1a1a22;
+}
+.field input[readonly] { color: var(--text-3); cursor: default; }
+.field textarea { resize: vertical; min-height: 66px; }
+
+/* -- Échelle RPE -- */
+.rpe-scale {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.rpe-btn {
+  appearance: none; cursor: pointer;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  color: var(--text-2);
+  font-family: inherit;
+  font-weight: 800; font-size: 0.9rem;
+  padding: 10px 0;
+  border-radius: 8px;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.rpe-btn:hover { color: var(--text); border-color: var(--brand); }
+.rpe-btn.is-active {
+  background: var(--brand); color: #0a0a0a; border-color: var(--brand);
+}
+.rpe-hint {
+  margin: 0; font-size: 0.82rem; color: var(--text-2); line-height: 1.5;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border-radius: 8px;
+}
+.rpe-hint strong { color: var(--text); }
+
+/* -- Échelle 1-5 (Jambes / Forme) -- */
+.scale5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.s5-btn {
+  appearance: none; cursor: pointer;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  color: var(--text-2);
+  font-weight: 800; font-size: 0.9rem;
+  padding: 10px 0;
+  border-radius: 8px;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.s5-btn:hover { color: var(--text); border-color: var(--brand); }
+.s5-btn.is-active { background: var(--brand); color: #0a0a0a; border-color: var(--brand); }
+
+/* -- Échelle 0-3 douleurs -- */
+.scale4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+.s4-btn {
+  appearance: none; cursor: pointer;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  color: var(--text-2);
+  font-weight: 800; font-size: 0.85rem;
+  padding: 6px 0;
+  border-radius: 6px;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.s4-btn:hover { border-color: var(--brand); color: var(--text); }
+.s4-btn.is-active {
+  background: #E63946; color: #fff; border-color: #E63946;
+}
+.s4-btn[data-val="0"].is-active { background: var(--brand); border-color: var(--brand); color: #0a0a0a; }
+.s4-btn[data-val="1"].is-active { background: #FF9F1C; border-color: #FF9F1C; color: #0a0a0a; }
+.s4-btn[data-val="2"].is-active { background: #ff5e5e; border-color: #ff5e5e; color: #fff; }
+
+/* -- Bloc douleurs -- */
+.douleurs { display: grid; gap: 12px; margin-bottom: 12px; }
+.douleur-row {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+}
+.douleur-row__head {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+.douleur-row__head select {
+  background: #1a1a22; border: 1px solid var(--line-2); color: var(--text);
+  padding: 7px 10px; border-radius: 7px; font-family: inherit; font-size: 0.88rem;
+}
+.douleur-row__head select:disabled { opacity: 0.4; cursor: not-allowed; }
+.douleur-row__remove {
+  background: transparent; border: 1px solid var(--line-2); color: var(--text-3);
+  width: 32px; height: 32px; border-radius: 7px; cursor: pointer;
+  font-size: 1.2rem; line-height: 1;
+}
+.douleur-row__remove:hover { color: #ff8080; border-color: #ff8080; }
+.douleur-row__moments {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .douleur-row__moments { grid-template-columns: 1fr; }
+}
+.douleur-moment { display: flex; flex-direction: column; gap: 4px; }
+.douleur-moment__label {
+  font-size: 0.7rem; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
+}
+.douleur-row__evo {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+.douleur-row__evo label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 0.78rem; color: var(--text-2);
+}
+.douleur-row__evo select {
+  background: #1a1a22; border: 1px solid var(--line-2); color: var(--text);
+  padding: 7px 10px; border-radius: 7px; font-family: inherit; font-size: 0.88rem;
+  margin-top: 4px;
+}
+
+/* -- Radio list -- */
+.radio-list {
+  display: grid; gap: 6px;
+}
+.radio-list--inline { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.radio {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--surface-2);
+  cursor: pointer;
+  font-size: 0.88rem; color: var(--text-2);
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+.radio input { margin: 0; accent-color: var(--brand); }
+.radio:hover { border-color: var(--brand); color: var(--text); }
+.radio.is-active {
+  background: rgba(255, 87, 34, 0.13);
+  border-color: var(--brand);
+  color: var(--text);
+}
+
+/* -- Reflet sur la day-card quand la séance a un suivi -- */
+.day-card__check-pill.is-saved {
+  background: rgba(43, 199, 106, 0.18);
+  border-color: rgba(43, 199, 106, 0.6);
+  color: #2BC76A;
+}
