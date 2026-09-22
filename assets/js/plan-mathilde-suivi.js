@@ -37,6 +37,26 @@
     { v: 'autre',       l: 'Autre' }
   ];
 
+  // Motifs d'un écart sur une séance quand même faite (allégée ou modifiée).
+  // Une séance allégée est un écart au plan au même titre qu'une séance
+  // sautée : sans le motif, impossible de distinguer un ajustement choisi
+  // d'un signal de fatigue qui se répète.
+  const MOTIFS_ECART = [
+    { v: 'fatigue',    l: 'Fatigue' },
+    { v: 'blessure',   l: 'Douleur / blessure' },
+    { v: 'sensations', l: 'Sensations du jour' },
+    { v: 'temps',      l: 'Manque de temps' },
+    { v: 'maladie',    l: 'Maladie' },
+    { v: 'meteo',      l: 'Météo' },
+    { v: 'terrain',    l: 'Terrain / matériel' },
+    { v: 'choix',      l: 'Choix délibéré' },
+    { v: 'autre',      l: 'Autre' }
+  ];
+  const labelMotif = (code) => {
+    const m = MOTIFS.concat(MOTIFS_ECART).find((x) => x.v === code);
+    return m ? m.l : null;
+  };
+
   // ---- Synchronisation Google Sheets (Apps Script Web App) ---------------
   // Le token est visible côté client : la page est non listée et noindex,
   // c'est le compromis assumé. Le script côté Google refuse tout POST sans
@@ -467,6 +487,11 @@
             <label class="radio${act('allegee')}"><input type="radio" name="execution" value="allegee" ${on('allegee')}><span>Allégée — volume réduit</span></label>
             <label class="radio${act('modifiee')}"><input type="radio" name="execution" value="modifiee" ${on('modifiee')}><span>Modifiée — contenu différent</span></label>
           </div>
+          <div data-ecart hidden>
+            <span class="field__label" style="margin-top:14px;">Pourquoi cet écart ? *</span>
+            ${motifPills(MOTIFS_ECART, 'ecart_code', 'ecart', p, ex === 'allegee' || ex === 'modifiee')}
+            ${motifDetail('ecart_detail', p, ex === 'allegee' || ex === 'modifiee')}
+          </div>
         </div>
 
         <div class="statut-sub" data-sub="non" hidden>
@@ -476,19 +501,34 @@
             <label class="radio${act('non_faite')}"><input type="radio" name="execution" value="non_faite" ${on('non_faite')}><span>Pas faite du tout</span></label>
           </div>
           <span class="field__label" style="margin-top:14px;">Pourquoi ? *</span>
-          <div class="radio-list radio-list--inline" data-radio="motif">
-            ${MOTIFS.map((m) => {
-              const sel = (p && p.motif_code) === m.v;
-              return `<label class="radio${sel ? ' is-active' : ''}"><input type="radio" name="motif_code" value="${m.v}" ${sel ? 'checked' : ''}><span>${escapeHtml(m.l)}</span></label>`;
-            }).join('')}
-          </div>
-          <label class="field" data-motif-detail hidden style="margin-top:10px;">
-            <span class="field__label">Précision</span>
-            <input type="text" name="motif_detail" maxlength="200"
-                   placeholder="Facultatif" value="${escapeHtml(p ? p.motif_detail : '')}">
-          </label>
+          ${motifPills(MOTIFS, 'motif_code', 'motif', p, pasFaite)}
+          ${motifDetail('motif_detail', p, pasFaite)}
         </div>
       </fieldset>
+    `;
+  }
+
+  // Les deux branches posent la même question avec des listes différentes :
+  // le motif est stocké sous une seule clé, seul le champ HTML change.
+  // `actif` : ne pré-cocher que dans la branche qui correspond à l'exécution
+  // enregistrée. Un même code (fatigue…) existe dans les deux listes.
+  function motifPills(list, name, group, p, actif) {
+    return `
+      <div class="radio-list radio-list--inline" data-radio="${group}">
+        ${list.map((m) => {
+          const sel = actif && (p && p.motif_code) === m.v;
+          return `<label class="radio${sel ? ' is-active' : ''}"><input type="radio" name="${name}" value="${m.v}" ${sel ? 'checked' : ''}><span>${escapeHtml(m.l)}</span></label>`;
+        }).join('')}
+      </div>
+    `;
+  }
+  function motifDetail(name, p, actif) {
+    return `
+      <label class="field" data-detail-for="${name}" hidden style="margin-top:10px;">
+        <span class="field__label">Précision</span>
+        <input type="text" name="${name}" maxlength="200"
+               placeholder="Facultatif" value="${actif ? escapeHtml(p ? p.motif_detail : '') : ''}">
+      </label>
     `;
   }
 
@@ -558,27 +598,48 @@
     show('qualite', fait && form.dataset.hasQuality === '1');
     show('libre', !!ex);
 
-    // Précision du motif : ouverte d'office sur « Autre »
-    const mc = form.querySelector('input[name="motif_code"]:checked');
-    const det = form.querySelector('[data-motif-detail]');
-    if (det) det.hidden = !(mc && (mc.value === 'autre' || mc.value === 'empechement' || mc.value === 'logistique'));
+    // Une séance allégée ou modifiée reste un écart au plan : on demande
+    // pourquoi, comme pour une séance sautée.
+    const ecart = form.querySelector('[data-ecart]');
+    if (ecart) ecart.hidden = !(ex === 'allegee' || ex === 'modifiee');
+
+    // Précision du motif : ouverte d'office sur les motifs qui n'expliquent
+    // rien à eux seuls.
+    const VAGUES = ['autre', 'empechement', 'logistique', 'terrain'];
+    [['motif_code', 'motif_detail'], ['ecart_code', 'ecart_detail']].forEach(([code, detail]) => {
+      const mc = form.querySelector('input[name="' + code + '"]:checked');
+      const det = form.querySelector('[data-detail-for="' + detail + '"]');
+      if (det) det.hidden = !(mc && VAGUES.includes(mc.value));
+    });
   }
 
   function wireStatut(form) {
+    const uncheck = (sel, keep) => {
+      form.querySelectorAll(sel).forEach((i) => {
+        if (keep && keep.includes(i.value)) return;
+        i.checked = false;
+        const lab = i.closest('.radio');
+        if (lab) lab.classList.remove('is-active');
+      });
+    };
+
     form.addEventListener('change', (e) => {
-      if (!e.target.matches('input[name="realisee"], input[name="execution"], input[name="motif_code"]')) return;
-      // Changer de branche invalide le choix fait dans l'autre
+      const watched = 'input[name="realisee"], input[name="execution"], '
+        + 'input[name="motif_code"], input[name="ecart_code"]';
+      if (!e.target.matches(watched)) return;
+
+      // Changer de branche invalide les choix faits dans l'autre : sans ça,
+      // un motif resté coché sous « Non » repartirait avec une séance faite.
       if (e.target.name === 'realisee') {
-        const keep = e.target.value === 'oui'
+        const oui = e.target.value === 'oui';
+        uncheck('input[name="execution"]', oui
           ? ['conforme', 'allegee', 'modifiee']
-          : ['abandonnee', 'non_faite'];
-        form.querySelectorAll('input[name="execution"]').forEach((i) => {
-          if (!keep.includes(i.value)) {
-            i.checked = false;
-            const lab = i.closest('.radio');
-            if (lab) lab.classList.remove('is-active');
-          }
-        });
+          : ['abandonnee', 'non_faite']);
+        uncheck(oui ? 'input[name="motif_code"]' : 'input[name="ecart_code"]');
+      }
+      // Revenir à « comme prévu » : il n'y a plus d'écart à justifier.
+      if (e.target.name === 'execution' && e.target.value === 'conforme') {
+        uncheck('input[name="ecart_code"]');
       }
       applyVisibility(form);
     });
@@ -891,9 +952,12 @@
     const hasQuality = QUAL_TYPES.includes(currentDay.type);
     const aDouleur = picked('a_douleur');
 
-    const motifCode = faite ? null : picked('motif_code');
-    const motifLabel = motifCode ? (MOTIFS.find(m => m.v === motifCode) || {}).l : null;
-    const motifDetail = motifCode ? asText('motif_detail') : null;
+    // Deux branches, une seule clé en base : l'écart d'une séance allégée ou
+    // modifiée se raconte au même endroit qu'un motif d'abandon.
+    const ecart = faite && execution !== 'conforme';
+    const motifCode = ecart ? picked('ecart_code') : (faite ? null : picked('motif_code'));
+    const motifLabel = motifCode ? labelMotif(motifCode) : null;
+    const motifTexte = motifCode ? asText(ecart ? 'ecart_detail' : 'motif_detail') : null;
 
     const sub = {
       date: currentDay.date,
@@ -902,11 +966,11 @@
       seance_type: currentDay.type,
       execution: execution,
       motif_code: motifCode,
-      motif_detail: motifDetail,
+      motif_detail: motifTexte,
       // Colonne historique de la feuille : on continue de l'alimenter avec la
       // version lisible du motif, pour ne rien casser côté Apps Script.
       motif_ecart: motifLabel
-        ? motifLabel + (motifDetail ? ' — ' + motifDetail : '')
+        ? motifLabel + (motifTexte ? ' — ' + motifTexte : '')
         : null,
       duree_min: mesurable ? asInt('duree_min') : null,
       km_reels: mesurable ? asFloat('km_reels') : null,
@@ -933,7 +997,9 @@
         ? 'Séance faite ou non'
         : (r === 'oui' ? 'Comment la séance s\'est passée' : 'Ce qui s\'est passé'));
     } else {
-      if (!faite && !motifCode) missing.push('Motif');
+      if (!motifCode && (ecart || !faite)) {
+        missing.push(ecart ? 'Motif de l\'écart' : 'Motif');
+      }
       if (mesurable) {
         if (!sub.duree_min) missing.push('Durée réelle');
         if (!sub.rpe) missing.push('RPE');
