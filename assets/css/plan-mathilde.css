@@ -859,6 +859,7 @@ body.has-modal-open { overflow: hidden; }
   overflow-y: auto;
   flex: 1;
   display: grid;
+  align-content: start;   /* sinon l'unique section visible s'étire sur toute la hauteur */
   gap: 14px;
 }
 .suivi-modal__foot {
@@ -919,6 +920,9 @@ body.has-modal-open { overflow: hidden; }
 }
 @media (max-width: 520px) {
   .fset__grid, .fset__row { grid-template-columns: 1fr; }
+  /* Durée, km et D+ sont trois champs courts : les empiler allongeait
+     inutilement le formulaire. */
+  .fset--mesures .fset__grid { grid-template-columns: 1fr 1fr; }
 }
 
 /* -- Fields de base -- */
@@ -1013,13 +1017,10 @@ body.has-modal-open { overflow: hidden; }
   border-radius: 6px;
   transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
-.s4-btn:hover { border-color: var(--brand); color: var(--text); }
-.s4-btn.is-active {
-  background: #E63946; color: #fff; border-color: #E63946;
-}
-.s4-btn[data-val="0"].is-active { background: var(--brand); border-color: var(--brand); color: #0a0a0a; }
-.s4-btn[data-val="1"].is-active { background: #FF9F1C; border-color: #FF9F1C; color: #0a0a0a; }
-.s4-btn[data-val="2"].is-active { background: #ff5e5e; border-color: #ff5e5e; color: #fff; }
+.s4-btn:hover { color: var(--text); }
+/* La couleur de chaque niveau est définie plus bas (vert → rouge) ; garder
+   ici une règle [data-val] la rendrait inatteignable, l'attribut pesant plus
+   lourd qu'une classe dans le calcul de spécificité. */
 
 /* -- Bloc douleurs -- */
 .douleurs { display: grid; gap: 12px; margin-bottom: 12px; }
@@ -2011,4 +2012,208 @@ body.has-modal-open { overflow: hidden; }
   .ptl__labels { gap: 3px; }
   .ptl__label { font-size: 0.58rem; letter-spacing: 0.05em; }
   .ptl__foot { font-size: 0.76rem; }
+}
+
+/* ==========================================================================
+   Modale de suivi — parcours conditionnel et couleurs par section
+   --------------------------------------------------------------------------
+   Une seule teinte orange rendait la modale plate et ne guidait pas l'œil.
+   Chaque section porte désormais une couleur de la palette Mrun, portée par
+   la légende, le liseré gauche et l'état actif de ses contrôles.
+   ========================================================================== */
+
+/* .field est en display:flex : la règle UA [hidden]{display:none} perd contre
+   elle, et un bloc masqué restait visible. On tranche explicitement. */
+.suivi-modal [hidden] { display: none !important; }
+
+.fset {
+  position: relative;
+  /* Couleur par défaut, redéfinie par chaque variante ci-dessous */
+  --sec: var(--brand);
+  --sec-soft: rgba(255, 87, 34, 0.13);
+  border-left: 3px solid var(--sec);
+}
+.fset > legend { color: var(--sec); }
+
+.fset--statut  { --sec: #00A3D7; --sec-soft: rgba(0, 163, 215, 0.14); }
+.fset--mesures { --sec: #FFE600; --sec-soft: rgba(255, 230, 0, 0.13); }
+.fset--effort  { --sec: #FF5722; --sec-soft: rgba(255, 87, 34, 0.13); }
+.fset--douleurs{ --sec: #E63946; --sec-soft: rgba(230, 57, 70, 0.14); }
+.fset--qualite { --sec: #E91E9B; --sec-soft: rgba(233, 30, 155, 0.14); }
+.fset--libre   { --sec: #2BC76A; --sec-soft: rgba(43, 199, 106, 0.13); }
+
+/* Les contrôles héritent de la couleur de leur section */
+.fset .radio input { accent-color: var(--sec); }
+.fset .radio:hover { border-color: var(--sec); }
+.fset .radio.is-active {
+  background: var(--sec-soft);
+  border-color: var(--sec);
+  color: var(--text);
+}
+.fset .field input:focus,
+.fset .field select:focus,
+.fset .field textarea:focus {
+  border-color: var(--sec);
+  box-shadow: 0 0 0 3px var(--sec-soft);
+}
+.fset--effort .rpe-btn.is-active {
+  background: var(--sec); border-color: var(--sec); color: #0a0a0a;
+}
+.fset--effort .s5-btn.is-active {
+  background: var(--sec); border-color: var(--sec); color: #0a0a0a;
+}
+/* Le jaune sur fond sombre demande un texte noir, pas blanc */
+.fset--mesures .radio.is-active { color: #ffe600; }
+
+/* ---------- Question fermée : deux grandes cibles ---------- */
+.field__label--q {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+.choice-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 10px;
+  min-height: 62px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 12px;
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease, transform 0.1s ease;
+  min-width: 0;
+}
+.choice:active { transform: scale(0.985); }
+.choice input {
+  position: absolute;
+  opacity: 0;
+  width: 1px; height: 1px;
+  pointer-events: none;
+}
+.choice > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.choice b {
+  font-size: 1.02rem; font-weight: 900; color: var(--text);
+  letter-spacing: -0.02em;
+}
+.choice small {
+  font-size: 0.72rem; color: var(--text-3); line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.choice--yes:hover, .choice--ok:hover { border-color: #2BC76A; }
+.choice--no:hover,  .choice--warn:hover { border-color: #E63946; }
+
+.choice--yes.is-active, .choice--ok.is-active {
+  background: rgba(43, 199, 106, 0.16);
+  border-color: #2BC76A;
+}
+.choice--yes.is-active b, .choice--ok.is-active b { color: #6fe3a3; }
+.choice--no.is-active, .choice--warn.is-active {
+  background: rgba(230, 57, 70, 0.16);
+  border-color: #E63946;
+}
+.choice--no.is-active b, .choice--warn.is-active b { color: #ff9098; }
+.choice input:focus-visible ~ span {
+  outline: 2px solid var(--sec);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ---------- Sous-questions dépliées après la réponse ---------- */
+.statut-sub {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line-2);
+  animation: suiviReveal 0.18s ease both;
+}
+.statut-sub .field__label { display: block; margin-bottom: 7px; }
+[data-sub="non"] .radio.is-active {
+  background: rgba(230, 57, 70, 0.14);
+  border-color: #E63946;
+}
+[data-sub="non"] .radio input { accent-color: #E63946; }
+[data-sub="oui"] .radio.is-active {
+  background: rgba(0, 163, 215, 0.16);
+  border-color: #00A3D7;
+}
+
+.douleurs-wrap {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line-2);
+  animation: suiviReveal 0.18s ease both;
+}
+
+@keyframes suiviReveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .statut-sub, .douleurs-wrap { animation: none; }
+}
+
+/* ---------- Échelle douleur 0→3 : vert, jaune, orange, rouge ---------- */
+.s4-btn--0.is-active { background: #2BC76A; border-color: #2BC76A; color: #06210f; }
+.s4-btn--1.is-active { background: #FFE600; border-color: #FFE600; color: #241f00; }
+.s4-btn--2.is-active { background: #FF5722; border-color: #FF5722; color: #1a0700; }
+.s4-btn--3.is-active { background: #E63946; border-color: #E63946; color: #fff; }
+.s4-btn:hover { border-color: var(--sec); }
+
+/* ==========================================================================
+   Carte du jour — « Renseigner », puis l'état déclaré
+   ========================================================================== */
+/* La pastille porte une flèche tant que rien n'est renseigné : elle doit
+   rester lisible, alors que l'ancienne règle la masquait hors coche. */
+.day-card__check-tick { color: var(--text-3); }
+
+/* Spécificité alignée sur la règle « input:checked ~ … », qui sinon
+   repeindrait en vert une séance seulement abandonnée. */
+.day-card__check input ~ .day-card__check-pill.is-partial {
+  background: rgba(255, 159, 28, 0.18);
+  border-color: rgba(255, 159, 28, 0.6);
+  color: #FF9F1C;
+}
+.day-card__check input ~ .day-card__check-pill.is-partial .day-card__check-tick {
+  background: #FF9F1C; border-color: #FF9F1C; color: #241300;
+}
+.day-card__check input ~ .day-card__check-pill.is-skipped {
+  background: rgba(230, 57, 70, 0.16);
+  border-color: rgba(230, 57, 70, 0.55);
+  color: #ff9098;
+}
+.day-card__check input ~ .day-card__check-pill.is-skipped .day-card__check-tick {
+  background: #E63946; border-color: #E63946; color: #fff;
+}
+/* Séance déclarée non faite : renseignée, mais visiblement pas réalisée. */
+.day-card.is-skipped {
+  border-color: rgba(230, 57, 70, 0.32);
+  background: linear-gradient(180deg, rgba(230, 57, 70, 0.07), transparent 60%), var(--surface-2);
+}
+.day-card.is-skipped .day-card__title {
+  color: var(--text-2);
+  text-decoration: line-through;
+  text-decoration-color: rgba(230, 57, 70, 0.55);
+  text-decoration-thickness: 2px;
+}
+.day-card.is-skipped .day-card__body { color: var(--text-3); }
+.day-card.is-done.is-partial { border-color: rgba(255, 159, 28, 0.35); }
+.day-card.is-done.is-partial .day-card__title { text-decoration: none; }
+
+@media (max-width: 420px) {
+  .choice-pair { gap: 8px; }
+  .choice { min-height: 58px; padding: 12px 8px; }
+  .choice b { font-size: 0.95rem; }
+  .choice small { font-size: 0.68rem; }
+  .field__label--q { font-size: 0.9rem; }
 }

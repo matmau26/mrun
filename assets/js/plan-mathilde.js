@@ -44,6 +44,56 @@
   };
   const DONE = loadDone();
 
+  // ------- État d'une journée ---------------------------------------------
+  // On ne peut plus dire « Marquer comme fait » : la modale permet aussi de
+  // déclarer une séance abandonnée ou pas faite du tout. Le libellé, la
+  // couleur et la pastille de la carte découlent donc de trois informations —
+  // renseignée ou non, réalisée ou non, et comment.
+  function dayState(key) {
+    let exec = null;
+    try {
+      const rec = window.mathildeSuivi && typeof window.mathildeSuivi.getSubmission === 'function'
+        ? window.mathildeSuivi.getSubmission(key)
+        : null;
+      exec = rec && rec.submission ? rec.submission.execution : null;
+    } catch (e) { /* ignore */ }
+
+    if (exec === 'non_faite') {
+      return { done: false, card: 'is-skipped', pill: 'is-skipped', tick: '✕', label: 'Non faite' };
+    }
+    if (exec === 'abandonnee') {
+      return { done: true, card: 'is-done is-partial', pill: 'is-saved is-partial', tick: '⤫', label: 'Abandonnée' };
+    }
+    if (exec === 'allegee' || exec === 'modifiee') {
+      return { done: true, card: 'is-done', pill: 'is-saved', tick: '✓', label: exec === 'allegee' ? 'Faite — allégée' : 'Faite — modifiée' };
+    }
+    if (DONE[key]) {
+      return { done: true, card: 'is-done', pill: 'is-saved', tick: '✓', label: 'Faite' };
+    }
+    return { done: false, card: '', pill: '', tick: '›', label: 'Renseigner' };
+  }
+
+  // Applique cet état à une carte déjà dans le DOM. Exposé pour que la modale
+  // rafraîchisse la carte qu'elle vient de valider sans tout re-rendre.
+  function syncCard(card, key) {
+    const cb = card.querySelector('[data-day-check]');
+    if (!cb) return;                         // repos : pas de coche
+    const st = dayState(key || card.dataset.dayKey);
+    card.classList.remove('is-done', 'is-partial', 'is-skipped');
+    if (st.card) st.card.split(' ').forEach((c) => card.classList.add(c));
+    cb.checked = st.done;
+    const pill = card.querySelector('.day-card__check-pill');
+    if (pill) {
+      pill.classList.remove('is-saved', 'is-partial', 'is-skipped');
+      if (st.pill) st.pill.split(' ').forEach((c) => pill.classList.add(c));
+    }
+    const lab = card.querySelector('.day-card__check-label');
+    if (lab) lab.textContent = st.label;
+    const tick = card.querySelector('.day-card__check-tick');
+    if (tick) tick.textContent = st.tick;
+  }
+  window.mathildeSyncCard = syncCard;
+
   // ------- Phase → couleur -------------------------------------------------
   const PHASE_COLORS = {
     'RECUP': { bg: 'rgba(148, 163, 184, 0.18)', bd: 'rgba(148, 163, 184, 0.55)', text: '#94a3b8' },
@@ -331,13 +381,13 @@
       days.className = 'days-grid';
       (s.jours || []).forEach((j) => {
         const key = j.date;
-        const isDone = !!DONE[key];
         const canCheck = !j.repos; // Pas de checkbox sur repos
+        const st = dayState(key);
         const day = document.createElement('article');
         day.className = 'day-card'
           + (j.cle ? ' is-key' : '')
           + (j.repos ? ' is-rest' : '')
-          + (isDone && canCheck ? ' is-done' : '');
+          + (canCheck && st.card ? ' ' + st.card : '');
         day.dataset.dayKey = key;
         day.dataset.weekId = s.id;
         day.innerHTML = `
@@ -350,10 +400,10 @@
           ${j.contenu ? '<p class="day-card__body">' + escapeHtml(j.contenu) + '</p>' : ''}
           ${canCheck ? `
             <label class="day-card__check">
-              <input type="checkbox" data-day-check ${isDone ? 'checked' : ''} aria-label="Marquer cette séance comme faite" />
-              <span class="day-card__check-pill">
-                <span class="day-card__check-tick" aria-hidden="true">✓</span>
-                <span class="day-card__check-label">${isDone ? 'Fait' : 'Marquer comme fait'}</span>
+              <input type="checkbox" data-day-check ${st.done ? 'checked' : ''} aria-label="Renseigner cette séance : faite, allégée, abandonnée ou pas faite" />
+              <span class="day-card__check-pill ${st.pill}">
+                <span class="day-card__check-tick" aria-hidden="true">${st.tick}</span>
+                <span class="day-card__check-label">${st.label}</span>
               </span>
             </label>
           ` : ''}
@@ -420,16 +470,7 @@
       } catch (e) { /* ignore */ }
 
       document.querySelectorAll('.day-card[data-day-key]').forEach((card) => {
-        const key = card.dataset.dayKey;
-        const cb = card.querySelector('[data-day-check]');
-        if (!cb) return;                       // repos : pas de coche
-        const isDone = !!DONE[key];
-        card.classList.toggle('is-done', isDone);
-        cb.checked = isDone;
-        const label = card.querySelector('.day-card__check-label');
-        if (label) label.textContent = isDone ? 'Fait' : 'Marquer comme fait';
-        const pill = card.querySelector('.day-card__check-pill');
-        if (pill) pill.classList.toggle('is-saved', isDone);
+        syncCard(card, card.dataset.dayKey);
       });
 
       D.semaines.forEach((s) => {

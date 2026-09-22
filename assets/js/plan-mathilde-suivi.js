@@ -25,6 +25,18 @@
     { v: 'tapis',             l: 'Tapis' }
   ];
 
+  // Motifs d'une séance non faite ou abandonnée. Liste courte et fermée :
+  // c'est ce qui permettra plus tard de compter les causes d'abandon.
+  const MOTIFS = [
+    { v: 'empechement', l: 'Empêchement' },
+    { v: 'fatigue',     l: 'Fatigue' },
+    { v: 'blessure',    l: 'Douleur / blessure' },
+    { v: 'maladie',     l: 'Maladie' },
+    { v: 'meteo',       l: 'Météo' },
+    { v: 'logistique',  l: 'Logistique' },
+    { v: 'autre',       l: 'Autre' }
+  ];
+
   // ---- Synchronisation Google Sheets (Apps Script Web App) ---------------
   // Le token est visible côté client : la page est non listée et noindex,
   // c'est le compromis assumé. Le script côté Google refuse tout POST sans
@@ -204,7 +216,12 @@
       const lTime = l ? (Date.parse(l.saved_at || '') || 0) : -1;
       if (rTime > lTime) { local[dayKey] = r; merged++; }
 
-      done[dayKey] = true;   // présente dans la feuille = séance faite
+      // Présente dans la feuille = séance renseignée. Mais une séance
+      // déclarée « pas faite » est renseignée sans être réalisée : elle ne
+      // doit pas compter dans l'anneau de progression.
+      const exec = (local[dayKey] && local[dayKey].submission && local[dayKey].submission.execution) || null;
+      if (exec === 'non_faite') delete done[dayKey];
+      else done[dayKey] = true;
     });
 
     // Ce qui attend d'être poussé est protégé de la purge
@@ -325,7 +342,7 @@
         <footer class="suivi-modal__foot">
           <button type="button" class="btn btn--ghost" data-close>Sortir sans enregistrer</button>
           <button type="button" class="btn btn--primary" data-submit>
-            <span class="btn__long">Enregistrer et marquer fait</span>
+            <span class="btn__long">Enregistrer la séance</span>
             <span class="btn__short">Enregistrer</span>
           </button>
         </footer>
@@ -371,10 +388,12 @@
     renderForm(day, week);
     modalEl.hidden = false;
     document.body.classList.add('has-modal-open');
-    // Focus premier champ
+    // On donne le focus à la boîte, pas au premier champ : focaliser le
+    // premier radio « Oui » lui dessinait un anneau qui se lisait comme une
+    // réponse déjà cochée.
     setTimeout(() => {
-      const first = modalEl.querySelector('input, button[data-rpe], select, textarea');
-      if (first) first.focus();
+      const card = modalEl.querySelector('.suivi-modal__card');
+      if (card) { card.setAttribute('tabindex', '-1'); card.focus(); }
     }, 50);
   }
 
@@ -394,9 +413,12 @@
 
     // Reset scroll top de la modale au montage
     modalEl.querySelector('.suivi-modal__card').scrollTop = 0;
+    form.dataset.hasQuality = hasQuality ? '1' : '';
+    form.dataset.date = day.date;
 
     form.innerHTML = `
-      ${sectionSeance(day, week, p)}
+      ${sectionStatut(p)}
+      ${sectionMesures(p)}
       ${sectionEffort(p)}
       ${sectionDouleurs(p)}
       ${hasQuality ? sectionQualite(day, p) : ''}
@@ -404,28 +426,82 @@
     `;
 
     // Hooks
-    wireExecutionMotif(form);
-    wireRadioPills(form);          // terrain + réserve, où qu'ils soient
+    wireStatut(form);
+    wireRadioPills(form);          // terrain, motif, réserve — toutes les pilules
     wireRpeButtons(form, p);
     wireScale5(form, 'jambes_5', p);
     wireScale5(form, 'forme_5', p);
     wireDouleurs(form, p);
+    applyVisibility(form);
   }
 
-  // ---- Section "La séance" ----
-  function sectionSeance(day, week, p) {
+  // ---- Étape 1 : la séance a-t-elle été faite ? ----
+  // Tout le reste du formulaire découle de cette réponse : inutile de
+  // demander une durée ou un RPE pour une séance qui n'a pas eu lieu.
+  function sectionStatut(p) {
+    const ex = p ? p.execution : null;
+    const faite = ['conforme', 'allegee', 'modifiee'].includes(ex);
+    const pasFaite = ['abandonnee', 'non_faite'].includes(ex);
+    const on = (v) => (ex === v ? 'checked' : '');
+    const act = (v) => (ex === v ? ' is-active' : '');
+
     return `
-      <fieldset class="fset">
+      <fieldset class="fset fset--statut" data-sec="statut">
         <legend>La séance</legend>
-        <div class="fset__grid">
-          <label class="field">
-            <span class="field__label">Date</span>
-            <input type="date" name="date" value="${day.date}" readonly required>
+        <span class="field__label field__label--q">La séance a-t-elle été faite ?</span>
+        <div class="choice-pair" data-radio="realisee">
+          <label class="choice choice--yes${faite ? ' is-active' : ''}">
+            <input type="radio" name="realisee" value="oui" ${faite ? 'checked' : ''}>
+            <span><b>Oui</b><small>je l'ai faite</small></span>
           </label>
+          <label class="choice choice--no${pasFaite ? ' is-active' : ''}">
+            <input type="radio" name="realisee" value="non" ${pasFaite ? 'checked' : ''}>
+            <span><b>Non</b><small>pas ou pas jusqu'au bout</small></span>
+          </label>
+        </div>
+
+        <div class="statut-sub" data-sub="oui" hidden>
+          <span class="field__label">Comment s'est-elle passée ? *</span>
+          <div class="radio-list" data-radio="exec-oui">
+            <label class="radio${act('conforme')}"><input type="radio" name="execution" value="conforme" ${on('conforme')}><span>Comme prévu</span></label>
+            <label class="radio${act('allegee')}"><input type="radio" name="execution" value="allegee" ${on('allegee')}><span>Allégée — volume réduit</span></label>
+            <label class="radio${act('modifiee')}"><input type="radio" name="execution" value="modifiee" ${on('modifiee')}><span>Modifiée — contenu différent</span></label>
+          </div>
+        </div>
+
+        <div class="statut-sub" data-sub="non" hidden>
+          <span class="field__label">Que s'est-il passé ? *</span>
+          <div class="radio-list" data-radio="exec-non">
+            <label class="radio${act('abandonnee')}"><input type="radio" name="execution" value="abandonnee" ${on('abandonnee')}><span>Commencée puis abandonnée</span></label>
+            <label class="radio${act('non_faite')}"><input type="radio" name="execution" value="non_faite" ${on('non_faite')}><span>Pas faite du tout</span></label>
+          </div>
+          <span class="field__label" style="margin-top:14px;">Pourquoi ? *</span>
+          <div class="radio-list radio-list--inline" data-radio="motif">
+            ${MOTIFS.map((m) => {
+              const sel = (p && p.motif_code) === m.v;
+              return `<label class="radio${sel ? ' is-active' : ''}"><input type="radio" name="motif_code" value="${m.v}" ${sel ? 'checked' : ''}><span>${escapeHtml(m.l)}</span></label>`;
+            }).join('')}
+          </div>
+          <label class="field" data-motif-detail hidden style="margin-top:10px;">
+            <span class="field__label">Précision</span>
+            <input type="text" name="motif_detail" maxlength="200"
+                   placeholder="Facultatif" value="${escapeHtml(p ? p.motif_detail : '')}">
+          </label>
+        </div>
+      </fieldset>
+    `;
+  }
+
+  // ---- Ce qui a réellement été fait ----
+  function sectionMesures(p) {
+    return `
+      <fieldset class="fset fset--mesures" data-sec="mesures" hidden>
+        <legend>Ce qui a été fait</legend>
+        <div class="fset__grid">
           <label class="field">
             <span class="field__label">Durée réelle (minutes) *</span>
             <input type="number" name="duree_min" min="1" max="600" step="1"
-                   value="${p ? p.duree_min || '' : ''}" required>
+                   value="${p ? p.duree_min || '' : ''}">
           </label>
           <label class="field">
             <span class="field__label">Km réels</span>
@@ -439,32 +515,12 @@
                    placeholder="ex. 250"
                    value="${p && p.denivele_reel != null ? p.denivele_reel : ''}">
           </label>
-          <label class="field field--full">
-            <span class="field__label">Séance réalisée *</span>
-            <select name="execution" required>
-              ${['conforme','allegee','modifiee','abandonnee','non_faite'].map(v => {
-                const lib = { conforme:'Comme prévu', allegee:'Allégée (volume réduit)',
-                  modifiee:'Modifiée (contenu différent)', abandonnee:'Abandonnée en cours',
-                  non_faite:'Pas faite' }[v];
-                const sel = (p ? p.execution : 'conforme') === v ? 'selected' : '';
-                return `<option value="${v}" ${sel}>${lib}</option>`;
-              }).join('')}
-            </select>
-          </label>
-          <label class="field field--full" data-motif hidden>
-            <span class="field__label">Pourquoi ? *</span>
-            <input type="text" name="motif_ecart" maxlength="200" value="${escapeHtml(p ? p.motif_ecart : '')}">
-          </label>
           <div class="field field--full">
             <span class="field__label">Terrain *</span>
             <div class="radio-list radio-list--inline" data-radio="surface">
               ${SURFACES.map((s) => {
-                const on = (p && p.surface) === s.v;
-                return `
-                <label class="radio ${on ? 'is-active' : ''}">
-                  <input type="radio" name="surface" value="${s.v}" ${on ? 'checked' : ''} required>
-                  <span>${escapeHtml(s.l)}</span>
-                </label>`;
+                const sel = (p && p.surface) === s.v;
+                return `<label class="radio${sel ? ' is-active' : ''}"><input type="radio" name="surface" value="${s.v}" ${sel ? 'checked' : ''}><span>${escapeHtml(s.l)}</span></label>`;
               }).join('')}
             </div>
           </div>
@@ -472,23 +528,66 @@
       </fieldset>
     `;
   }
-  function wireExecutionMotif(form) {
-    const sel = form.querySelector('select[name="execution"]');
-    const motif = form.querySelector('[data-motif]');
-    const input = motif.querySelector('input[name="motif_ecart"]');
-    const sync = () => {
-      const show = sel.value !== 'conforme';
-      motif.hidden = !show;
-      input.required = show;
+
+  // Quelles sections afficher, selon la réponse à l'étape 1
+  function applyVisibility(form) {
+    const rEl = form.querySelector('input[name="realisee"]:checked');
+    const r = rEl ? rEl.value : null;
+    const exEl = form.querySelector('input[name="execution"]:checked');
+    const ex = exEl ? exEl.value : null;
+
+    const subOui = form.querySelector('[data-sub="oui"]');
+    const subNon = form.querySelector('[data-sub="non"]');
+    if (subOui) subOui.hidden = r !== 'oui';
+    if (subNon) subNon.hidden = r !== 'non';
+
+    const fait = ['conforme', 'allegee', 'modifiee'].includes(ex);
+    const partiel = ex === 'abandonnee';
+    const rien = ex === 'non_faite';
+
+    const show = (sec, on) => {
+      const el = form.querySelector('[data-sec="' + sec + '"]');
+      if (el) el.hidden = !on;
     };
-    sel.addEventListener('change', sync);
-    sync();
+    // Une séance abandonnée a produit du volume et un ressenti : on les demande.
+    show('mesures', fait || partiel);
+    show('effort', fait || partiel);
+    // Les douleurs restent pertinentes même sans séance — surtout si le
+    // motif est une blessure.
+    show('douleurs', !!ex);
+    show('qualite', fait && form.dataset.hasQuality === '1');
+    show('libre', !!ex);
+
+    // Précision du motif : ouverte d'office sur « Autre »
+    const mc = form.querySelector('input[name="motif_code"]:checked');
+    const det = form.querySelector('[data-motif-detail]');
+    if (det) det.hidden = !(mc && (mc.value === 'autre' || mc.value === 'empechement' || mc.value === 'logistique'));
+  }
+
+  function wireStatut(form) {
+    form.addEventListener('change', (e) => {
+      if (!e.target.matches('input[name="realisee"], input[name="execution"], input[name="motif_code"]')) return;
+      // Changer de branche invalide le choix fait dans l'autre
+      if (e.target.name === 'realisee') {
+        const keep = e.target.value === 'oui'
+          ? ['conforme', 'allegee', 'modifiee']
+          : ['abandonnee', 'non_faite'];
+        form.querySelectorAll('input[name="execution"]').forEach((i) => {
+          if (!keep.includes(i.value)) {
+            i.checked = false;
+            const lab = i.closest('.radio');
+            if (lab) lab.classList.remove('is-active');
+          }
+        });
+      }
+      applyVisibility(form);
+    });
   }
 
   // ---- Section "L'effort" ----
   function sectionEffort(p) {
     return `
-      <fieldset class="fset">
+      <fieldset class="fset fset--effort" data-sec="effort" hidden>
         <legend>L'effort</legend>
         <div class="field">
           <span class="field__label">Effort perçu (RPE 1–10) *</span>
@@ -562,17 +661,36 @@
   }
 
   // ---- Section "Douleurs" ----
+  // Question fermée d'abord : on n'ouvre les zones que si la réponse est oui.
+  // Afficher des zones à 0 par défaut invitait à des saisies par inadvertance,
+  // et une douleur déclarée par erreur déclenche des règles d'arrêt.
   function sectionDouleurs(p) {
-    const existing = (p && Array.isArray(p.douleurs)) ? p.douleurs : null;
-    const defaults = existing || S.zones_douleur.affichees_par_defaut.map(code => ({ zone: code }));
+    const existing = (p && Array.isArray(p.douleurs))
+      ? p.douleurs.filter(d => (d.reveil || d.journee || d.seance))
+      : [];
+    const oui = existing.length > 0;
+    const non = !!p && !oui;   // une soumission passée sans douleur = « non »
     return `
-      <fieldset class="fset">
+      <fieldset class="fset fset--douleurs" data-sec="douleurs" hidden>
         <legend>Douleurs</legend>
-        <p class="fset__hint">Laisser à 0 si rien. Les trois moments sont indépendants.</p>
-        <div class="douleurs" data-douleurs>
-          ${defaults.map((d, i) => renderDouleurBlock(d, i)).join('')}
+        <span class="field__label field__label--q">Une douleur pendant la séance ou dans la journée ?</span>
+        <div class="choice-pair" data-radio="a_douleur">
+          <label class="choice choice--ok${non ? ' is-active' : ''}">
+            <input type="radio" name="a_douleur" value="non" ${non ? 'checked' : ''}>
+            <span><b>Non</b><small>rien à signaler</small></span>
+          </label>
+          <label class="choice choice--warn${oui ? ' is-active' : ''}">
+            <input type="radio" name="a_douleur" value="oui" ${oui ? 'checked' : ''}>
+            <span><b>Oui</b><small>je précise où</small></span>
+          </label>
         </div>
-        <button type="button" class="btn btn--ghost btn--sm" data-add-douleur>+ Ajouter une zone</button>
+        <div class="douleurs-wrap" data-douleurs-wrap hidden>
+          <p class="fset__hint">Une ligne par zone. Les trois moments sont indépendants : 0 = rien, 3 = bloquant.</p>
+          <div class="douleurs" data-douleurs>
+            ${existing.map((d, i) => renderDouleurBlock(d, i)).join('')}
+          </div>
+          <button type="button" class="btn btn--ghost btn--sm" data-add-douleur>+ Ajouter une zone</button>
+        </div>
       </fieldset>
     `;
   }
@@ -597,7 +715,7 @@
             <div class="douleur-moment">
               <span class="douleur-moment__label">${{reveil:'Au réveil', journee:'Journée', seance:'Séance'}[m]}</span>
               <div class="scale4" data-scale4="${m}">
-                ${[0,1,2,3].map(v => `<button type="button" class="s4-btn" data-val="${v}" ${d[m] === v ? 'class="is-active"' : ''}>${v}</button>`).join('')}
+                ${[0,1,2,3].map(v => `<button type="button" class="s4-btn s4-btn--${v}${d[m] === v ? ' is-active' : ''}" data-val="${v}">${v}</button>`).join('')}
               </div>
             </div>
           `).join('')}
@@ -616,8 +734,11 @@
     `;
   }
   function wireDouleurs(form, p) {
-    const wrap = form.querySelector('[data-douleurs]');
-    const add = form.querySelector('[data-add-douleur]');
+    const fs = form.querySelector('[data-sec="douleurs"]');
+    if (!fs) return;
+    const zonesWrap = fs.querySelector('[data-douleurs-wrap]');
+    const wrap = fs.querySelector('[data-douleurs]');
+    const add = fs.querySelector('[data-add-douleur]');
     const rerenderRow = (rowEl) => {
       const idx = rowEl.dataset.idx;
       const zone = rowEl.querySelector('[data-field="zone"]').value;
@@ -629,12 +750,6 @@
       // Scale4 buttons
       rowEl.querySelectorAll('[data-scale4]').forEach(scale => {
         const btns = scale.querySelectorAll('.s4-btn');
-        // Initialise
-        btns.forEach(b => {
-          if (b.getAttribute('class') && b.getAttribute('class').indexOf('is-active') !== -1) {
-            b.className = 's4-btn is-active';
-          }
-        });
         btns.forEach(b => b.addEventListener('click', () => {
           btns.forEach(x => x.classList.remove('is-active'));
           b.classList.add('is-active');
@@ -656,22 +771,42 @@
       const evo = rowEl.querySelector('[data-evo]');
       evo.hidden = val < 1;
     };
-    wrap.querySelectorAll('[data-douleur-row]').forEach(wireRow);
-    add.addEventListener('click', () => {
+    const addRow = (zone) => {
       const nextIdx = wrap.querySelectorAll('[data-douleur-row]').length;
       const tmp = document.createElement('div');
-      tmp.innerHTML = renderDouleurBlock({ zone: 'mollet' }, nextIdx);
+      tmp.innerHTML = renderDouleurBlock({ zone: zone }, nextIdx);
       const row = tmp.firstElementChild;
       wrap.appendChild(row);
       wireRow(row);
+      return row;
+    };
+
+    // Porte d'entrée : tant que « oui » n'est pas coché, aucune ligne n'existe
+    // dans le DOM, donc collectDouleurs() ne peut rien remonter par accident.
+    const syncGate = () => {
+      const r = fs.querySelector('input[name="a_douleur"]:checked');
+      const oui = !!r && r.value === 'oui';
+      zonesWrap.hidden = !oui;
+      if (oui) {
+        if (!wrap.querySelector('[data-douleur-row]')) addRow('tibia');
+      } else {
+        wrap.innerHTML = '';
+      }
+    };
+    fs.querySelectorAll('input[name="a_douleur"]').forEach((i) => {
+      i.addEventListener('change', syncGate);
     });
+
+    wrap.querySelectorAll('[data-douleur-row]').forEach(wireRow);
+    add.addEventListener('click', () => addRow('mollet'));
+    syncGate();
   }
 
   // ---- Section "Qualité" ----
   function sectionQualite(day, p) {
     const q = p || {};
     return `
-      <fieldset class="fset">
+      <fieldset class="fset fset--qualite" data-sec="qualite" hidden>
         <legend>Exécution de la séance de qualité</legend>
         <p class="fset__hint">Ces champs alimentent les recalibrations du 25/10 et du 14/11.</p>
         <label class="field">
@@ -693,14 +828,18 @@
       </fieldset>
     `;
   }
-  // Met en surbrillance la pilule cochée, pour toutes les listes radio
-  // du formulaire (terrain dans « La séance », réserve dans « Qualité »).
+  // Met en surbrillance l'option cochée, pour toutes les listes radio du
+  // formulaire : les pilules (terrain, motif, réserve) comme les grandes
+  // cibles Oui/Non (« séance faite ? », « douleurs ? »).
   function wireRadioPills(form) {
-    form.querySelectorAll('[data-radio] .radio input').forEach(input => {
+    form.querySelectorAll('[data-radio] input[type="radio"]').forEach(input => {
       input.addEventListener('change', () => {
         const list = input.closest('[data-radio]');
-        list.querySelectorAll('.radio').forEach(l => l.classList.remove('is-active'));
-        input.closest('.radio').classList.add('is-active');
+        const self = input.closest('.radio, .choice');
+        if (!list || !self) return;
+        const sel = self.classList.contains('choice') ? '.choice' : '.radio';
+        list.querySelectorAll(sel).forEach(l => l.classList.remove('is-active'));
+        self.classList.add('is-active');
       });
     });
   }
@@ -708,7 +847,7 @@
   // ---- Section libre ----
   function sectionLibre(p) {
     return `
-      <fieldset class="fset">
+      <fieldset class="fset fset--libre" data-sec="libre" hidden>
         <legend>Autre chose ?</legend>
         <label class="field">
           <span class="field__label">Commentaire</span>
@@ -722,50 +861,88 @@
   function submitForm() {
     const form = modalEl.querySelector('.suivi-modal__form');
 
-    // Collect
+    // Le formulaire est conditionnel : ce qui n'a pas été demandé reste nul.
+    const picked = (name) => {
+      const el = form.querySelector('input[name="' + name + '"]:checked');
+      return el ? el.value : null;
+    };
+    const asInt = (name) => {
+      const el = form.querySelector('[name="' + name + '"]');
+      if (!el) return null;
+      const v = parseInt(String(el.value).trim(), 10);
+      return isNaN(v) ? null : v;
+    };
+    const asFloat = (name) => {
+      const el = form.querySelector('[name="' + name + '"]');
+      if (!el) return null;
+      const v = parseFloat(String(el.value).replace(',', '.').trim());
+      return isNaN(v) ? null : v;
+    };
+    const asText = (name) => {
+      const el = form.querySelector('[name="' + name + '"]');
+      const s = el ? String(el.value).trim() : '';
+      return s || null;
+    };
+
+    const execution = picked('execution');
+    const faite = ['conforme', 'allegee', 'modifiee'].includes(execution);
+    const partiel = execution === 'abandonnee';
+    const mesurable = faite || partiel;   // il y a eu du volume à déclarer
+    const hasQuality = QUAL_TYPES.includes(currentDay.type);
+    const aDouleur = picked('a_douleur');
+
+    const motifCode = faite ? null : picked('motif_code');
+    const motifLabel = motifCode ? (MOTIFS.find(m => m.v === motifCode) || {}).l : null;
+    const motifDetail = motifCode ? asText('motif_detail') : null;
+
     const sub = {
-      date: form.querySelector('input[name="date"]').value,
+      date: currentDay.date,
       seance_id: currentWeek.id + '-' + currentDay.date,
       semaine_id: currentWeek.id,
       seance_type: currentDay.type,
-      execution: form.querySelector('select[name="execution"]').value,
-      motif_ecart: form.querySelector('input[name="motif_ecart"]').value.trim() || null,
-      duree_min: parseInt(form.querySelector('input[name="duree_min"]').value, 10) || null,
-      km_reels: (() => {
-        const raw = form.querySelector('input[name="km_reels"]').value.replace(',', '.').trim();
-        if (!raw) return null;
-        const v = parseFloat(raw);
-        return isNaN(v) ? null : v;
-      })(),
-      denivele_reel: (() => {
-        const raw = form.querySelector('input[name="denivele_reel"]').value.trim();
-        if (!raw) return null;
-        const v = parseInt(raw, 10);
-        return isNaN(v) ? null : v;
-      })(),
-      rpe: parseInt(form.querySelector('input[name="rpe"]').value, 10) || null,
-      jambes_5: parseInt(form.querySelector('input[name="jambes_5"]').value, 10) || null,
-      forme_5: parseInt(form.querySelector('input[name="forme_5"]').value, 10) || null,
-      allures_blocs: (form.querySelector('input[name="allures_blocs"]')?.value || '')
-        .split('/').map(s => s.trim()).filter(Boolean),
-      reserve: form.querySelector('input[name="reserve"]:checked')?.value ?? null,
-      surface: form.querySelector('input[name="surface"]:checked')?.value ?? null,
-      commentaire: form.querySelector('textarea[name="commentaire"]').value.trim() || null,
-      douleurs: collectDouleurs(form)
+      execution: execution,
+      motif_code: motifCode,
+      motif_detail: motifDetail,
+      // Colonne historique de la feuille : on continue de l'alimenter avec la
+      // version lisible du motif, pour ne rien casser côté Apps Script.
+      motif_ecart: motifLabel
+        ? motifLabel + (motifDetail ? ' — ' + motifDetail : '')
+        : null,
+      duree_min: mesurable ? asInt('duree_min') : null,
+      km_reels: mesurable ? asFloat('km_reels') : null,
+      denivele_reel: mesurable ? asInt('denivele_reel') : null,
+      rpe: mesurable ? asInt('rpe') : null,
+      jambes_5: mesurable ? asInt('jambes_5') : null,
+      forme_5: mesurable ? asInt('forme_5') : null,
+      allures_blocs: faite && hasQuality
+        ? (form.querySelector('input[name="allures_blocs"]')?.value || '')
+            .split('/').map(s => s.trim()).filter(Boolean)
+        : [],
+      reserve: faite && hasQuality ? picked('reserve') : null,
+      surface: mesurable ? picked('surface') : null,
+      commentaire: asText('commentaire'),
+      douleurs: aDouleur === 'oui' ? collectDouleurs(form) : []
     };
     sub.charge_srpe = (sub.rpe && sub.duree_min) ? sub.rpe * sub.duree_min : null;
 
-    // Validation
+    // Validation — on ne réclame que ce qui a effectivement été demandé
     const missing = [];
-    if (!sub.duree_min) missing.push('Durée réelle');
-    if (!sub.execution) missing.push('Séance réalisée');
-    if (sub.execution !== 'conforme' && !sub.motif_ecart) missing.push('Motif de l\'écart');
-    if (!sub.rpe) missing.push('RPE');
-    if (!sub.jambes_5) missing.push('Jambes');
-    if (!sub.forme_5) missing.push('Forme');
-    if (!sub.surface) missing.push('Terrain');
-    if (QUAL_TYPES.includes(currentDay.type) && sub.reserve == null) {
-      missing.push('Répétitions en réserve');
+    if (!execution) {
+      const r = picked('realisee');
+      missing.push(!r
+        ? 'Séance faite ou non'
+        : (r === 'oui' ? 'Comment la séance s\'est passée' : 'Ce qui s\'est passé'));
+    } else {
+      if (!faite && !motifCode) missing.push('Motif');
+      if (mesurable) {
+        if (!sub.duree_min) missing.push('Durée réelle');
+        if (!sub.rpe) missing.push('RPE');
+        if (!sub.jambes_5) missing.push('Jambes');
+        if (!sub.forme_5) missing.push('Forme');
+        if (!sub.surface) missing.push('Terrain');
+      }
+      if (faite && hasQuality && sub.reserve == null) missing.push('Répétitions en réserve');
+      if (!aDouleur) missing.push('Douleurs : oui ou non');
     }
     if (missing.length) {
       showAlerts([{ niveau: 'critique', message: 'Champs manquants : ' + missing.join(', ') }]);
@@ -783,22 +960,19 @@
       return;
     }
 
-    // Marque la séance comme faite (module principal)
+    // Une séance déclarée « pas faite » est renseignée mais n'est pas réalisée :
+    // elle sort du compteur, sinon l'anneau de progression ment.
+    const compte = execution !== 'non_faite';
     try {
       const done = JSON.parse(localStorage.getItem('mrun.mathilde.done.v1') || '{}');
-      done[currentDay.date] = true;
+      if (compte) done[currentDay.date] = true;
+      else delete done[currentDay.date];
       localStorage.setItem('mrun.mathilde.done.v1', JSON.stringify(done));
     } catch (e) { /* ignore */ }
 
     // Reflet visuel côté carte
-    if (currentCard) {
-      currentCard.classList.add('is-done');
-      const cb = currentCard.querySelector('[data-day-check]');
-      if (cb) cb.checked = true;
-      const label = currentCard.querySelector('.day-card__check-label');
-      if (label) label.textContent = 'Fait · voir/modifier';
-      const pill = currentCard.querySelector('.day-card__check-pill');
-      if (pill) pill.classList.add('is-saved');
+    if (currentCard && typeof window.mathildeSyncCard === 'function') {
+      window.mathildeSyncCard(currentCard, currentDay.date);
     }
 
     // Rafraîchit compteurs si l'API principale expose une fonction
@@ -868,6 +1042,13 @@
     // Surface bitume
     if (['seuil','vma','seance_specifique'].includes(type) && sub.surface === 'bitume') {
       out.push({ niveau: 'info', message: 'Rappel : VMA/seuil jamais sur bitume tant que le drapeau tibial n\'est pas oublié depuis 2 mois.' });
+    }
+    // Séance écartée : le motif oriente la suite
+    if (sub.motif_code === 'blessure') {
+      out.push({ niveau: 'alerte', message: 'Séance écartée pour douleur : déclarer la zone ci-dessus et ne pas reprendre l\'intensité tant que le drapeau tibial n\'est pas levé.' });
+    }
+    if (sub.motif_code === 'fatigue') {
+      out.push({ niveau: 'info', message: 'Séance écartée pour fatigue : si le cas se répète deux fois dans la même semaine, alléger le bloc plutôt que de rattraper.' });
     }
     // RPE incohérent EF
     if (['ef','sortie_longue','foncier'].includes(type) && sub.rpe >= 7) {
