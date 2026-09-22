@@ -105,12 +105,32 @@
   };
   const phaseColor = (p) => PHASE_COLORS[p] || PHASE_COLORS['FOND'];
 
-  const TYPE_ICON = {
-    'repos': '·', 'marche': '🚶', 'velo': '🚴', 'foncier': '🏃', 'ef': '🏃',
-    'sortie_longue': '🏔️', 'seuil': '⚡', 'cotes': '⛰️',
-    'seance_specifique': '🎯', 'test': '📊', 'course': '🏁', 'renforcement': '🏋️',
+  // Glyphes de type de séance. Des émojis tenaient ce rôle : ils arrivaient
+  // avec leurs propres couleurs et leur propre ligne de base, et cassaient
+  // l'alignement des titres. Un trait monochrome prend la couleur de la carte
+  // et suit son état (orange sur une séance clé, éteint sur une séance faite).
+  const ICON_RUNNER = '<circle cx="15" cy="4" r="1.7"/><path d="M8 21l3-6-3-3 1.5-5 3.5 3h3"/><path d="M11 12l4 2 1 7"/>';
+  const ICON_PATHS = {
+    repos:         '<path d="M20.5 14.5A8.2 8.2 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/>',
+    marche:        '<circle cx="13" cy="4" r="1.6"/><path d="M11 21l1.5-5.5L10 13l1-5 3.5 2 2 2.5"/><path d="M10.5 15.5L8 21"/>',
+    velo:          '<circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M14 5h3M5.5 17l4-8h5l4 8M9.5 9h5"/>',
+    ef:            ICON_RUNNER,
+    sl:            '<path d="M2 19h20L15 7l-3.5 6L9 10z"/><path d="M13.2 10.8l1.8-1.8"/>',
+    seuil:         '<path d="M13 2L4 14h6l-1 8 9-12h-6z"/>',
+    vma:           '<path d="M13 2L4 14h6l-1 8 9-12h-6z"/><path d="M20 4l-2.5 2.5M21 9h-3"/>',
+    cotes:         '<path d="M3 20L13 6l8 14z"/><path d="M10.2 10.4l2.8 2.2 2.4-1.8"/>',
+    allure_course: '<circle cx="12" cy="13" r="8"/><path d="M12 13l4-3.5"/><path d="M9.5 2h5"/>',
+    rappel:        '<path d="M18 9a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16S18 14 18 9z"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/>',
+    test:          '<path d="M3 20h18"/><rect x="4.5" y="12" width="3.6" height="6"/><rect x="10.2" y="7" width="3.6" height="11"/><rect x="15.9" y="3.5" width="3.6" height="14.5"/>',
+    nuit:          '<path d="M20.5 14.5A8.2 8.2 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/><path d="M17 3.5l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/>',
+    course:        '<path d="M5 21V3"/><path d="M5 4h11l-2 3.5L16 11H5z"/>',
+    renfo:         '<path d="M4.5 9.5v5M7.5 6.5v11M16.5 6.5v11M19.5 9.5v5M7.5 12h9"/>'
   };
-  const typeIcon = (t) => TYPE_ICON[t] || '·';
+  const typeIcon = (t) => {
+    const d = ICON_PATHS[t];
+    if (!d) return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.2"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>';
+  };
 
   const isCurrentWeek = (s) => {
     const t = today();
@@ -205,7 +225,7 @@
             <span class="progress__val"><strong data-global-done>0 / 0</strong> · <span data-global-remain>0 restante</span> · <span data-global-pct>0 %</span></span>
           </div>
           <div class="progress__bar"><div class="progress__fill" data-global-bar style="width: 0%;"></div></div>
-          <p class="progress__hint">Coche chaque séance faite. La progression est enregistrée localement dans ce navigateur.</p>
+          <p class="progress__hint">Renseigne chaque séance — faite, allégée, abandonnée ou pas faite. Une séance déclarée non faite ne compte pas dans la progression.</p>
         </div>
       `;
     }
@@ -393,8 +413,8 @@
         day.innerHTML = `
           <header>
             <span class="day-card__day">${j.jour}</span>
+            ${j.cle ? '<span class="day-card__flag">séance clé</span>' : ''}
             <span class="day-card__date">${fmtFrDate(j.date).replace(/ ?\d{4}$/, '')}</span>
-            ${j.cle ? '<span class="day-card__flag">clé</span>' : ''}
           </header>
           <h4 class="day-card__title"><span class="day-card__icon">${typeIcon(j.type)}</span>${escapeHtml(j.titre || '')}</h4>
           ${j.contenu ? '<p class="day-card__body">' + escapeHtml(j.contenu) + '</p>' : ''}

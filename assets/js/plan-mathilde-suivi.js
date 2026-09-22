@@ -347,24 +347,20 @@
       <div class="suivi-modal__backdrop" data-close></div>
       <div class="suivi-modal__card" role="dialog" aria-modal="true" aria-labelledby="suivi-title">
         <header class="suivi-modal__head">
-          <button type="button" class="suivi-modal__close" data-close aria-label="Sortir sans enregistrer">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <span>Sortir</span>
-          </button>
-          <div class="suivi-modal__head-body">
+          <div class="suivi-modal__head-top">
             <p class="suivi-modal__dates"></p>
-            <h3 id="suivi-title"></h3>
-            <p class="suivi-modal__plan"></p>
+            <button type="button" class="suivi-modal__close" data-close aria-label="Fermer sans enregistrer">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
+          <h3 id="suivi-title"></h3>
+          <p class="suivi-modal__plan"></p>
         </header>
         <div class="suivi-modal__alerts" hidden></div>
         <form class="suivi-modal__form"></form>
         <footer class="suivi-modal__foot">
-          <button type="button" class="btn btn--ghost" data-close>Sortir sans enregistrer</button>
-          <button type="button" class="btn btn--primary" data-submit>
-            <span class="btn__long">Enregistrer la séance</span>
-            <span class="btn__short">Enregistrer</span>
-          </button>
+          <button type="button" class="btn btn--quiet" data-close>Annuler</button>
+          <button type="button" class="btn btn--primary" data-submit>Enregistrer</button>
         </footer>
       </div>
     `;
@@ -481,26 +477,26 @@
         </div>
 
         <div class="statut-sub" data-sub="oui" hidden>
-          <span class="field__label">Comment s'est-elle passée ? *</span>
+          <span class="field__label">Comment s'est-elle passée ?</span>
           <div class="radio-list" data-radio="exec-oui">
             <label class="radio${act('conforme')}"><input type="radio" name="execution" value="conforme" ${on('conforme')}><span>Comme prévu</span></label>
             <label class="radio${act('allegee')}"><input type="radio" name="execution" value="allegee" ${on('allegee')}><span>Allégée — volume réduit</span></label>
             <label class="radio${act('modifiee')}"><input type="radio" name="execution" value="modifiee" ${on('modifiee')}><span>Modifiée — contenu différent</span></label>
           </div>
           <div data-ecart hidden>
-            <span class="field__label" style="margin-top:14px;">Pourquoi cet écart ? *</span>
+            <span class="field__label field__label--step">Pourquoi cet écart ?</span>
             ${motifPills(MOTIFS_ECART, 'ecart_code', 'ecart', p, ex === 'allegee' || ex === 'modifiee')}
             ${motifDetail('ecart_detail', p, ex === 'allegee' || ex === 'modifiee')}
           </div>
         </div>
 
         <div class="statut-sub" data-sub="non" hidden>
-          <span class="field__label">Que s'est-il passé ? *</span>
+          <span class="field__label">Que s'est-il passé ?</span>
           <div class="radio-list" data-radio="exec-non">
             <label class="radio${act('abandonnee')}"><input type="radio" name="execution" value="abandonnee" ${on('abandonnee')}><span>Commencée puis abandonnée</span></label>
             <label class="radio${act('non_faite')}"><input type="radio" name="execution" value="non_faite" ${on('non_faite')}><span>Pas faite du tout</span></label>
           </div>
-          <span class="field__label" style="margin-top:14px;">Pourquoi ? *</span>
+          <span class="field__label field__label--step">Pourquoi ?</span>
           ${motifPills(MOTIFS, 'motif_code', 'motif', p, pasFaite)}
           ${motifDetail('motif_detail', p, pasFaite)}
         </div>
@@ -524,8 +520,8 @@
   }
   function motifDetail(name, p, actif) {
     return `
-      <label class="field" data-detail-for="${name}" hidden style="margin-top:10px;">
-        <span class="field__label">Précision</span>
+      <label class="field field--detail" data-detail-for="${name}" hidden>
+        <span class="field__label">Précision <small>facultatif</small></span>
         <input type="text" name="${name}" maxlength="200"
                placeholder="Facultatif" value="${actif ? escapeHtml(p ? p.motif_detail : '') : ''}">
       </label>
@@ -539,24 +535,24 @@
         <legend>Ce qui a été fait</legend>
         <div class="fset__grid">
           <label class="field">
-            <span class="field__label">Durée réelle (minutes) *</span>
+            <span class="field__label">Durée réelle <small>min</small></span>
             <input type="number" name="duree_min" min="1" max="600" step="1"
                    value="${p ? p.duree_min || '' : ''}">
           </label>
           <label class="field">
-            <span class="field__label">Km réels</span>
+            <span class="field__label">Km réels <small>facultatif</small></span>
             <input type="number" name="km_reels" min="0" max="200" step="0.1"
                    placeholder="ex. 12,4"
                    value="${p && p.km_reels != null ? p.km_reels : ''}">
           </label>
           <label class="field">
-            <span class="field__label">Dénivelé réel (m D+)</span>
+            <span class="field__label">Dénivelé réel <small>facultatif</small></span>
             <input type="number" name="denivele_reel" min="0" max="5000" step="1"
-                   placeholder="ex. 250"
+                   placeholder="ex. 250 m D+"
                    value="${p && p.denivele_reel != null ? p.denivele_reel : ''}">
           </label>
           <div class="field field--full">
-            <span class="field__label">Terrain *</span>
+            <span class="field__label">Terrain</span>
             <div class="radio-list radio-list--inline" data-radio="surface">
               ${SURFACES.map((s) => {
                 const sel = (p && p.surface) === s.v;
@@ -651,7 +647,7 @@
       <fieldset class="fset fset--effort" data-sec="effort" hidden>
         <legend>L'effort</legend>
         <div class="field">
-          <span class="field__label">Effort perçu (RPE 1–10) *</span>
+          <span class="field__label">Effort perçu <small>RPE 1–10</small></span>
           <div class="rpe-scale" data-rpe-scale>
             ${S.echelles.rpe.ancrages.map(a => `
               <button type="button" class="rpe-btn" data-rpe="${a.valeur}" title="${a.libelle} — ${a.repere}">${a.valeur}</button>
@@ -662,7 +658,7 @@
         </div>
         <div class="fset__row">
           <div class="field">
-            <span class="field__label">Jambes *</span>
+            <span class="field__label">Jambes</span>
             <div class="scale5" data-scale5="jambes_5">
               ${S.echelles.ressenti_5.ancrages.map(a => `
                 <button type="button" class="s5-btn" data-val="${a.valeur}" title="${a.libelle}">${a.valeur}</button>
@@ -674,7 +670,7 @@
             <input type="hidden" name="jambes_5" required value="${p ? p.jambes_5 || '' : ''}">
           </div>
           <div class="field">
-            <span class="field__label">Forme générale *</span>
+            <span class="field__label">Forme générale</span>
             <div class="scale5" data-scale5="forme_5">
               ${S.echelles.ressenti_5.ancrages.map(a => `
                 <button type="button" class="s5-btn" data-val="${a.valeur}" title="${a.libelle}">${a.valeur}</button>
@@ -871,12 +867,12 @@
         <legend>Exécution de la séance de qualité</legend>
         <p class="fset__hint">Ces champs alimentent les recalibrations du 25/10 et du 14/11.</p>
         <label class="field">
-          <span class="field__label">Allure de chaque bloc</span>
+          <span class="field__label">Allure de chaque bloc <small>facultatif</small></span>
           <input type="text" name="allures_blocs" placeholder="4:36 / 4:29 / 4:18" value="${escapeHtml((q.allures_blocs || []).join(' / '))}">
           <span class="field__hint">Séparer par « / ». Copiable depuis la montre.</span>
         </label>
         <div class="field">
-          <span class="field__label">Répétitions en réserve *</span>
+          <span class="field__label">Répétitions en réserve</span>
           <div class="radio-list" data-radio="reserve">
             ${['0','1','2','3'].map(v => `
               <label class="radio ${String(q.reserve) === v ? 'is-active' : ''}">
@@ -911,7 +907,7 @@
       <fieldset class="fset fset--libre" data-sec="libre" hidden>
         <legend>Autre chose ?</legend>
         <label class="field">
-          <span class="field__label">Commentaire</span>
+          <span class="field__label">Commentaire <small>facultatif</small></span>
           <textarea name="commentaire" maxlength="1000" rows="3" placeholder="Facultatif. Tout ce qui sort de l'ordinaire.">${escapeHtml(p ? p.commentaire : '')}</textarea>
         </label>
       </fieldset>

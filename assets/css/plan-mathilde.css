@@ -2217,3 +2217,297 @@ body.has-modal-open { overflow: hidden; }
   .choice small { font-size: 0.68rem; }
   .field__label--q { font-size: 0.9rem; }
 }
+
+/* ==========================================================================
+   PASSE DE DESIGN — boutons, questions, cartes du plan
+   --------------------------------------------------------------------------
+   Trois décisions gouvernent ce bloc :
+
+   1. L'orange reste la couleur de l'action, et les six teintes Mrun restent
+      des rails, des légendes et des teintes de sélection. Ce qui distingue le
+      bouton d'action n'est donc pas sa teinte — c'est d'être le seul aplat
+      large et plein de l'écran.
+   2. Une question se lit, un champ s'étiquette : les questions gardent la
+      casse normale et du poids, les libellés de champ deviennent des micro-
+      capitales. Deux registres au lieu d'un seul, aplati.
+   3. Tout n'est pas une carte. Un jour de repos n'a rien à faire dans le même
+      contenant qu'une séance clé, et l'état d'une séance a plus de droit à
+      la bordure que son caractère « clé », qui passe en rail.
+   ========================================================================== */
+
+/* -------------------------------------------------------------------------
+   Chiffres alignés partout où ils se comparent d'une ligne à l'autre
+   ------------------------------------------------------------------------- */
+.day-card__date,
+.week-acc__stats b,
+.ring,
+.rpe-btn, .s5-btn, .s4-btn,
+.field input[type="number"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   1. Boutons de la modale
+   ========================================================================== */
+.suivi-modal__foot {
+  justify-content: stretch;
+  gap: 14px;
+  padding: 14px 22px;
+}
+.suivi-modal .btn--primary {
+  flex: 1 1 auto;
+  min-height: 52px;
+  border-radius: 13px;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow: 0 8px 22px -10px rgba(255, 87, 34, 0.85);
+}
+.suivi-modal .btn--primary:active { transform: translateY(1px); }
+/* Annuler est une sortie, pas une alternative : il ne doit pas peser autant
+   que l'enregistrement. Auparavant il était même plus large que lui. */
+.suivi-modal .btn--quiet {
+  flex: 0 0 auto;
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-3);
+  padding: 9px 6px;
+  font-weight: 700;
+}
+.suivi-modal .btn--quiet:hover { color: var(--text-2); }
+
+/* En-tête : le titre récupère la largeur, la fermeture se réduit à sa croix */
+.suivi-modal__head-top {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 4px;
+}
+.suivi-modal__head-top .suivi-modal__dates { flex: 1; min-width: 0; margin: 0; }
+.suivi-modal__close {
+  padding: 0;
+  width: 34px; height: 34px;
+  min-height: 0;
+  justify-content: center;
+  border-radius: 10px;
+  margin-top: -2px;
+}
+
+/* ==========================================================================
+   2. Questions et réponses
+   ========================================================================== */
+
+/* Deux registres : la question se lit, le champ s'étiquette. */
+.field__label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.field__label {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+}
+.field__label small {
+  font-size: 0.92em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--text-3);
+  opacity: 0.75;
+}
+.statut-sub .field__label,
+.fset .field__label--q {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--text);
+}
+.field__label--q { font-size: 0.97rem; }
+.field__label--step { margin-top: 16px; }
+.field--detail { margin-top: 10px; }
+
+/* -- Options longues : des lignes tapables, pas des boutons radio natifs --
+   Le point natif imposait sa taille, sa couleur système et un alignement
+   qui ne suivait pas celui du texte. On le dessine. */
+.radio {
+  position: relative;
+  gap: 0;
+  padding: 13px 15px 13px 46px;
+  min-height: 52px;
+  border-radius: 11px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.radio input {
+  position: absolute;
+  opacity: 0;
+  width: 1px; height: 1px;
+  pointer-events: none;
+}
+.radio::before {
+  content: '';
+  position: absolute;
+  left: 15px; top: 50%;
+  transform: translateY(-50%);
+  width: 19px; height: 19px;
+  border-radius: 50%;
+  border: 2px solid var(--line-2);
+  background: var(--surface);
+  transition: border-color 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+}
+.fset .radio.is-active::before {
+  border-color: var(--sec);
+  background: var(--sec);
+  box-shadow: inset 0 0 0 3.5px var(--surface);
+}
+[data-sub="non"] .radio.is-active::before { border-color: #E63946; background: #E63946; }
+[data-sub="oui"] .radio.is-active::before { border-color: #00A3D7; background: #00A3D7; }
+.radio input:focus-visible + span {
+  outline: 2px solid var(--sec);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* -- Réponses courtes : des puces au format de leur texte --
+   La grille à colonnes fixes coupait « Douleur / blessure » en deux lignes et
+   laissait des puces de hauteurs différentes côte à côte. */
+.radio-list--inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.radio-list--inline .radio {
+  padding: 9px 15px;
+  min-height: 0;
+  border-radius: 999px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.radio-list--inline .radio::before { display: none; }
+
+/* -- Échelles : des cibles franches, actives sans ambiguïté -- */
+.rpe-btn, .s5-btn {
+  min-height: 42px;
+  border-radius: 9px;
+  font-size: 0.95rem;
+}
+.s4-btn { min-height: 34px; border-radius: 8px; }
+.rpe-btn.is-active, .s5-btn.is-active, .s4-btn.is-active {
+  box-shadow: 0 4px 12px -5px currentColor;
+}
+
+/* Le fieldset porte déjà un rail coloré : deux contenants imbriqués de même
+   rayon et de même bordure brouillaient la lecture. */
+.fset { padding: 15px 16px 17px; border-radius: 13px; }
+/* La légende masque la bordure du fieldset : son fond doit être celui du
+   fieldset, pas une couleur approchante qui laisse voir un rectangle. */
+.fset > legend { font-size: 0.72rem; letter-spacing: 0.09em; background: var(--surface); }
+
+/* ==========================================================================
+   3. Cartes du plan
+   ========================================================================== */
+.day-card {
+  min-height: 0;          /* la hauteur suit le contenu, plus un plancher fixe */
+  padding: 13px 14px 14px;
+  gap: 7px;
+}
+
+/* Un jour de repos n'a rien à renseigner : il s'annonce, il n'occupe pas. */
+.day-card.is-rest {
+  opacity: 1;
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--line);
+  padding: 10px 14px 12px;
+}
+.day-card.is-rest .day-card__title { font-size: 0.9rem; font-weight: 700; color: var(--text-2); }
+.day-card.is-rest .day-card__body { font-size: 0.79rem; color: var(--text-3); }
+.day-card.is-rest .day-card__icon { opacity: 0.45; }
+
+/* « Clé » passe en rail : la bordure revient à l'état de la séance, qui est
+   l'information qui change. */
+.day-card.is-key {
+  border-color: var(--line);
+  box-shadow: none;
+  background: linear-gradient(100deg, rgba(255, 87, 34, 0.07), var(--surface) 42%);
+}
+.day-card.is-key::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 13px; bottom: 13px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #FF5722;
+}
+.day-card__flag {
+  background: transparent;
+  color: #ff8a5c;
+  border: 1px solid rgba(255, 87, 34, 0.45);
+  padding: 2px 8px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+/* Glyphes de type : un trait, la couleur de la carte, la ligne du titre. */
+.day-card__title { align-items: center; gap: 8px; }
+.day-card__icon {
+  width: 17px; height: 17px;
+  flex: 0 0 auto;
+  color: var(--text-3);
+  opacity: 1;
+}
+.day-card__icon svg {
+  width: 100%; height: 100%;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.day-card.is-key .day-card__icon { color: #FF5722; }
+
+/* L'action principale de la page était son élément le moins contrasté. */
+.day-card__check { margin-top: auto; padding-top: 4px; }
+.day-card__check-pill {
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  background: rgba(255, 87, 34, 0.09);
+  border-color: rgba(255, 87, 34, 0.3);
+  color: #ff9670;
+}
+.day-card__check-pill:hover {
+  background: rgba(255, 87, 34, 0.17);
+  border-color: rgba(255, 87, 34, 0.55);
+  color: #ffb092;
+}
+.day-card__check-tick {
+  width: 16px; height: 16px;
+  background: transparent;
+  border-color: transparent;
+  color: currentColor;
+  font-size: 0.78rem;
+}
+
+/* Une séance faite reste lisible : on éteint ses tokens, on ne voile pas la
+   carte entière — l'opacité emportait aussi le bouton et son libellé. */
+.day-card.is-done { opacity: 1; }
+.day-card.is-done .day-card__body { color: var(--text-3); }
+
+@media (max-width: 420px) {
+  .radio { padding: 12px 13px 12px 43px; min-height: 48px; font-size: 0.87rem; }
+  .radio::before { left: 13px; }
+  .suivi-modal__foot { padding: 12px 16px; gap: 10px; }
+  .suivi-modal .btn--primary { min-height: 50px; font-size: 0.94rem; }
+}
