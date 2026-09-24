@@ -13,6 +13,12 @@
   const LS_QUEUE = 'mrun.mathilde.sync_queue.v1'; // [ payload, … ] en attente d'envoi
   const QUAL_TYPES = ['seuil', 'cotes', 'seance_specifique', 'test', 'course'];
 
+  // Séances sans déplacement : renforcement, muscu. Ni kilomètres, ni
+  // dénivelé, ni terrain n'y veulent dire quoi que ce soit, et l'échelle de
+  // Borg s'y interprète autrement que sur un footing. On ne demande que ce
+  // qui se mesure : la durée, et les douleurs.
+  const RENFO_TYPES = ['renfo', 'renforcement', 'muscu'];
+
   // Terrain : demandé sur toutes les séances, pas seulement les séances de
   // qualité. C'est l'impact qui compte pour la règle du périoste tibial,
   // et un footing sur bitume compte autant qu'un seuil.
@@ -426,18 +432,20 @@
     const prev = loadSuivi()[day.date];
     const p = prev ? prev.submission : null;
     const hasQuality = QUAL_TYPES.includes(day.type);
+    const renfo = RENFO_TYPES.includes(day.type);
 
     // Reset scroll top de la modale au montage
     modalEl.querySelector('.suivi-modal__card').scrollTop = 0;
     form.dataset.hasQuality = hasQuality ? '1' : '';
+    form.dataset.renfo = renfo ? '1' : '';
     form.dataset.date = day.date;
 
     form.innerHTML = `
       ${sectionStatut(p)}
-      ${sectionMesures(p)}
-      ${sectionEffort(p)}
+      ${sectionMesures(p, renfo)}
+      ${renfo ? '' : sectionEffort(p)}
       ${sectionDouleurs(p)}
-      ${hasQuality ? sectionQualite(day, p) : ''}
+      ${hasQuality && !renfo ? sectionQualite(day, p) : ''}
       ${sectionLibre(p)}
     `;
 
@@ -529,7 +537,19 @@
   }
 
   // ---- Ce qui a réellement été fait ----
-  function sectionMesures(p) {
+  function sectionMesures(p, renfo) {
+    if (renfo) {
+      return `
+        <fieldset class="fset fset--mesures" data-sec="mesures" hidden>
+          <legend>Ce qui a été fait</legend>
+          <label class="field">
+            <span class="field__label">Durée réelle <small>min</small></span>
+            <input type="number" name="duree_min" min="1" max="600" step="1"
+                   value="${p ? p.duree_min || '' : ''}">
+          </label>
+        </fieldset>
+      `;
+    }
     return `
       <fieldset class="fset fset--mesures" data-sec="mesures" hidden>
         <legend>Ce qui a été fait</legend>
@@ -591,7 +611,7 @@
     // Les douleurs restent pertinentes même sans séance — surtout si le
     // motif est une blessure.
     show('douleurs', !!ex);
-    show('qualite', fait && form.dataset.hasQuality === '1');
+    show('qualite', fait && form.dataset.hasQuality === '1' && form.dataset.renfo !== '1');
     show('libre', !!ex);
 
     // Une séance allégée ou modifiée reste un écart au plan : on demande
@@ -689,6 +709,7 @@
     const btns = form.querySelectorAll('button[data-rpe]');
     const hint = form.querySelector('[data-rpe-hint]');
     const input = form.querySelector('input[name="rpe"]');
+    if (!btns.length || !input) return;   // séance sans bloc « effort »
     const setActive = (v) => {
       btns.forEach(b => b.classList.toggle('is-active', +b.dataset.rpe === +v));
       const a = S.echelles.rpe.ancrages.find(x => x.valeur === +v);
@@ -945,7 +966,9 @@
     const faite = ['conforme', 'allegee', 'modifiee'].includes(execution);
     const partiel = execution === 'abandonnee';
     const mesurable = faite || partiel;   // il y a eu du volume à déclarer
-    const hasQuality = QUAL_TYPES.includes(currentDay.type);
+    const renfo = RENFO_TYPES.includes(currentDay.type);
+    const hasQuality = QUAL_TYPES.includes(currentDay.type) && !renfo;
+    const detaille = mesurable && !renfo;   // km, D+, terrain, RPE, ressentis
     const aDouleur = picked('a_douleur');
 
     // Deux branches, une seule clé en base : l'écart d'une séance allégée ou
@@ -969,17 +992,17 @@
         ? motifLabel + (motifTexte ? ' — ' + motifTexte : '')
         : null,
       duree_min: mesurable ? asInt('duree_min') : null,
-      km_reels: mesurable ? asFloat('km_reels') : null,
-      denivele_reel: mesurable ? asInt('denivele_reel') : null,
-      rpe: mesurable ? asInt('rpe') : null,
-      jambes_5: mesurable ? asInt('jambes_5') : null,
-      forme_5: mesurable ? asInt('forme_5') : null,
+      km_reels: detaille ? asFloat('km_reels') : null,
+      denivele_reel: detaille ? asInt('denivele_reel') : null,
+      rpe: detaille ? asInt('rpe') : null,
+      jambes_5: detaille ? asInt('jambes_5') : null,
+      forme_5: detaille ? asInt('forme_5') : null,
       allures_blocs: faite && hasQuality
         ? (form.querySelector('input[name="allures_blocs"]')?.value || '')
             .split('/').map(s => s.trim()).filter(Boolean)
         : [],
       reserve: faite && hasQuality ? picked('reserve') : null,
-      surface: mesurable ? picked('surface') : null,
+      surface: detaille ? picked('surface') : null,
       commentaire: asText('commentaire'),
       douleurs: aDouleur === 'oui' ? collectDouleurs(form) : []
     };
@@ -996,8 +1019,8 @@
       if (!motifCode && (ecart || !faite)) {
         missing.push(ecart ? 'Motif de l\'écart' : 'Motif');
       }
-      if (mesurable) {
-        if (!sub.duree_min) missing.push('Durée réelle');
+      if (mesurable && !sub.duree_min) missing.push('Durée réelle');
+      if (detaille) {
         if (!sub.rpe) missing.push('RPE');
         if (!sub.jambes_5) missing.push('Jambes');
         if (!sub.forme_5) missing.push('Forme');
