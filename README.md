@@ -13,7 +13,8 @@ Site internet de l'association **Mrun** (trail running & course nature).
 │   ├── 2026-04-grand-raid-ventoux.html       # Communiqué Grand Raid du Ventoux
 │   ├── 2026-06-marathon-mont-blanc.html      # Communiqué Marathon du Mont-Blanc
 │   ├── 2026-09-ultra-trail-vercors.html      # Communiqué Ultra Trail du Vercors
-│   └── 2026-10-run-in-lyon.html              # Communiqué semi-marathon Run In Lyon
+│   ├── 2026-10-run-in-lyon.html              # Communiqué semi-marathon Run In Lyon
+│   └── 2026-10-allentrail.html               # Communiqué All'enTrail (Allan)
 ├── matmau.html                               # Page privée (non listée) — plan SaintéSprint
 ├── UTV26.html                                # Page privée (non listée) — plan de course UTV 84K (généré)
 ├── utv26-sw.js                               # Service worker de UTV26.html (lecture hors réseau)
