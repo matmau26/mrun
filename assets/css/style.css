@@ -1311,6 +1311,8 @@ p { margin: 0 0 1em; }
   filter: grayscale(50%);
 }
 .page-header > * { position: relative; }
+/* Page de liste (Communiqués) : contenu remonté sous l'en-tête pour être visible dès l'arrivée */
+.page-header + .section { padding-top: 56px; }
 .page-header h1 { color: #fff; margin: 0; }
 .page-header p {
   color: rgba(255,255,255,0.75);

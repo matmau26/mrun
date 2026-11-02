@@ -21,6 +21,9 @@ if (toggle && links) {
 }
 
 // Reveal on scroll
+// Un élément déjà à l'écran au chargement, même en partie, s'affiche tout de suite :
+// sinon une rangée de cartes qui dépasse à peine sous l'en-tête reste invisible
+// (page qui paraît vide) tant qu'on ne fait pas défiler.
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -28,9 +31,12 @@ const observer = new IntersectionObserver((entries) => {
       observer.unobserve(entry.target);
     }
   });
-}, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+}, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+document.querySelectorAll('.reveal').forEach((el) => {
+  if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('is-visible');
+  else observer.observe(el);
+});
 
 // Active nav link on scroll (homepage only — needs section[id] anchors present)
 const trackedLinks = Array.from(document.querySelectorAll('.nav-link')).filter((link) => {
