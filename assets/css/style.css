@@ -724,7 +724,9 @@ p { margin: 0 0 1em; }
   margin-bottom: 18px;
   flex-wrap: wrap;
 }
-.article-hero h1 { color: #fff; max-width: 920px; }
+/* Même largeur que .article-body (.container--narrow) : titre, sous-titre et texte alignés sur le même bord gauche */
+.article-hero .container { max-width: var(--container-narrow); }
+.article-hero h1 { color: #fff; max-width: 920px; font-size: clamp(2.4rem, 5.5vw, 4rem); }
 .article-hero .article-subtitle {
   font-family: var(--font-display);
   font-style: italic;
