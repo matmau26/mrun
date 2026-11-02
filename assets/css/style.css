@@ -974,6 +974,11 @@ p { margin: 0 0 1em; }
 @media (max-width: 640px) {
   .race-facts { grid-template-columns: repeat(2, 1fr); }
 }
+/* Variante 3 cases (ex. communiqué sur un week-end : un jour par case) */
+.race-facts--3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 640px) {
+  .race-facts--3 { grid-template-columns: 1fr; }
+}
 
 /* Tableau des points de passage */
 .splits-wrap {
