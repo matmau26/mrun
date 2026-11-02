@@ -47,6 +47,11 @@ python3 -m http.server 8000
 3. Mettre à jour le contenu et l'image de couverture
 4. Ajouter une carte dans `communiques.html` et `index.html`
 
+Après une modification de `assets/css/style.css` ou `assets/js/main.js`, incrémenter le jeton
+`?v=AAAAMMJJ` de leurs balises dans toutes les pages publiques (accueil, Communiqués, pages légales,
+communiqués) : sans lui, un navigateur peut garder l'ancienne version en cache et afficher la
+nouvelle page avec l'ancien style. `vercel.json` sert aussi ces deux fichiers en `must-revalidate`.
+
 ## Page privée — plan d'entraînement
 
 `matmau.html` est un plan d'entraînement personnel (SaintéSprint 2026, version **v5**
