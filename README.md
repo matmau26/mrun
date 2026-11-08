@@ -15,12 +15,13 @@ Site internet de l'association **Mrun** (trail running & course nature).
 │   ├── 2026-09-ultra-trail-vercors.html      # Communiqué Ultra Trail du Vercors
 │   ├── 2026-10-run-in-lyon.html              # Communiqué semi-marathon Run In Lyon
 │   ├── 2026-10-allentrail.html               # Communiqué All'enTrail (Allan)
-│   └── 2026-10-malatarun-trail-de-la-raye.html # Communiqué week-end Malata'Run & Trail de la Raye
+│   ├── 2026-10-malatarun-trail-de-la-raye.html # Communiqué week-end Malata'Run & Trail de la Raye
+│   └── 2026-11-veni-vici.html                # Communiqué VENI VICI (Uzès → Nîmes)
 ├── matmau.html                               # Page privée (non listée) — plan SaintéSprint
 ├── UTV26.html                                # Page privée (non listée) — plan de course UTV 84K (généré)
 ├── utv26-sw.js                               # Service worker de UTV26.html (lecture hors réseau)
 ├── tools/utv26/                              # Sources et générateur de UTV26.html (voir son README)
-├── public/                                   # Photos (dossier par course : 2026GRV, 2026MMB, 2026RunInLyon…)
+├── public/                                   # Photos (dossier par course : 2026GRV, 2026MMB, 2026RunInLyon, 2026VeniVici…)
 └── assets/
     ├── css/style.css                         # Feuille de style du site
     ├── css/plan.css                          # Feuille de style de la page plan
