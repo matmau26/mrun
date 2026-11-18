@@ -21,6 +21,7 @@ Site internet de l'association **Mrun** (trail running & course nature).
 ├── UTV26.html                                # Page privée (non listée) — plan de course UTV 84K (généré)
 ├── utv26-sw.js                               # Service worker de UTV26.html (lecture hors réseau)
 ├── tools/utv26/                              # Sources et générateur de UTV26.html (voir son README)
+├── chantier/                                 # Outil privé (non listé) — documents de chantier, en test
 ├── public/                                   # Photos (dossier par course : 2026GRV, 2026MMB, 2026RunInLyon, 2026VeniVici…)
 └── assets/
     ├── css/style.css                         # Feuille de style du site
@@ -137,3 +138,18 @@ cd tools/utv26 && python3 build.py   # -> ../../UTV26.html
 
 Contenu, données de pacing et procédure de vérification : voir
 [`tools/utv26/README.md`](tools/utv26/README.md).
+
+## Outil privé — documents de chantier
+
+`chantier/` est un outil web autonome, sans lien avec le reste du site : il sert aux techniciens
+des Piscines de l'Olympe à remplir, faire signer et envoyer par e-mail leurs documents de chantier.
+Il est hébergé ici le temps des tests, avant sa mise en ligne sur le site de l'entreprise —
+<https://mrun.fr/chantier>.
+
+- La page **n'est liée depuis aucune autre page** du site et porte `noindex` (balise dans la page
+  et en-tête `X-Robots-Tag` dans `vercel.json`).
+- L'accès demande un code à 6 chiffres ; seule son empreinte figure dans `chantier/js/config.js`.
+- `chantier/sw.js` est un service worker de **portée limitée à `/chantier/`** (lecture hors réseau).
+- `vercel.json` renvoie `/chantier` vers `/chantier/index.html` : sans cela, les fichiers voisins
+  de la page ne se chargent pas.
+- Le dossier est une copie d'une source tenue hors de ce dépôt : ne pas le modifier ici.

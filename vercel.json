@@ -7,9 +7,24 @@
     { "source": "/UTV26", "destination": "/UTV26.html", "permanent": false },
     { "source": "/Utv26", "destination": "/UTV26.html", "permanent": false },
     { "source": "/mathilde", "destination": "/mathilde.html", "permanent": false },
-    { "source": "/Mathilde", "destination": "/mathilde.html", "permanent": false }
+    { "source": "/Mathilde", "destination": "/mathilde.html", "permanent": false },
+    { "source": "/chantier", "destination": "/chantier/index.html", "permanent": false },
+    { "source": "/Chantier", "destination": "/chantier/index.html", "permanent": false }
   ],
   "headers": [
+    {
+      "source": "/chantier/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/chantier/manifest.webmanifest",
+      "headers": [
+        { "key": "Content-Type", "value": "application/manifest+json" }
+      ]
+    },
     {
       "source": "/matmau.html",
       "headers": [

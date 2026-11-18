@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <script>
+    /* Si le serveur affiche le dossier sans « / » final, les fichiers voisins ne se chargent pas :
+       on repart alors de l'adresse complète de la page. */
+    if (!/(\/|\.html)$/.test(location.pathname)) location.replace(location.pathname + '/index.html' + location.search + location.hash);
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Olympe – Documents de chantier</title>
+  <meta name="description" content="Documents de chantier des Piscines de l'Olympe, à remplir et signer sur place.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#1D4CA1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Olympe">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" aria-live="polite"></div>
+  <div id="layer"></div>
+  <noscript>Cet outil a besoin de JavaScript pour fonctionner.</noscript>
+
+  <script src="js/vendor/jspdf.umd.min.js" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/util.js" defer></script>
+  <script src="js/pdf-kit.js" defer></script>
+  <script src="js/doc-securite.js" defer></script>
+  <script src="js/doc-reception.js" defer></script>
+  <script src="js/doc-levee.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>

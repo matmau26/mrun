@@ -1,0 +1,16 @@
+{
+  "name": "Olympe – Documents de chantier",
+  "short_name": "Olympe",
+  "description": "Documents de chantier des Piscines de l'Olympe, à remplir et signer sur place.",
+  "lang": "fr",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1D4CA1",
+  "theme_color": "#1D4CA1",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
