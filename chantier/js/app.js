@@ -1014,6 +1014,7 @@
     else if (location.hash === '#/clients') renderClients();
     else if (location.hash === '#/reglages') renderSettings();
     else if (location.hash === '#/techniciens') renderUsers();
+    else if (location.hash === '#/installer') renderInstall();
     else renderHome();
   }
 
@@ -1209,6 +1210,7 @@
             }).catch(e => toast(e.status ? e.message : 'Pas de connexion Internet : code inchangé'))
           })
         },
+        { label: 'Installer sur le téléphone', onClick: () => go('#/installer') },
         { label: 'Changer de compte', onClick: signOut },
         { label: 'Fermer' }
       ]
@@ -1271,6 +1273,42 @@
         el('span', { class: 'icon-btn' })),
       body);
     return { body: body, view: view };
+  }
+
+  /* Guide : mettre l'outil en icône sur l'écran d'accueil */
+  function renderInstall() {
+    const s = settingsShell('Installer sur le téléphone', '#/');
+    const ua = navigator.userAgent || '';
+    const apple = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+    const android = /Android/i.test(ua);
+    const installed = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    const guide = (title, tag, steps) => el('div', { class: 'statement' },
+      el('div', { class: 'statement-title' }, title + (tag ? ' · votre téléphone' : '')),
+      el('ol', { class: 'howto' }, steps.map((st, i) => el('li', { class: 'howto-step' },
+        el('span', { class: 'read-num' }, String(i + 1)),
+        el('div', null, el('div', { class: 'howto-title' }, st[0]), el('div', { class: 'howto-text' }, st[1]))))));
+    const iphone = guide('iPhone et iPad', apple, [
+      ['Ouvrez cette page dans Safari', 'L’installation ne se fait pas depuis une autre application.'],
+      ['Touchez le bouton Partager', 'C’est le carré avec une flèche vers le haut, en bas de l’écran.'],
+      ['Choisissez « Sur l’écran d’accueil »', 'Faites défiler la liste si vous ne le voyez pas.'],
+      ['Touchez « Ajouter »', 'L’icône Olympe apparaît avec vos autres applications.']
+    ]);
+    const droid = guide('Android', android, [
+      ['Ouvrez cette page dans Chrome', 'L’installation ne se fait pas depuis une autre application.'],
+      ['Touchez le menu', 'Ce sont les trois points, en haut à droite de l’écran.'],
+      ['Choisissez « Ajouter à l’écran d’accueil »', 'Selon le téléphone, le libellé peut être « Installer l’application ».'],
+      ['Confirmez', 'Touchez « Installer » ou « Ajouter ». L’icône Olympe apparaît avec vos autres applications.']
+    ]);
+    const kids = [
+      el('h1', { class: 'step-title', tabindex: '-1' }, 'Installer sur le téléphone'),
+      el('p', { class: 'step-lead' }, 'Pour ouvrir l’outil d’un geste, comme une application.'),
+      installed ? el('div', { class: 'note success' }, icon('done'),
+        el('div', null, el('div', { class: 'note-title' }, 'Déjà installé'), el('div', { class: 'note-text' }, 'Vous utilisez l’outil depuis son icône sur cet appareil.'))) : null,
+      ...(android ? [droid, iphone] : [iphone, droid]),
+      el('p', { class: 'field-hint' }, 'Ouvrez ensuite toujours l’outil depuis cette icône : vos documents en cours y sont gardés, et il fonctionne aussi sans réseau.')
+    ];
+    s.body.append(...kids.filter(Boolean));
+    show(s.view);
   }
 
   function renderSettings() {

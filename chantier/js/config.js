@@ -2,7 +2,7 @@
    C'est le seul fichier à modifier pour changer une adresse ou un téléphone. */
 window.OLYMPE = {
   /* Numéro affiché en bas de l'accueil : pratique pour savoir quelle version a un téléphone. */
-  version: '2.2',
+  version: '2.3',
 
   /* Adresse du serveur qui gère les comptes, les codes et le fichier clients partagé.
      Sans cette ligne, l'outil fonctionne seul avec le code unique ci-dessous. */

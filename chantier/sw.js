@@ -1,7 +1,7 @@
 /* Mode hors ligne : l'outil se met en mémoire à la première visite.
    En ligne, on prend toujours la dernière version ; hors ligne, celle en mémoire.
    L'outil n'appelle aucun service externe. */
-const CACHE = 'olympe-v9';
+const CACHE = 'olympe-v10';
 const SHELL = [
   'index.html',
   'styles.css',
