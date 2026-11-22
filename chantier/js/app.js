@@ -48,6 +48,7 @@
     alert: svg('<path d="M12 4l9 15.500H3L12 4z"/><path d="M12 10v4.500"/><path d="M12 17.200v.100"/>'),
     done: svg('<circle cx="12" cy="12" r="9"/><path d="M8 12.300l2.800 2.800L16.200 9.500"/>'),
     plus: svg('<path d="M12 5.500v13M5.500 12h13"/>'),
+    gear: svg('<circle cx="12" cy="12" r="3"/><path d="M12 3v2.500M12 18.500V21M3 12h2.500M18.500 12H21M5.600 5.600l1.800 1.800M16.600 16.600l1.800 1.800M5.600 18.400l1.800-1.800M16.600 7.400l1.800-1.800"/>'),
     users: svg('<circle cx="9" cy="8.500" r="3.200"/><path d="M3 19.500c.400-3.300 2.900-5.300 6-5.300s5.600 2 6 5.300"/><path d="M15.500 5.600a3.200 3.200 0 0 1 0 5.800"/><path d="M17.500 14.600c2 .600 3.200 2.300 3.500 4.900"/>'),
     search: svg('<circle cx="10.500" cy="10.500" r="6"/><path d="M15 15l5 5"/>'),
     back: svg('<path d="M9 5.500h10.500A1.500 1.500 0 0 1 21 7v10a1.500 1.500 0 0 1-1.500 1.500H9L3 12l6-6.500z"/><path d="M12 9.500l5 5M17 9.500l-5 5"/>'),
@@ -236,7 +237,10 @@
         el('div', { class: 'hero-in' },
           el('img', { class: 'hero-logo', src: 'assets/logo.png', alt: c.name, width: '76', height: '76' }),
           el('h1', { class: 'hero-title' }, 'Documents de chantier'),
-          el('p', { class: 'hero-sub' }, 'Choisissez le document à remplir.')),
+          el('p', { class: 'hero-sub' }, 'Choisissez le document à remplir.'),
+          me ? el('button', { type: 'button', class: 'hero-user', onclick: signOut },
+            el('span', { class: 'who-ini small' }, me.name.slice(0, 1).toUpperCase()),
+            el('span', null, me.name + ' · Changer de compte')) : null),
         el('div', { class: 'hero-wave', html: '<svg viewBox="0 0 400 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 14c40 0 40-10 80-10s40 10 80 10 40-10 80-10 40 10 80 10 40-10 80-10v24H0z" fill="currentColor"/></svg>' })),
 
       el('div', { class: 'home-body' },
@@ -273,14 +277,7 @@
           el('h2', { class: 'home-label' }, 'Bientôt disponibles'),
           soon.map(card)) : null,
 
-        el('section', { class: 'home-section' },
-          el('h2', { class: 'home-label' }, 'Réglages'),
-          el('button', { type: 'button', class: 'doc-card slim', onclick: () => go('#/clients') },
-            icon('users', 'doc-ic'),
-            el('span', { class: 'doc-text' },
-              el('span', { class: 'doc-title' }, 'Fichier clients'),
-              el('span', { class: 'doc-desc' + (clientsState().late ? ' late' : '') }, clientsState().text)),
-            icon('right', 'doc-go')))),
+        settingsEntry()),
 
       el('footer', { class: 'home-foot' },
         el('div', { class: 'foot-name' }, c.name),
@@ -311,14 +308,31 @@
     };
   }
 
+  /* Entrée « Réglages » de l'accueil : réservée au bureau quand l'outil a des comptes */
+  function settingsEntry() {
+    const state = clientsState();
+    if (O.api && (!me || me.role !== 'admin')) {
+      return el('p', { class: 'home-info' + (state.late ? ' late' : '') }, 'Fichier clients : ' + state.text);
+    }
+    return el('section', { class: 'home-section' },
+      el('h2', { class: 'home-label' }, 'Réglages'),
+      el('button', { type: 'button', class: 'doc-card slim', onclick: () => go(O.api ? '#/reglages' : '#/clients') },
+        icon(O.api ? 'gear' : 'users', 'doc-ic'),
+        el('span', { class: 'doc-text' },
+          el('span', { class: 'doc-title' }, O.api ? 'Réglages' : 'Fichier clients'),
+          el('span', { class: 'doc-desc' + (state.late ? ' late' : '') }, O.api ? 'Fichier clients · ' + state.text : state.text)),
+        icon('right', 'doc-go')));
+  }
+
   function renderClients() {
     const C = O.clients;
+    if (O.api && (!me || me.role !== 'admin')) return go('#/');
     let pending = null, busy = false, problem = '';
     const body = el('div', { class: 'step' });
     const fileInput = el('input', { type: 'file', accept: '.csv,text/csv,text/plain,application/vnd.ms-excel', hidden: true });
     const view = el('main', { class: 'view wizard' },
       el('header', { class: 'topbar' },
-        el('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Retour à l’accueil', onclick: () => go('#/') }, icon('left')),
+        el('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Retour', onclick: () => go(O.api ? '#/reglages' : '#/') }, icon('left')),
         el('div', { class: 'topbar-title' }, 'Fichier clients'),
         el('span', { class: 'icon-btn' })),
       body, fileInput);
@@ -349,7 +363,7 @@
         kids.push(el('div', { class: 'file-card' },
           icon('users', 'file-ic' + (info && info.count ? ' ok' : '')),
           el('div', { class: 'file-text' },
-            el('div', { class: 'file-name' }, info && info.count ? thousands(info.count) + ' client' + (info.count > 1 ? 's' : '') + ' dans ce téléphone' : 'Aucun fichier importé'),
+            el('div', { class: 'file-name' }, info && info.count ? thousands(info.count) + ' client' + (info.count > 1 ? 's' : '') + (O.api ? ' partagé' + (info.count > 1 ? 's' : '') + ' avec l’équipe' : ' dans ce téléphone') : 'Aucun fichier importé'),
             el('div', { class: 'file-meta' }, info && info.unreadable ? 'Le code d’accès a changé : la liste est à réimporter.'
               : info && info.count ? 'Mis à jour le ' + dayMonthYear(info.at) + (state.late ? ' · à mettre à jour' : '')
                 : 'Suivez les trois étapes ci-dessous.'))));
@@ -364,24 +378,27 @@
           el('button', { type: 'button', class: 'btn primary block', disabled: busy, onclick: () => fileInput.click() }, busy ? 'Lecture du fichier…' : 'Importer le fichier'),
           info && info.count ? el('button', {
             type: 'button', class: 'btn ghost block', onclick: () => openSheet({
-              title: 'Supprimer la liste de ce téléphone ?',
+              title: O.api ? 'Supprimer la liste pour toute l’équipe ?' : 'Supprimer la liste de ce téléphone ?',
               text: 'La recherche de clients ne sera plus proposée tant qu’un fichier n’aura pas été réimporté.',
-              actions: [{ label: 'Supprimer', kind: 'danger', onClick: () => C.remove().then(paint) }, { label: 'Annuler' }]
+              actions: [{ label: 'Supprimer', kind: 'danger', onClick: () => (O.api ? api('clients.del') : Promise.resolve()).then(() => C.remove()).then(paint).catch(e => { problem = e.status ? e.message : 'Pas de connexion Internet : la liste n’a pas été supprimée.'; paint(); }) }, { label: 'Annuler' }]
             })
           }, 'Supprimer la liste') : null));
-        kids.push(el('p', { class: 'field-hint' }, 'À refaire régulièrement, par exemple une fois par mois : la nouvelle liste remplace l’ancienne. Elle reste dans ce téléphone, protégée par le code d’accès, et n’est envoyée nulle part.'));
+        kids.push(el('p', { class: 'field-hint' }, O.api
+          ? 'À refaire régulièrement, par exemple une fois par mois : la nouvelle liste remplace l’ancienne. Elle est envoyée automatiquement aux téléphones de l’équipe, qui n’ont rien à faire.'
+          : 'À refaire régulièrement, par exemple une fois par mois : la nouvelle liste remplace l’ancienne. Elle reste dans ce téléphone, protégée par le code d’accès, et n’est envoyée nulle part.'));
       }
       body.replaceChildren(...kids.filter(Boolean));
     }
 
     function save() {
       busy = true; paint();
-      C.save(pending.rows).then(() => {
+      const rows = pending.rows.map(r => ({ n: r.n, p: r.p, c: r.c, t: r.t, e: r.e, a: r.a }));
+      (O.api ? api('clients.put', { rows: rows }).then(r => C.save(rows, r.at)) : C.save(rows)).then(() => {
         const n = pending.rows.length;
         pending = null; busy = false; problem = '';
         paint();
-        toast(thousands(n) + ' clients enregistrés');
-      }).catch(e => { busy = false; pending = null; problem = e.message || 'La liste n’a pas pu être enregistrée.'; paint(); });
+        toast(O.api ? 'Liste envoyée à l’équipe' : thousands(n) + ' clients enregistrés');
+      }).catch(e => { busy = false; pending = null; problem = (O.api && !e.status) ? 'Pas de connexion Internet : la liste n’a pas été envoyée. Réessayez.' : (e.message || 'La liste n’a pas pu être enregistrée.'); paint(); });
     }
 
     fileInput.addEventListener('change', () => {
@@ -576,7 +593,8 @@
     const isArea = f.type === 'textarea';
     let value = data[f.name];
     if (isEmpty(value) && f.remember) {
-      value = store.get('olympe.pref.' + f.remember, '');
+      // avec des comptes, le représentant est la personne connectée
+      value = (f.remember === 'tech' && me) ? me.name : store.get('olympe.pref.' + f.remember, '');
       if (value) data[f.name] = value;
     }
     const plain = f.type === 'email' || f.type === 'tel' || f.type === 'number' || f.capitalize === 'words';
@@ -993,120 +1011,339 @@
     const m = location.hash.match(/^#\/d\/([a-z-]+)\/(\d+)$/);
     if (m && O.docs[m[1]]) renderWizard(O.docs[m[1]], parseInt(m[2], 10));
     else if (location.hash === '#/clients') renderClients();
+    else if (location.hash === '#/reglages') renderSettings();
+    else if (location.hash === '#/techniciens') renderUsers();
     else renderHome();
   }
 
-  /* ---------- Code d'accès ---------- */
+  /* ---------- Connexion : choix du compte et code personnel ---------- */
 
-  const RELOCK_AFTER = 15 * 60 * 1000; // redemandé après 15 minutes en arrière-plan
+  const RELOCK_AFTER = 15 * 60 * 1000; // code redemandé après 15 minutes en arrière-plan
   const TRIES_KEY = 'olympe.essais';
+  const ITER = 150000;
   let locked = false;
+  let me = null; // compte connecté : { id, name, role, token }
+  O.session = { me: () => me };
 
-  async function codeIsRight(code) {
-    const a = O.access, enc = new TextEncoder();
+  async function pbkdf(code, salt, iterations) {
+    const enc = new TextEncoder();
     const key = await crypto.subtle.importKey('raw', enc.encode(code), 'PBKDF2', false, ['deriveBits']);
-    const bits = await crypto.subtle.deriveBits(
-      { name: 'PBKDF2', salt: enc.encode(a.salt), iterations: a.iterations, hash: 'SHA-256' }, key, 256);
-    return Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('') === a.hash;
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc.encode(salt), iterations: iterations, hash: 'SHA-256' }, key, 256);
+    return Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  function lock(onOpen) {
-    if (locked) return;
-    locked = true;
-    O.clients.forget();
-    let code = '', busy = false, timer = null;
+  function api(action, body) {
+    return fetch(O.api, {
+      method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ a: action, token: me ? me.token : undefined }, body || {}))
+    }).then(async r => {
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { const e = new Error(j.error || 'Le serveur ne répond pas correctement.'); e.status = r.status; e.wait = j.wait; throw e; }
+      return j;
+    });
+  }
+  const waitText = s => s >= 90 ? Math.ceil(s / 60) + ' min' : s + ' s';
 
+  /* Essais faux quand la vérification se fait dans l'appareil (hors ligne ou outil sans comptes) */
+  const localWait = () => Math.max(0, (store.get(TRIES_KEY, {}).until || 0) - Date.now());
+  function localFail() {
+    const t = store.get(TRIES_KEY, {});
+    t.n = (t.n || 0) + 1;
+    if (t.n % 5 === 0) t.until = Date.now() + Math.min(300, 30 * Math.pow(2, t.n / 5 - 1)) * 1000;
+    store.set(TRIES_KEY, t);
+    const w = Math.ceil(localWait() / 1000);
+    return { msg: w ? 'Trop d’essais. Réessayez dans ' + waitText(w) + '.' : 'Code incorrect.' };
+  }
+
+  function blueScreen(label, kids) {
+    return el('div', { class: 'lock', role: 'dialog', 'aria-modal': 'true', 'aria-label': label },
+      el('div', { class: 'lock-in' },
+        el('img', { class: 'lock-logo', src: 'assets/logo.png', alt: O.company.name, width: '72', height: '72' }), kids));
+  }
+  function closeScreen(screen) {
+    screen.classList.add('leave');
+    setTimeout(() => screen.remove(), 220);
+  }
+
+  /* Clavier à 6 chiffres. o.verify(code) répond { ok: true } ou { msg: '…' }. */
+  function keypad(o) {
+    let code = '', busy = false;
     const dots = el('div', { class: 'lock-dots', 'aria-hidden': 'true' }, Array.from({ length: 6 }, () => el('span')));
     const msg = el('div', { class: 'lock-msg', role: 'alert' });
-    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map(k => {
+    const pad = el('div', { class: 'lock-pad' }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map(k => {
       if (!k) return el('span');
       return el('button', {
         type: 'button', class: 'lock-key' + (k === 'del' ? ' del' : ''),
         'aria-label': k === 'del' ? 'Effacer' : k, onclick: () => press(k)
       }, k === 'del' ? icon('back') : k);
-    });
-    const pad = el('div', { class: 'lock-pad' }, keys);
-    const screen = el('div', { class: 'lock', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Code d’accès' },
-      el('div', { class: 'lock-in' },
-        el('img', { class: 'lock-logo', src: 'assets/logo.png', alt: O.company.name, width: '72', height: '72' }),
-        el('h1', { class: 'lock-title' }, 'Code d’accès'),
-        el('p', { class: 'lock-sub' }, 'Saisissez le code à 6 chiffres.'),
-        dots, msg, pad));
-
+    }));
+    const done = () => document.removeEventListener('keydown', onKey);
+    const screen = blueScreen(o.title, [
+      el('h1', { class: 'lock-title' }, o.title),
+      el('p', { class: 'lock-sub' }, o.sub || 'Saisissez le code à 6 chiffres.'),
+      dots, msg, pad,
+      o.onBack ? el('button', { type: 'button', class: 'lock-link', onclick: () => { done(); screen.remove(); o.onBack(); } }, 'Changer de compte') : null
+    ]);
     const paint = () => Array.from(dots.children).forEach((d, i) => d.classList.toggle('on', i < code.length));
-    const wait = () => Math.max(0, (store.get(TRIES_KEY, {}).until || 0) - Date.now());
-    const countdown = () => {
-      clearTimeout(timer);
-      const ms = wait();
-      pad.classList.toggle('off', ms > 0);
-      if (ms > 0) {
-        msg.textContent = 'Trop d’essais. Réessayez dans ' + Math.ceil(ms / 1000) + ' s.';
-        timer = setTimeout(countdown, 500);
-      } else if (msg.textContent.indexOf('Trop') === 0) {
-        msg.textContent = '';
-      }
-    };
-    const fail = () => {
-      const t = store.get(TRIES_KEY, {});
-      t.n = (t.n || 0) + 1;
-      if (t.n % 5 === 0) t.until = Date.now() + Math.min(300, 30 * Math.pow(2, t.n / 5 - 1)) * 1000;
-      store.set(TRIES_KEY, t);
-      code = ''; paint();
-      msg.textContent = 'Code incorrect.';
-      dots.classList.remove('shake'); void dots.offsetWidth; dots.classList.add('shake');
-      countdown();
-    };
-    const open = ready => {
-      store.del(TRIES_KEY);
-      clearTimeout(timer);
-      document.removeEventListener('keydown', onKey);
-      ready.then(() => {
-        locked = false;
-        screen.classList.add('leave');
-        setTimeout(() => screen.remove(), 220);
-        onOpen();
-      });
-    };
     function press(k) {
-      if (busy || wait() > 0) return;
+      if (busy) return;
       if (k === 'del') { code = code.slice(0, -1); paint(); return; }
       if (code.length >= 6) return;
       code += k; msg.textContent = ''; paint();
       if (code.length < 6) return;
-      busy = true;
       if (!(window.crypto && crypto.subtle)) {
-        busy = false; code = ''; paint();
+        code = ''; paint();
         msg.textContent = 'Le code ne peut pas être vérifié ici : l’adresse doit être en HTTPS.';
         return;
       }
-      const entered = code;
+      busy = true;
       msg.textContent = 'Vérification…';
-      // le code sert aussi à déchiffrer le fichier clients gardé dans le téléphone :
-      // les deux calculs sont lancés ensemble pour ne pas faire attendre
-      const ready = O.clients.unlock(entered);
-      const wrong = () => { busy = false; O.clients.forget(); fail(); };
-      codeIsRight(entered).then(ok => { if (ok) open(ready); else wrong(); }).catch(wrong);
+      Promise.resolve(o.verify(code)).catch(() => ({ msg: 'Vérification impossible. Réessayez.' })).then(res => {
+        if (res && res.ok) {
+          done();
+          locked = false;
+          closeScreen(screen);
+          o.onOpen();
+          return;
+        }
+        busy = false; code = ''; paint();
+        msg.textContent = (res && res.msg) || 'Code incorrect.';
+        dots.classList.remove('shake'); void dots.offsetWidth; dots.classList.add('shake');
+      });
     }
     function onKey(e) {
       if (/^[0-9]$/.test(e.key)) { e.preventDefault(); press(e.key); }
       else if (e.key === 'Backspace') { e.preventDefault(); press('del'); }
     }
-
     document.addEventListener('keydown', onKey);
     document.body.append(screen);
-    countdown();
   }
 
+  /* Outil sans comptes (pas de serveur) : un seul code, vérifié dans l'appareil */
+  async function legacyVerify(code) {
+    if (localWait() > 0) return localFail();
+    if (await pbkdf(code, O.access.salt, O.access.iterations) !== O.access.hash) return localFail();
+    store.del(TRIES_KEY);
+    await O.clients.unlock(code, '');
+    return { ok: true };
+  }
+
+  /* Avec comptes : le serveur vérifie le code ; hors réseau, l'appareil s'en charge
+     pour un compte déjà ouvert ici. */
+  async function signIn(user, code) {
+    const vKey = 'olympe.verif.' + user.id;
+    try {
+      const r = await api('login', { id: user.id, code: code, token: undefined });
+      const salt = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
+      store.set(vKey, { salt: salt, hash: await pbkdf(code, salt, ITER), user: r.user, token: r.token });
+      me = Object.assign({}, r.user, { token: r.token });
+    } catch (e) {
+      if (e.status === 401) { store.del(vKey); return { msg: 'Code incorrect.' }; }
+      if (e.status === 429) return { msg: 'Trop d’essais. Réessayez dans ' + waitText(e.wait || 60) + '.' };
+      if (e.status) return { msg: e.message };
+      const v = store.get(vKey, null); // pas de réseau
+      if (!v) return { msg: 'Connexion Internet nécessaire pour la première ouverture sur cet appareil.' };
+      if (localWait() > 0 || await pbkdf(code, v.salt, ITER) !== v.hash) return localFail();
+      me = Object.assign({}, v.user, { token: v.token });
+    }
+    store.del(TRIES_KEY);
+    store.set('olympe.dernier', user.id);
+    await O.clients.unlock(code, user.id);
+    sync();
+    return { ok: true };
+  }
+
+  /* Récupère la dernière liste de clients déposée par le bureau, sans rien demander. */
+  function sync() {
+    if (!O.api || !me) return Promise.resolve();
+    const info = O.clients.info();
+    return api('sync', { since: info && info.at ? info.at : 0 }).then(async r => {
+      store.set('olympe.comptes', r.users);
+      me = Object.assign({}, r.user, { token: me.token });
+      const v = store.get('olympe.verif.' + me.id, null);
+      if (v) { v.user = r.user; store.set('olympe.verif.' + me.id, v); }
+      if (r.clients) {
+        if (r.clients.length) await O.clients.save(r.clients, r.clientsAt); else await O.clients.remove();
+        if (!locked && (location.hash === '' || location.hash === '#/')) renderHome();
+      }
+    }).catch(e => {
+      if (e.status === 401) { // compte supprimé ou code changé par le bureau
+        store.del('olympe.verif.' + me.id);
+        signOut();
+        toast('Reconnectez-vous');
+      }
+    });
+  }
+
+  function signOut() {
+    me = null;
+    O.clients.forget();
+    if (O.api) accountsScreen(route); else lockLegacy(route);
+  }
+
+  function lockLegacy(onOpen) {
+    if (locked) return;
+    locked = true;
+    O.clients.forget();
+    keypad({ title: 'Code d’accès', verify: legacyVerify, onOpen: onOpen });
+  }
+
+  function askCode(user, onOpen) {
+    locked = true;
+    O.clients.forget();
+    keypad({
+      title: user.name, sub: 'Saisissez votre code à 6 chiffres.',
+      verify: code => signIn(user, code), onOpen: onOpen,
+      onBack: () => accountsScreen(onOpen)
+    });
+  }
+
+  function accountsScreen(onOpen) {
+    locked = true;
+    O.clients.forget();
+    const list = el('div', { class: 'who-list' });
+    const note = el('div', { class: 'lock-msg', role: 'alert' });
+    const screen = blueScreen('Choix du compte', [
+      el('h1', { class: 'lock-title' }, 'Qui êtes-vous ?'),
+      el('p', { class: 'lock-sub' }, 'Choisissez votre compte.'),
+      list, note
+    ]);
+    const paint = users => {
+      list.replaceChildren(...users.map(u => el('button', { type: 'button', class: 'who', onclick: () => { screen.remove(); askCode(u, onOpen); } },
+        el('span', { class: 'who-ini' }, u.name.slice(0, 1).toUpperCase()), el('span', null, u.name))));
+    };
+    const cached = store.get('olympe.comptes', []);
+    paint(cached);
+    if (!cached.length) note.textContent = 'Chargement des comptes…';
+    api('comptes', { token: undefined }).then(r => { store.set('olympe.comptes', r.users); note.textContent = ''; paint(r.users); })
+      .catch(() => { if (!store.get('olympe.comptes', []).length) note.textContent = 'Connexion Internet nécessaire pour la première ouverture.'; });
+    document.body.append(screen);
+  }
+
+  /* ---------- Réglages (compte du bureau) ---------- */
+
+  function settingsShell(titleText, backHash) {
+    const body = el('div', { class: 'step' });
+    const view = el('main', { class: 'view wizard' },
+      el('header', { class: 'topbar' },
+        el('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Retour', onclick: () => go(backHash) }, icon('left')),
+        el('div', { class: 'topbar-title' }, titleText),
+        el('span', { class: 'icon-btn' })),
+      body);
+    return { body: body, view: view };
+  }
+
+  function renderSettings() {
+    if (!me || me.role !== 'admin') return go('#/');
+    const s = settingsShell('Réglages', '#/');
+    const link = (ic, title, desc, hash) => el('button', { type: 'button', class: 'doc-card', onclick: () => go(hash) },
+      icon(ic, 'doc-ic'),
+      el('span', { class: 'doc-text' }, el('span', { class: 'doc-title' }, title), el('span', { class: 'doc-desc' }, desc)),
+      icon('right', 'doc-go'));
+    s.body.append(
+      el('h1', { class: 'step-title', tabindex: '-1' }, 'Réglages'),
+      el('p', { class: 'step-lead' }, 'Réservé au bureau.'),
+      link('users', 'Fichier clients', clientsState().text, '#/clients'),
+      link('shield', 'Techniciens et codes', 'Ajouter, supprimer, changer un code', '#/techniciens'));
+    show(s.view);
+  }
+
+  function codeSheet(o) {
+    const input = el('input', { class: 'input', type: 'password', inputmode: 'numeric', maxlength: '6', autocomplete: 'new-password', placeholder: '6 chiffres', 'aria-label': 'Nouveau code à 6 chiffres' });
+    const err = el('div', { class: 'field-error', hidden: true }, 'Le code doit comporter 6 chiffres.');
+    const close = () => { wrap.classList.remove('show'); setTimeout(() => wrap.remove(), 200); };
+    const wrap = el('div', { class: 'sheet-wrap', onclick: e => { if (e.target === wrap) close(); } },
+      el('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': o.title },
+        el('div', { class: 'sheet-grip' }),
+        el('h2', { class: 'sheet-title' }, o.title),
+        el('p', { class: 'sheet-text' }, o.text),
+        el('div', { class: 'field sheet-field' }, input, err),
+        el('div', { class: 'sheet-actions' },
+          el('button', { type: 'button', class: 'btn primary', onclick: () => { if (!/^\d{6}$/.test(input.value)) { err.hidden = false; return; } close(); o.onOk(input.value); } }, 'Enregistrer'),
+          el('button', { type: 'button', class: 'btn ghost', onclick: close }, 'Annuler'))));
+    layer.append(wrap);
+    requestAnimationFrame(() => wrap.classList.add('show'));
+  }
+
+  function renderUsers() {
+    if (!me || me.role !== 'admin') return go('#/');
+    const s = settingsShell('Techniciens et codes', '#/reglages');
+    const listBox = el('div', { class: 'items' });
+    const problem = el('div', { class: 'field-error', role: 'alert', hidden: true });
+    const say = e => { problem.hidden = false; problem.textContent = e.status ? e.message : 'Pas de connexion Internet : réessayez plus tard.'; };
+    const paint = users => {
+      problem.hidden = true;
+      store.set('olympe.comptes', users.map(u => ({ id: u.id, name: u.name })));
+      listBox.replaceChildren(...users.map(u => el('div', { class: 'user-row' },
+        el('span', { class: 'who-ini small' }, u.name.slice(0, 1).toUpperCase()),
+        el('span', { class: 'user-text' },
+          el('span', { class: 'user-name' }, u.name + (u.id === me.id ? ' (vous)' : '')),
+          el('span', { class: 'user-role' }, u.role === 'admin' ? 'Bureau · accès aux réglages' : 'Technicien')),
+        el('button', {
+          type: 'button', class: 'btn small ghost', onclick: () => codeSheet({
+            title: 'Nouveau code pour ' + u.name,
+            text: 'L’ancien code cessera de fonctionner tout de suite.',
+            onOk: code => api('code', { id: u.id, code: code }).then(r => {
+              if (r.token) { me.token = r.token; const v = store.get('olympe.verif.' + me.id, null); if (v) { store.del('olympe.verif.' + me.id); } }
+              toast('Code de ' + u.name + ' changé');
+            }).catch(say)
+          })
+        }, 'Code'),
+        u.id === me.id ? null : el('button', {
+          type: 'button', class: 'item-del', 'aria-label': 'Supprimer ' + u.name, onclick: () => openSheet({
+            title: 'Supprimer le compte de ' + u.name + ' ?',
+            text: 'Cette personne ne pourra plus ouvrir l’outil.',
+            actions: [{ label: 'Supprimer', kind: 'danger', onClick: () => api('users.del', { id: u.id }).then(r => paint(r.users)).catch(say) }, { label: 'Annuler' }]
+          })
+        }, icon('trash')))));
+    };
+
+    const name = el('input', { class: 'input', type: 'text', placeholder: 'Prénom', autocomplete: 'off', autocapitalize: 'words', maxlength: '30', 'aria-label': 'Prénom' });
+    const code = el('input', { class: 'input', type: 'password', inputmode: 'numeric', maxlength: '6', autocomplete: 'new-password', placeholder: 'Code à 6 chiffres', 'aria-label': 'Code à 6 chiffres' });
+    const adminBox = el('button', { type: 'button', class: 'choice', role: 'checkbox', 'aria-checked': 'false' },
+      el('span', { class: 'mark square', html: ICON.check }),
+      el('span', { class: 'choice-text' }, el('span', { class: 'choice-label' }, 'Accès aux réglages (bureau)')));
+    adminBox.addEventListener('click', () => adminBox.setAttribute('aria-checked', adminBox.getAttribute('aria-checked') === 'true' ? 'false' : 'true'));
+    const add = el('button', { type: 'button', class: 'btn primary block' }, icon('plus'), el('span', null, 'Ajouter'));
+    add.addEventListener('click', () => {
+      if (!name.value.trim() || !/^\d{6}$/.test(code.value)) { problem.hidden = false; problem.textContent = 'Indiquez un prénom et un code à 6 chiffres.'; return; }
+      api('users.add', { name: name.value, code: code.value, role: adminBox.getAttribute('aria-checked') === 'true' ? 'admin' : 'tech' })
+        .then(r => { name.value = ''; code.value = ''; adminBox.setAttribute('aria-checked', 'false'); paint(r.users); toast('Compte ajouté'); }).catch(say);
+    });
+
+    s.body.append(
+      el('h1', { class: 'step-title', tabindex: '-1' }, 'Techniciens et codes'),
+      el('p', { class: 'step-lead' }, 'Chaque personne a son compte et son code à 6 chiffres.'),
+      listBox, problem,
+      el('div', { class: 'statement' },
+        el('div', { class: 'statement-title' }, 'Ajouter une personne'),
+        el('div', { class: 'field' }, name), el('div', { class: 'field' }, code), adminBox, add));
+    show(s.view);
+    api('users').then(r => paint(r.users)).catch(say);
+  }
+
+  /* ---------- Démarrage ---------- */
+
   window.addEventListener('hashchange', () => { if (!locked) route(); });
-  if (O.access) {
+
+  function relockOnReturn(lockAgain) {
     let hiddenAt = 0;
-    lock(route);
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) hiddenAt = Date.now();
-      else if (hiddenAt && Date.now() - hiddenAt > RELOCK_AFTER) lock(() => {});
+      else if (!locked && hiddenAt && Date.now() - hiddenAt > RELOCK_AFTER) lockAgain();
+      else if (!locked && !document.hidden) sync();
     });
+  }
+
+  if (O.api) {
+    const last = store.get('olympe.comptes', []).find(u => u.id === store.get('olympe.dernier', ''));
+    if (last) askCode(last, route); else accountsScreen(route);
+    relockOnReturn(() => { if (me) askCode({ id: me.id, name: me.name }, () => {}); });
+  } else if (O.access) {
+    lockLegacy(route);
+    relockOnReturn(() => lockLegacy(() => {}));
   } else {
-    O.clients.unlock(null).then(route);
+    O.clients.unlock(null, '').then(route);
   }
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {

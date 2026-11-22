@@ -1,5 +1,6 @@
 {
   "outputDirectory": ".",
+  "regions": ["cdg1"],
   "redirects": [
     { "source": "/utv26.html", "destination": "/UTV26.html", "permanent": false },
     { "source": "/Utv26.html", "destination": "/UTV26.html", "permanent": false },
@@ -9,9 +10,18 @@
     { "source": "/mathilde", "destination": "/mathilde.html", "permanent": false },
     { "source": "/Mathilde", "destination": "/mathilde.html", "permanent": false },
     { "source": "/chantier", "destination": "/chantier/index.html", "permanent": false },
-    { "source": "/Chantier", "destination": "/chantier/index.html", "permanent": false }
+    { "source": "/Chantier", "destination": "/chantier/index.html", "permanent": false },
+    { "source": "/node_modules/:path*", "destination": "/", "permanent": false },
+    { "source": "/package.json", "destination": "/", "permanent": false }
   ],
   "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
     {
       "source": "/chantier/(.*)",
       "headers": [

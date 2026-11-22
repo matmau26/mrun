@@ -8,6 +8,7 @@
   let key = null;        // clé de chiffrement, disponible une fois le code saisi
   let list = [];         // clients déchiffrés, en mémoire seulement
   let meta = null;       // { count, at } ou { unreadable: true }
+  let ns = '';           // suffixe des clés : une liste par compte connecté
 
   const norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const enc = new TextEncoder();
@@ -149,17 +150,18 @@
 
   O.clients = {
     /* Appelé quand le code d'accès est bon (ou sans code si l'outil n'en a pas). */
-    async unlock(code) {
+    async unlock(code, user) {
       key = null; list = []; meta = null;
+      ns = user ? ':' + user : '';
       try {
         if (code && window.crypto && crypto.subtle) {
-          let salt = await get('sel');
-          if (!salt) { salt = crypto.getRandomValues(new Uint8Array(16)); await put('sel', salt); }
+          let salt = await get('sel' + ns);
+          if (!salt) { salt = crypto.getRandomValues(new Uint8Array(16)); await put('sel' + ns, salt); }
           const base = await crypto.subtle.importKey('raw', enc.encode(code), 'PBKDF2', false, ['deriveKey']);
           key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: 150000, hash: 'SHA-256' },
             base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
         }
-        const rec = await get('clients');
+        const rec = await get('clients' + ns);
         if (!rec) return;
         if (rec.plain) list = rec.rows;
         else if (key) list = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: rec.iv }, key, rec.data)));
@@ -185,23 +187,23 @@
     },
     readText: readText,
 
-    async save(rows) {
-      const at = Date.now();
+    async save(rows, when) {
+      const at = when || Date.now();
       const clean = rows.map(r => ({ n: r.n, p: r.p, c: r.c, t: r.t, e: r.e, a: r.a }));
-      if (O.access) {
+      if (O.access || O.api) {
         if (!key) throw new Error('Le fichier ne peut pas être protégé ici : l’adresse doit être en HTTPS.');
         const iv = crypto.getRandomValues(new Uint8Array(12));
         const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, enc.encode(JSON.stringify(clean)));
-        await put('clients', { iv: iv, data: data, at: at });
+        await put('clients' + ns, { iv: iv, data: data, at: at });
       } else {
-        await put('clients', { plain: true, rows: clean, at: at });
+        await put('clients' + ns, { plain: true, rows: clean, at: at });
       }
       list = clean;
       meta = { count: list.length, at: at };
       index();
     },
 
-    async remove() { await del('clients'); list = []; meta = null; },
+    async remove() { await del('clients' + ns); list = []; meta = null; },
 
     name(r) { return [r.c, r.p, r.n].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim(); },
 

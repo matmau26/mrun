@@ -2,9 +2,13 @@
    C'est le seul fichier à modifier pour changer une adresse ou un téléphone. */
 window.OLYMPE = {
   /* Numéro affiché en bas de l'accueil : pratique pour savoir quelle version a un téléphone. */
-  version: '1.3',
+  version: '2.0',
 
-  /* Code d'accès à 6 chiffres demandé à l'ouverture. Seule son empreinte est écrite ici.
+  /* Adresse du serveur qui gère les comptes, les codes et le fichier clients partagé.
+     Sans cette ligne, l'outil fonctionne seul avec le code unique ci-dessous. */
+  api: '/api/chantier',
+
+  /* Code d'accès unique à 6 chiffres (utilisé seulement sans serveur). Seule son empreinte est écrite ici.
      Pour le changer : « python outils/changer_code.py » (ne pas modifier ces lignes à la main). */
   /* ACCES-DEBUT */
   access: { iterations: 150000, salt: 'd596293b7e885a0a', hash: 'e0efdc7e05bae5f0493d5ce649491c6e198b4db4a85565870d69b2ec66f956d4' },
