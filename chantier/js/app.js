@@ -238,9 +238,9 @@
           el('img', { class: 'hero-logo', src: 'assets/logo.png', alt: c.name, width: '76', height: '76' }),
           el('h1', { class: 'hero-title' }, 'Documents de chantier'),
           el('p', { class: 'hero-sub' }, 'Choisissez le document à remplir.'),
-          me ? el('button', { type: 'button', class: 'hero-user', onclick: signOut },
+          me ? el('button', { type: 'button', class: 'hero-user', onclick: accountSheet },
             el('span', { class: 'who-ini small' }, me.name.slice(0, 1).toUpperCase()),
-            el('span', null, me.name + ' · Changer de compte')) : null),
+            el('span', null, me.name + ' · Mon compte')) : null),
         el('div', { class: 'hero-wave', html: '<svg viewBox="0 0 400 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 14c40 0 40-10 80-10s40 10 80 10 40-10 80-10 40 10 80 10 40-10 80-10v24H0z" fill="currentColor"/></svg>' })),
 
       el('div', { class: 'home-body' },
@@ -1172,6 +1172,32 @@
         signOut();
         toast('Reconnectez-vous');
       }
+    });
+  }
+
+  /* Feuille « Mon compte » : chacun peut changer son propre code */
+  function accountSheet() {
+    if (!me) return;
+    openSheet({
+      title: me.name,
+      text: me.role === 'admin' ? 'Compte du bureau' : 'Compte technicien',
+      actions: [
+        {
+          label: 'Changer mon code', kind: 'primary', onClick: () => codeSheet({
+            title: 'Nouveau code',
+            text: 'Choisissez 6 chiffres. L’ancien code cessera de fonctionner tout de suite.',
+            onOk: code => api('code', { code: code }).then(() => {
+              const user = { id: me.id, name: me.name };
+              store.del('olympe.verif.' + user.id);
+              toast('Code changé');
+              me = null;
+              askCode(user, route); // on se reconnecte avec le nouveau code
+            }).catch(e => toast(e.status ? e.message : 'Pas de connexion Internet : code inchangé'))
+          })
+        },
+        { label: 'Changer de compte', onClick: signOut },
+        { label: 'Fermer' }
+      ]
     });
   }
 
