@@ -2,7 +2,7 @@
    C'est le seul fichier à modifier pour changer une adresse ou un téléphone. */
 window.OLYMPE = {
   /* Numéro affiché en bas de l'accueil : pratique pour savoir quelle version a un téléphone. */
-  version: '1.2',
+  version: '1.3',
 
   /* Code d'accès à 6 chiffres demandé à l'ouverture. Seule son empreinte est écrite ici.
      Pour le changer : « python outils/changer_code.py » (ne pas modifier ces lignes à la main). */

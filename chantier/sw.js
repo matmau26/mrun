@@ -1,7 +1,7 @@
 /* Mode hors ligne : l'outil se met en mémoire à la première visite.
    En ligne, on prend toujours la dernière version ; hors ligne, celle en mémoire.
    L'outil n'appelle aucun service externe. */
-const CACHE = 'olympe-v5';
+const CACHE = 'olympe-v6';
 const SHELL = [
   'index.html',
   'styles.css',
@@ -9,6 +9,7 @@ const SHELL = [
   'js/vendor/jspdf.umd.min.js',
   'js/config.js',
   'js/util.js',
+  'js/clients.js',
   'js/pdf-kit.js',
   'js/doc-securite.js',
   'js/doc-reception.js',

@@ -120,6 +120,7 @@
         id: 'client', title: 'Client',
         lead: 'Le maître d’ouvrage et l’adresse du chantier.',
         fields: [
+          { type: 'client', map: { client: 'client', tel: 'tel', email: 'email', adresse: 'adresseChantier', adresseAutre: 'adresseClient' }, when: () => O.clients.count() > 0 },
           { type: 'text', name: 'client', label: 'Client / maître d’ouvrage', placeholder: 'Nom et prénom', required: true, capitalize: 'words' },
           { type: 'tel', name: 'tel', label: 'Téléphone', optional: true },
           { type: 'email', name: 'email', label: 'E-mail du client', optional: true, hint: 'Pour lui envoyer son exemplaire.' },

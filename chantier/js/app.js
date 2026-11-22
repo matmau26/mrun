@@ -48,6 +48,8 @@
     alert: svg('<path d="M12 4l9 15.500H3L12 4z"/><path d="M12 10v4.500"/><path d="M12 17.200v.100"/>'),
     done: svg('<circle cx="12" cy="12" r="9"/><path d="M8 12.300l2.800 2.800L16.200 9.500"/>'),
     plus: svg('<path d="M12 5.500v13M5.500 12h13"/>'),
+    users: svg('<circle cx="9" cy="8.500" r="3.200"/><path d="M3 19.500c.400-3.300 2.900-5.300 6-5.300s5.600 2 6 5.300"/><path d="M15.500 5.600a3.200 3.200 0 0 1 0 5.800"/><path d="M17.500 14.600c2 .600 3.200 2.300 3.500 4.900"/>'),
+    search: svg('<circle cx="10.500" cy="10.500" r="6"/><path d="M15 15l5 5"/>'),
     back: svg('<path d="M9 5.500h10.500A1.500 1.500 0 0 1 21 7v10a1.500 1.500 0 0 1-1.500 1.500H9L3 12l6-6.500z"/><path d="M12 9.500l5 5M17 9.500l-5 5"/>'),
     camera: svg('<path d="M4.500 8h3l1.500-2.200h6L16.500 8h3A1.500 1.500 0 0 1 21 9.500v8A1.500 1.500 0 0 1 19.500 19h-15A1.500 1.500 0 0 1 3 17.500v-8A1.500 1.500 0 0 1 4.500 8z"/><circle cx="12" cy="13.200" r="3.300"/>'),
     tasks: svg('<path d="M4 6.500l1.600 1.600L8.500 5"/><path d="M4 12.500l1.600 1.600L8.500 11"/><path d="M4 18.500l1.600 1.600L8.500 17"/><path d="M12 6.500h8M12 12.500h8M12 18.500h8"/>')
@@ -269,7 +271,16 @@
 
         soon.length ? el('section', { class: 'home-section' },
           el('h2', { class: 'home-label' }, 'Bientôt disponibles'),
-          soon.map(card)) : null),
+          soon.map(card)) : null,
+
+        el('section', { class: 'home-section' },
+          el('h2', { class: 'home-label' }, 'Réglages'),
+          el('button', { type: 'button', class: 'doc-card slim', onclick: () => go('#/clients') },
+            icon('users', 'doc-ic'),
+            el('span', { class: 'doc-text' },
+              el('span', { class: 'doc-title' }, 'Fichier clients'),
+              el('span', { class: 'doc-desc' + (clientsState().late ? ' late' : '') }, clientsState().text)),
+            icon('right', 'doc-go')))),
 
       el('footer', { class: 'home-foot' },
         el('div', { class: 'foot-name' }, c.name),
@@ -277,6 +288,112 @@
         el('div', null, c.phone + ' · ' + c.email),
         O.version ? el('div', { class: 'foot-version' }, 'Version ' + O.version) : null));
 
+    show(view);
+  }
+
+  /* ---------- Fichier clients (export Extrabat) ---------- */
+
+  const dayMonthYear = ms => {
+    const t = new Date(ms), p = n => String(n).padStart(2, '0');
+    return p(t.getDate()) + '/' + p(t.getMonth() + 1) + '/' + t.getFullYear();
+  };
+  const thousands = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  function clientsState() {
+    const info = O.clients.info();
+    if (info && info.unreadable) return { text: 'À réimporter', late: true };
+    if (!info || !info.count) return { text: 'Aucun fichier importé', late: false };
+    const days = Math.floor((Date.now() - info.at) / 86400000);
+    const when = days <= 0 ? 'aujourd’hui' : days === 1 ? 'hier' : 'il y a ' + days + ' jours';
+    return {
+      text: thousands(info.count) + ' client' + (info.count > 1 ? 's' : '') + ' · mis à jour ' + when,
+      late: days > 30
+    };
+  }
+
+  function renderClients() {
+    const C = O.clients;
+    let pending = null, busy = false, problem = '';
+    const body = el('div', { class: 'step' });
+    const fileInput = el('input', { type: 'file', accept: '.csv,text/csv,text/plain,application/vnd.ms-excel', hidden: true });
+    const view = el('main', { class: 'view wizard' },
+      el('header', { class: 'topbar' },
+        el('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Retour à l’accueil', onclick: () => go('#/') }, icon('left')),
+        el('div', { class: 'topbar-title' }, 'Fichier clients'),
+        el('span', { class: 'icon-btn' })),
+      body, fileInput);
+
+    const stepRow = (n, title, text) => el('li', { class: 'howto-step' },
+      el('span', { class: 'read-num' }, String(n)),
+      el('div', null, el('div', { class: 'howto-title' }, title), el('div', { class: 'howto-text' }, text)));
+
+    function paint() {
+      const info = C.info(), kids = [];
+      kids.push(el('h1', { class: 'step-title', tabindex: '-1' }, 'Fichier clients'));
+      kids.push(el('p', { class: 'step-lead' }, 'Pour retrouver un client en tapant son nom, sans ressaisir son adresse, son téléphone et son e-mail.'));
+
+      if (pending) {
+        const n = pending.rows.length;
+        kids.push(el('div', { class: 'file-card' },
+          icon('users', 'file-ic ok'),
+          el('div', { class: 'file-text' },
+            el('div', { class: 'file-name' }, thousands(n) + ' client' + (n > 1 ? 's' : '') + ' reconnu' + (n > 1 ? 's' : '')),
+            el('div', { class: 'file-meta' }, 'Vérifiez, puis enregistrez la liste.'))));
+        kids.push(el('ul', { class: 'found' }, pending.found.map(([label, ok]) =>
+          el('li', { class: ok ? 'yes' : 'no' }, icon(ok ? 'check' : 'close'), el('span', null, label + (ok ? '' : ' : colonne absente du fichier'))))));
+        kids.push(el('div', { class: 'stack' },
+          el('button', { type: 'button', class: 'btn primary block', disabled: busy, onclick: save }, 'Enregistrer la liste'),
+          el('button', { type: 'button', class: 'btn ghost block', onclick: () => { pending = null; paint(); } }, 'Annuler')));
+      } else {
+        const state = clientsState();
+        kids.push(el('div', { class: 'file-card' },
+          icon('users', 'file-ic' + (info && info.count ? ' ok' : '')),
+          el('div', { class: 'file-text' },
+            el('div', { class: 'file-name' }, info && info.count ? thousands(info.count) + ' client' + (info.count > 1 ? 's' : '') + ' dans ce téléphone' : 'Aucun fichier importé'),
+            el('div', { class: 'file-meta' }, info && info.unreadable ? 'Le code d’accès a changé : la liste est à réimporter.'
+              : info && info.count ? 'Mis à jour le ' + dayMonthYear(info.at) + (state.late ? ' · à mettre à jour' : '')
+                : 'Suivez les trois étapes ci-dessous.'))));
+        if (problem) kids.push(el('div', { class: 'note warning' }, icon('alert'), el('div', null, el('div', { class: 'note-title' }, 'Import impossible'), el('div', { class: 'note-text' }, problem))));
+        kids.push(el('div', { class: 'statement' },
+          el('div', { class: 'statement-title' }, 'Mode d’emploi'),
+          el('ol', { class: 'howto' },
+            stepRow(1, 'Dans Extrabat', 'Menu Exports, puis Clients.'),
+            stepRow(2, 'Exporter', 'Format export : « Format CSV ». Puis bouton Valider.'),
+            stepRow(3, 'Dans cet outil', 'Touchez « Importer le fichier » et choisissez le fichier obtenu.'))));
+        kids.push(el('div', { class: 'stack' },
+          el('button', { type: 'button', class: 'btn primary block', disabled: busy, onclick: () => fileInput.click() }, busy ? 'Lecture du fichier…' : 'Importer le fichier'),
+          info && info.count ? el('button', {
+            type: 'button', class: 'btn ghost block', onclick: () => openSheet({
+              title: 'Supprimer la liste de ce téléphone ?',
+              text: 'La recherche de clients ne sera plus proposée tant qu’un fichier n’aura pas été réimporté.',
+              actions: [{ label: 'Supprimer', kind: 'danger', onClick: () => C.remove().then(paint) }, { label: 'Annuler' }]
+            })
+          }, 'Supprimer la liste') : null));
+        kids.push(el('p', { class: 'field-hint' }, 'À refaire régulièrement, par exemple une fois par mois : la nouvelle liste remplace l’ancienne. Elle reste dans ce téléphone, protégée par le code d’accès, et n’est envoyée nulle part.'));
+      }
+      body.replaceChildren(...kids.filter(Boolean));
+    }
+
+    function save() {
+      busy = true; paint();
+      C.save(pending.rows).then(() => {
+        const n = pending.rows.length;
+        pending = null; busy = false; problem = '';
+        paint();
+        toast(thousands(n) + ' clients enregistrés');
+      }).catch(e => { busy = false; pending = null; problem = e.message || 'La liste n’a pas pu être enregistrée.'; paint(); });
+    }
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      fileInput.value = '';
+      if (!file) return;
+      busy = true; problem = ''; paint();
+      C.read(file).then(res => { busy = false; pending = res; paint(); window.scrollTo(0, 0); })
+        .catch(e => { busy = false; problem = e.message || 'Ce fichier n’a pas pu être lu.'; paint(); });
+    });
+
+    paint();
     show(view);
   }
 
@@ -516,6 +633,57 @@
 
     heading(f) {
       return el('h2', { class: 'sub-title' }, f.text);
+    },
+
+    /* Recherche dans le fichier clients : remplit d'un coup les champs du document.
+       f.map relie les champs du document : { client, tel, email, adresse, adresseAutre } */
+    client(f, data, update) {
+      const C = O.clients, m = f.map;
+      const input = el('input', {
+        class: 'input', type: 'search', placeholder: 'Nom, prénom ou ville', autocomplete: 'off',
+        autocapitalize: 'none', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'search',
+        'aria-label': 'Rechercher un client dans le fichier'
+      });
+      const results = el('div', { class: 'client-results' });
+      const apply = (r, addr) => {
+        data[m.client] = C.name(r);
+        if (m.tel) data[m.tel] = r.t || '';
+        if (m.email) data[m.email] = r.e || '';
+        if (m.adresse) data[m.adresse] = addr ? addr[1] : '';
+        if (m.adresseAutre) {
+          const other = r.a.find(x => x[0] === 'Correspondance' && (!addr || x[1] !== addr[1]));
+          data[m.adresseAutre] = other ? other[1] : '';
+        }
+        update(m.client, data[m.client]);
+        toast('Fiche client reprise');
+        route();
+      };
+      const pick = r => {
+        if (!m.adresse || r.a.length < 2) return apply(r, r.a[0]);
+        results.replaceChildren(
+          el('div', { class: 'client-ask' }, 'Quelle adresse pour ' + C.name(r) + ' ?'),
+          ...r.a.map(a => el('button', { type: 'button', class: 'client-row', onclick: () => apply(r, a) },
+            el('span', { class: 'client-name' }, a[0]),
+            el('span', { class: 'client-sub' }, a[1].replace(/\n/g, ', ')))));
+      };
+      input.addEventListener('input', () => {
+        const q = input.value.trim();
+        const found = C.search(q, 8);
+        if (found.length) {
+          results.replaceChildren(...found.map(r => el('button', { type: 'button', class: 'client-row', onclick: () => pick(r) },
+            el('span', { class: 'client-name' }, [r.n, r.p].filter(Boolean).join(' ')),
+            el('span', { class: 'client-sub' }, (r.a[0] ? r.a[0][1].replace(/\n/g, ', ') : (r.t || r.e || 'Sans adresse'))))));
+        } else if (q.length >= 2) {
+          results.replaceChildren(el('div', { class: 'client-none' }, 'Aucun client trouvé. Remplissez les champs ci-dessous.'));
+        } else {
+          results.replaceChildren();
+        }
+      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+      return el('div', { class: 'field client-search' },
+        el('div', { class: 'field-label' }, 'Reprendre un client du fichier'),
+        el('div', { class: 'input-wrap search' }, icon('search'), input),
+        results);
     },
 
     /* Liste de lignes que l'on ajoute ou supprime (réserves, équipements…) */
@@ -824,6 +992,7 @@
     document.body.classList.remove('locked');
     const m = location.hash.match(/^#\/d\/([a-z-]+)\/(\d+)$/);
     if (m && O.docs[m[1]]) renderWizard(O.docs[m[1]], parseInt(m[2], 10));
+    else if (location.hash === '#/clients') renderClients();
     else renderHome();
   }
 
@@ -844,6 +1013,7 @@
   function lock(onOpen) {
     if (locked) return;
     locked = true;
+    O.clients.forget();
     let code = '', busy = false, timer = null;
 
     const dots = el('div', { class: 'lock-dots', 'aria-hidden': 'true' }, Array.from({ length: 6 }, () => el('span')));
@@ -886,14 +1056,16 @@
       dots.classList.remove('shake'); void dots.offsetWidth; dots.classList.add('shake');
       countdown();
     };
-    const open = () => {
+    const open = ready => {
       store.del(TRIES_KEY);
       clearTimeout(timer);
       document.removeEventListener('keydown', onKey);
-      locked = false;
-      screen.classList.add('leave');
-      setTimeout(() => screen.remove(), 220);
-      onOpen();
+      ready.then(() => {
+        locked = false;
+        screen.classList.add('leave');
+        setTimeout(() => screen.remove(), 220);
+        onOpen();
+      });
     };
     function press(k) {
       if (busy || wait() > 0) return;
@@ -907,8 +1079,13 @@
         msg.textContent = 'Le code ne peut pas être vérifié ici : l’adresse doit être en HTTPS.';
         return;
       }
-      codeIsRight(code).then(ok => { busy = false; ok ? open() : fail(); })
-        .catch(() => { busy = false; fail(); });
+      const entered = code;
+      msg.textContent = 'Vérification…';
+      // le code sert aussi à déchiffrer le fichier clients gardé dans le téléphone :
+      // les deux calculs sont lancés ensemble pour ne pas faire attendre
+      const ready = O.clients.unlock(entered);
+      const wrong = () => { busy = false; O.clients.forget(); fail(); };
+      codeIsRight(entered).then(ok => { if (ok) open(ready); else wrong(); }).catch(wrong);
     }
     function onKey(e) {
       if (/^[0-9]$/.test(e.key)) { e.preventDefault(); press(e.key); }
@@ -929,7 +1106,7 @@
       else if (hiddenAt && Date.now() - hiddenAt > RELOCK_AFTER) lock(() => {});
     });
   } else {
-    route();
+    O.clients.unlock(null).then(route);
   }
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {

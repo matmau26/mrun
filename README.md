@@ -149,6 +149,8 @@ Il est hébergé ici le temps des tests, avant sa mise en ligne sur le site de l
 - La page **n'est liée depuis aucune autre page** du site et porte `noindex` (balise dans la page
   et en-tête `X-Robots-Tag` dans `vercel.json`).
 - L'accès demande un code à 6 chiffres ; seule son empreinte figure dans `chantier/js/config.js`.
+- Le fichier clients que l'entreprise importe dans l'outil reste dans le téléphone, chiffré avec le
+  code d'accès : il n'est ni envoyé au site ni présent dans ce dépôt.
 - `chantier/sw.js` est un service worker de **portée limitée à `/chantier/`** (lecture hors réseau).
 - `vercel.json` renvoie `/chantier` vers `/chantier/index.html` : sans cela, les fichiers voisins
   de la page ne se chargent pas.

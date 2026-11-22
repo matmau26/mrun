@@ -42,6 +42,7 @@
               d.reserves = p.reserves.map(t => ({ rappel: t }));
             }
           },
+          { type: 'client', map: { client: 'client', email: 'email', adresse: 'adresse' }, when: () => O.clients.count() > 0 },
           { type: 'text', name: 'client', label: 'Client / maître d’ouvrage', placeholder: 'Nom et prénom', required: true, capitalize: 'words' },
           { type: 'textarea', name: 'adresse', label: 'Adresse du chantier', required: true, rows: 2 },
           { type: 'email', name: 'email', label: 'E-mail du client', optional: true, hint: 'Pour lui envoyer son exemplaire.' },

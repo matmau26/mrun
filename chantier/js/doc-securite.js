@@ -81,6 +81,7 @@
         title: 'Client et chantier',
         lead: 'Ces informations figureront sur l’attestation.',
         fields: [
+          { type: 'client', map: { client: 'client', email: 'email', adresse: 'adresse' }, when: () => O.clients.count() > 0 },
           { type: 'text', name: 'client', label: 'Client / maître d’ouvrage', placeholder: 'Nom et prénom', required: true, capitalize: 'words' },
           { type: 'textarea', name: 'adresse', label: 'Adresse du bassin', placeholder: 'N°, rue, code postal, ville', required: true, rows: 2 },
           { type: 'text', name: 'devis', label: 'N° de devis ou de chantier', optional: true },
