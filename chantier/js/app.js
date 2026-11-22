@@ -62,7 +62,8 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
     del(k) { try { localStorage.removeItem(k); } catch (e) { /* stockage indisponible */ } }
   };
-  const draftKey = id => 'olympe.brouillon.' + id;
+  // un brouillon appartient au compte connecté ; sans comptes, il est commun à l'appareil
+  const draftKey = id => 'olympe.brouillon.' + (me ? me.id + '.' : '') + id;
   const loadDraft = id => store.get(draftKey(id), null);
   let fullWarned = false;
   const saveDraft = d => {
@@ -1128,6 +1129,18 @@
     return { ok: true };
   }
 
+  /* Brouillons commencés avant l'arrivée des comptes : ils reviennent à la première
+     personne qui se connecte sur l'appareil, pour ne rien perdre. */
+  function adoptOldDrafts() {
+    for (const id of Object.keys(O.docs)) {
+      const old = 'olympe.brouillon.' + id;
+      const d = store.get(old, null);
+      if (!d) continue;
+      if (!store.get(draftKey(id), null)) store.set(draftKey(id), d);
+      store.del(old);
+    }
+  }
+
   /* Avec comptes : le serveur vérifie le code ; hors réseau, l'appareil s'en charge
      pour un compte déjà ouvert ici. */
   async function signIn(user, code) {
@@ -1148,6 +1161,7 @@
     }
     store.del(TRIES_KEY);
     store.set('olympe.dernier', user.id);
+    adoptOldDrafts();
     await O.clients.unlock(code, user.id);
     sync();
     return { ok: true };
